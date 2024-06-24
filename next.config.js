@@ -4,7 +4,7 @@ const nextConfig = {
     BACKEND_URL: process.env.BACKEND_URL,
   },
   images: {
-    domains: ["apicall.connects-lab.com"],
+    domains: ["apicall.connects-lab.com", "localhost"],
   },
 };
 
