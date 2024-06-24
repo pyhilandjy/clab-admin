@@ -1126,16 +1126,6 @@
   dependencies:
     glob "10.3.10"
 
-"@next/swc-darwin-arm64@13.5.6":
-  version "13.5.6"
-  resolved "https://registry.npmjs.org/@next/swc-darwin-arm64/-/swc-darwin-arm64-13.5.6.tgz"
-  integrity sha512-5nvXMzKtZfvcu4BhtV0KH1oGv4XEW+B+jOfmBdpFI3C7FrB/MfujRpWYSBBO64+qbW8pkZiSyQv9eiwnn5VIQA==
-
-"@next/swc-darwin-arm64@14.2.3":
-  version "14.2.3"
-  resolved "https://registry.npmjs.org/@next/swc-darwin-arm64/-/swc-darwin-arm64-14.2.3.tgz"
-  integrity sha512-3pEYo/RaGqPP0YzwnlmPN2puaF2WMLM3apt5jLW2fFdXD9+pqcoTzRk+iZsf8ta7+quAe4Q6Ms0nR0SFGFdS1A==
-
 "@next/swc-darwin-x64@13.5.6":
   version "13.5.6"
   resolved "https://registry.npmjs.org/@next/swc-darwin-x64/-/swc-darwin-x64-13.5.6.tgz"
