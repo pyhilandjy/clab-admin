@@ -10,10 +10,9 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 
 type User = {
-  id: number;
-  user_name: string;
+  user_id: string;
 };
-type ActName = {
+type SpeechAct = {
   act_name: string;
   id: number;
 };
@@ -24,18 +23,19 @@ type ActName = {
 const ReportPage = () => {
   const backendUrl = process.env.BACKEND_URL;
   const currentDate = dayjs().format("YYYY-MM-DD");
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [userId, setUserId] = useState("");
   const [startDate, setStartDate] = useState("2024-05-01");
   const [endDate, setEndDate] = useState(currentDate);
   const [reportData, setReportData] = useState<any>({});
   const [reportmorpsData, setMorpsReportData] = useState<any>({});
   const [reportActCountData, setActCountReportData] = useState<any>({});
-  const [actName, setSpeechAct] = useState<ActName[]>([]);
+  const [speechAct, setSpeechAct] = useState<SpeechAct[]>([]);
   const [wordcloudimageSrc, setWordcloudImageSrc] = useState<any>(null);
   const [violinplotimageSrc, setViolinplotImageSrc] = useState(null);
   const supabase = createClient();
   const router = useRouter();
+
   useEffect(() => {
     const checkUser = async () => {
       const { data, error } = await supabase.auth.getUser();
@@ -46,6 +46,21 @@ const ReportPage = () => {
     };
     checkUser();
   }, [supabase, router]);
+
+  // useEffect(() => {
+  //   axios.get(backendUrl + "/users/").then((response) => {
+  //     setUsers(response.data);
+  //   });
+  // }, []);
+
+  useEffect(() => {
+    axios.get(backendUrl + "/users/").then((response) => {
+      setUsers(response.data);
+    });
+    axios.get(backendUrl + "/stt/speech_acts/").then((response) => {
+      setSpeechAct(response.data);
+    });
+  }, []);
 
   const handleStartDateChange = (date: Date) => {
     setStartDate(dayjs(date).format("YYYY-MM-DD"));
@@ -62,7 +77,7 @@ const ReportPage = () => {
   const handleCreteRportButtonClick = () => {
     console.log("Create Report Button Clicked");
     axios
-      .post(backendUrl + "/stt/report/", {
+      .post(backendUrl + "/report/data/", {
         user_id: userId,
         start_date: startDate,
         end_date: endDate,
@@ -79,7 +94,7 @@ const ReportPage = () => {
   const handleCretemorpsRportButtonClick = () => {
     console.log("Create morps Report Button Clicked");
     axios
-      .post(backendUrl + "/stt/report/morps", {
+      .post(backendUrl + "/report/morphs_info/", {
         user_id: userId,
         start_date: startDate,
         end_date: endDate,
@@ -93,10 +108,10 @@ const ReportPage = () => {
       });
   };
 
-  const handleCreteActCountRportButtonClick = () => {
+  const handleCreteActCountReportButtonClick = () => {
     console.log("Create ActCount Report Button Clicked");
     axios
-      .post(backendUrl + "/stt/report/act_count", {
+      .post(backendUrl + "/report/act_count", {
         user_id: userId,
         start_date: startDate,
         end_date: endDate,
@@ -111,19 +126,18 @@ const ReportPage = () => {
   };
 
   const handleCreateWordCloudButtonClick = () => {
-    console.log("Create Word Cloud Button Clicked");
     axios
-      .post(backendUrl + "/stt/create/wordcloud/", {
+      .post(backendUrl + "/report/wordcloud/", {
         user_id: userId,
         start_date: startDate,
         end_date: endDate,
       })
       .then((response) => {
-        console.log(response.data.local_image_paths);
-        const localPaths = response.data.local_image_paths;
+        console.log(response.data);
+        const localPaths = response.data;
         if (Array.isArray(localPaths)) {
           const urls: any = localPaths.map(
-            (path) => `${backendUrl}/stt/images/${path.split("/").pop()}`
+            (path) => `${backendUrl}/report/images/${path.split("/").pop()}`
           );
           setWordcloudImageSrc(urls);
         } else {
@@ -136,10 +150,9 @@ const ReportPage = () => {
   };
 
   const handleCreateViolinplotButtonClick = () => {
-    console.log("Create Word Cloud Button Clicked");
     axios
       .post(
-        backendUrl + "/stt/create/violinplot/",
+        backendUrl + "/report/violinplot/",
         {
           user_id: userId,
           start_date: startDate,
@@ -161,8 +174,8 @@ const ReportPage = () => {
     <div className="flex">
       <Select placeholder="Select option" onChange={handleSelectUser}>
         {users.map((user: User) => (
-          <option key={user.id} value={user.id}>
-            {user.user_name} {user.id}
+          <option key={user.user_id} value={user.user_id}>
+            {user.user_id}
           </option>
         ))}
       </Select>
@@ -243,7 +256,7 @@ const ReportPage = () => {
           </tbody>
         </table>
       )}
-      <Button onClick={handleCreteActCountRportButtonClick}>
+      <Button onClick={handleCreteActCountReportButtonClick}>
         Create ActCount Report
       </Button>
       {reportActCountData && (
@@ -251,7 +264,7 @@ const ReportPage = () => {
           <thead>
             <tr>
               <th>Speaker</th>
-              {actName.map((act) => (
+              {speechAct.map((act) => (
                 <th key={act.id}>{act.act_name}</th>
               ))}
             </tr>
@@ -260,7 +273,7 @@ const ReportPage = () => {
             {Object.keys(reportActCountData).map((speaker) => (
               <tr key={speaker}>
                 <td>{speaker}</td>
-                {actName.map((act) => (
+                {speechAct.map((act) => (
                   <td key={act.id}>
                     {reportActCountData[speaker][act.act_name] || 0}
                   </td>
