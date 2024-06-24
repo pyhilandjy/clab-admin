@@ -3,7 +3,6 @@ import { Input, Button, Select, Grid, GridItem } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { redirect, useRouter } from "next/navigation";
-//import { useRouter } from "next/router";
 import { createClient } from "@/utils/supabase/client";
 
 type User = {
@@ -203,7 +202,7 @@ const EditPage = () => {
   };
 
   return (
-    <div>
+    <div className="flex">
       <Select placeholder="Select option" onChange={handleSelectUser}>
         {users.map((user: User) => (
           <option key={user.user_id} value={user.user_id}>
