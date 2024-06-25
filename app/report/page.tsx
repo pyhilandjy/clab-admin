@@ -94,7 +94,7 @@ const ReportPage = () => {
   const handleCretemorpsRportButtonClick = () => {
     console.log("Create morps Report Button Clicked");
     axios
-      .post(backendUrl + "/report/morphs_info/", {
+      .post(backendUrl + "/report/morphs-info/", {
         user_id: userId,
         start_date: startDate,
         end_date: endDate,
@@ -111,7 +111,7 @@ const ReportPage = () => {
   const handleCreteActCountReportButtonClick = () => {
     console.log("Create ActCount Report Button Clicked");
     axios
-      .post(backendUrl + "/report/act_count", {
+      .post(backendUrl + "/report/act-count/", {
         user_id: userId,
         start_date: startDate,
         end_date: endDate,
