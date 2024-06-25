@@ -82,7 +82,7 @@ const EditPage = () => {
     const newText = inputRefs.current[sttData.id]?.value;
 
     axios
-      .patch(backendUrl + "/stt/data/edit-text", {
+      .patch(backendUrl + "/stt/data/edit-text/", {
         id: sttData.id,
         file_id: sttData.file_id,
         new_text: newText,
@@ -134,7 +134,7 @@ const EditPage = () => {
     const selectedOption = e.target.options[e.target.selectedIndex];
     const actId = parseInt(selectedOption.getAttribute("data-act-id"));
     axios
-      .patch(backendUrl + "/stt/data/edit-speech-act", {
+      .patch(backendUrl + "/stt/data/edit-speech-act/", {
         id: sttData.id,
         act_id: actId,
       })
