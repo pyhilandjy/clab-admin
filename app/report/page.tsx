@@ -234,7 +234,9 @@ const ReportPage = () => {
   return (
     <div className="flex">
       <div className="export-button-container">
-        <Button onClick={handleExportExcelButtonClick}>Export to Excel</Button>
+        <Button onClick={handleExportExcelButtonClick}>
+          Export Report Data to Excel
+        </Button>
       </div>
       <Select placeholder="Select option" onChange={handleSelectUser}>
         {users.map((user: User) => (
