@@ -17,6 +17,15 @@ type SpeechAct = {
   id: number;
 };
 
+type SentenceLengthData = {
+  "가장 긴 문장": number;
+  "평균 문장 길이": number;
+};
+
+type SentenceLengthResponse = {
+  [speaker: string]: SentenceLengthData;
+};
+
 // 원래 User 선택하는 부분은 edit page 에도 있고, 여기에도 동일하니 따로 컴포넌트로 분리하는게 좋음.
 // app/components/UserSelect.tsx 이런식으로 파일 만들어서 작성.
 // Props로 정보를 받아서 처리하는 방식으로 구현.
@@ -27,7 +36,9 @@ const ReportPage = () => {
   const [userId, setUserId] = useState("");
   const [startDate, setStartDate] = useState("2024-05-01");
   const [endDate, setEndDate] = useState(currentDate);
-  const [reportData, setReportData] = useState<any>({});
+  const [recordTimeData, setRecordTimeData] = useState<any>({});
+  const [sentenceLengthData, setSentenceLengthData] =
+    useState<SentenceLengthResponse>({});
   const [reportmorpsData, setMorpsReportData] = useState<any>({});
   const [reportActCountData, setActCountReportData] = useState<any>({});
   const [speechAct, setSpeechAct] = useState<SpeechAct[]>([]);
@@ -74,17 +85,17 @@ const ReportPage = () => {
     setUserId(e.target.value);
   };
 
-  const handleCreteRportButtonClick = () => {
-    console.log("Create Report Button Clicked");
+  const handleCreteRecordTimeButtonClick = () => {
+    console.log("Create RecordTime Button Clicked");
     axios
-      .post(backendUrl + "/report/data/", {
+      .post(backendUrl + "/report/audio_record_time/", {
         user_id: userId,
         start_date: startDate,
         end_date: endDate,
       })
       .then((response) => {
         console.log(response.data);
-        setReportData(response.data);
+        setRecordTimeData(response.data);
       })
       .catch((error) => {
         console.error("There was an error!", error);
@@ -113,6 +124,23 @@ const ReportPage = () => {
         } else {
           console.error("Error message:", error.message);
         }
+      });
+  };
+
+  const handleCreteSentenceLengthButtonClick = () => {
+    console.log("Create ActCount Report Button Clicked");
+    axios
+      .post(backendUrl + "/report/sentence_len/", {
+        user_id: userId,
+        start_date: startDate,
+        end_date: endDate,
+      })
+      .then((response) => {
+        console.log(response.data);
+        setSentenceLengthData(response.data);
+      })
+      .catch((error) => {
+        console.error("There was an error!", error);
       });
   };
 
@@ -178,8 +206,36 @@ const ReportPage = () => {
       });
   };
 
+  const handleExportExcelButtonClick = () => {
+    axios
+      .post(
+        backendUrl + "/report/csv/",
+        {
+          user_id: userId,
+          start_date: startDate,
+          end_date: endDate,
+        },
+        { responseType: "blob" }
+      )
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", "report.xlsx");
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      })
+      .catch((error) => {
+        console.error("There was an error!", error);
+      });
+  };
+
   return (
     <div className="flex">
+      <div className="export-button-container">
+        <Button onClick={handleExportExcelButtonClick}>Export to Excel</Button>
+      </div>
       <Select placeholder="Select option" onChange={handleSelectUser}>
         {users.map((user: User) => (
           <option key={user.user_id} value={user.user_id}>
@@ -205,9 +261,10 @@ const ReportPage = () => {
           fontSize={16}
         />
       </div>
-      {/* 데이블 불러오는것 함수 분리 해야함 */}
-      <Button onClick={handleCreteRportButtonClick}>Create Report</Button>
-      {reportData && (
+      <Button onClick={handleCreteRecordTimeButtonClick}>
+        Create Record Time
+      </Button>
+      {recordTimeData && (
         <table>
           <thead>
             <tr>
@@ -217,16 +274,8 @@ const ReportPage = () => {
           </thead>
           <tbody>
             <tr>
-              <td>가장 긴 문장</td>
-              <td>{reportData["가장 긴 문장"]}</td>
-            </tr>
-            <tr>
-              <td>평균 문장 길이</td>
-              <td>{reportData["평균 문장 길이"]}</td>
-            </tr>
-            <tr>
               <td>녹음시간</td>
-              <td>{reportData["녹음시간"]}</td>
+              <td>{recordTimeData["녹음시간"]}</td>
             </tr>
           </tbody>
         </table>
@@ -286,6 +335,29 @@ const ReportPage = () => {
                     {reportActCountData[speaker][act.act_name] || 0}
                   </td>
                 ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      <Button onClick={handleCreteSentenceLengthButtonClick}>
+        Create Sentence Length Report
+      </Button>
+      {sentenceLengthData && (
+        <table>
+          <thead>
+            <tr>
+              <th>Speaker</th>
+              <th>가장 긴 문장</th>
+              <th>평균 문장 길이</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.entries(sentenceLengthData).map(([speaker, len_data]) => (
+              <tr key={speaker}>
+                <td>{speaker}</td>
+                <td>{len_data["가장 긴 문장"]}</td>
+                <td>{len_data["평균 문장 길이"]}</td>
               </tr>
             ))}
           </tbody>
