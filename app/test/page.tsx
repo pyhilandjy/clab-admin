@@ -61,9 +61,10 @@ const ReportPage = () => {
     console.log("Create Report Button Clicked");
     try {
       const response = await axios.post(
-        `${backendUrl}/report/pdf`,
+        `${backendUrl}/report/pdf/`,
         {
-          title: "test",
+          title: "임한나_느낌욕구_2호",
+          user_id: "wnsdyd54",
         },
         {
           responseType: "blob", // Ensure the response is a blob
