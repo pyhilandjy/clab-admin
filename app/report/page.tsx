@@ -1,6 +1,13 @@
 "use client";
 import dayjs from "dayjs";
-import { Button, Select } from "@chakra-ui/react";
+import {
+  Button,
+  Select,
+  FormControl,
+  FormLabel,
+  Input,
+  useToast,
+} from "@chakra-ui/react";
 import axios from "axios";
 import { TuiDatePicker } from "nextjs-tui-date-picker";
 import { useEffect, useState } from "react";
@@ -44,8 +51,10 @@ const ReportPage = () => {
   const [speechAct, setSpeechAct] = useState<SpeechAct[]>([]);
   const [wordcloudimageSrc, setWordcloudImageSrc] = useState<any>(null);
   const [violinplotimageSrc, setViolinplotImageSrc] = useState(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const supabase = createClient();
   const router = useRouter();
+  const toast = useToast();
 
   useEffect(() => {
     const checkUser = async () => {
@@ -72,6 +81,12 @@ const ReportPage = () => {
       setSpeechAct(response.data);
     });
   }, []);
+
+  useEffect(() => {
+    if (selectedFile) {
+      handleUpload();
+    }
+  }, [selectedFile]);
 
   const handleStartDateChange = (date: Date) => {
     setStartDate(dayjs(date).format("YYYY-MM-DD"));
@@ -229,6 +244,62 @@ const ReportPage = () => {
       .catch((error) => {
         console.error("There was an error!", error);
       });
+  };
+
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      //   await handleUpload();
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!selectedFile) {
+      toast({
+        title: "No file selected.",
+        description: "Please select a file to upload.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+    formData.append("user_id", userId);
+    formData.append("start_date", startDate);
+    formData.append("end_date", endDate);
+
+    try {
+      const response = await axios.post(
+        backendUrl + "/report/upload/pdf/",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      toast({
+        title: "Upload successful.",
+        description: `File uploaded successfully with id: ${response.data.message}`,
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+    } catch (error) {
+      toast({
+        title: "Upload failed.",
+        description: "There was an error uploading the file.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
   };
 
   return (
@@ -393,6 +464,15 @@ const ReportPage = () => {
           />
         )}
       </div>
+      <FormControl>
+        <FormLabel htmlFor="file">Upload PDF</FormLabel>
+        <Input
+          type="file"
+          id="file"
+          accept="application/pdf"
+          onChange={handleFileChange}
+        />
+      </FormControl>
     </div>
   );
 };
