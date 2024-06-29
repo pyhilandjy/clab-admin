@@ -246,6 +246,31 @@ const ReportPage = () => {
       });
   };
 
+  const handleSttDataExportExcelButtonClick = () => {
+    axios
+      .post(
+        backendUrl + "/report/stt/data/between_date/",
+        {
+          user_id: userId,
+          start_date: startDate,
+          end_date: endDate,
+        },
+        { responseType: "blob" }
+      )
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", "stt_data.xlsx");
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      })
+      .catch((error) => {
+        console.error("There was an error!", error);
+      });
+  };
+
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -307,6 +332,9 @@ const ReportPage = () => {
       <div className="export-button-container">
         <Button onClick={handleExportExcelButtonClick}>
           Export Report Data to Excel
+        </Button>
+        <Button onClick={handleSttDataExportExcelButtonClick}>
+          Export Stt Data to Excel
         </Button>
       </div>
       <Select placeholder="Select option" onChange={handleSelectUser}>
