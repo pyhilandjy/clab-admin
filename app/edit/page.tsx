@@ -1,12 +1,14 @@
-"use client";
-import { Input, Button, Select, Grid, GridItem } from "@chakra-ui/react";
-import axios from "axios";
-import { useEffect, useRef, useState } from "react";
-import { redirect, useRouter } from "next/navigation";
-import { createClient } from "@/utils/supabase/client";
+'use client';
+import { Input, Button, Select, Grid, GridItem } from '@chakra-ui/react';
+import axios from 'axios';
+import { useEffect, useRef, useState } from 'react';
+import { redirect, useRouter } from 'next/navigation';
+import { createClient } from '@/utils/supabase/client';
 
 type User = {
-  user_id: string;
+  id: string;
+  name: string;
+  email: string;
 };
 
 type SttData = {
@@ -41,17 +43,17 @@ const EditPage = () => {
       const { data, error } = await supabase.auth.getUser();
       console.log(data?.user);
       if (error || !data?.user) {
-        router.push("/login");
+        router.push('/login');
       }
     };
     checkUser();
   }, [supabase, router]);
 
   useEffect(() => {
-    axios.get(backendUrl + "/users/").then((response) => {
+    axios.get(backendUrl + '/users/').then((response) => {
       setUsers(response.data);
     });
-    axios.get(backendUrl + "/stt/speech_acts/").then((response) => {
+    axios.get(backendUrl + '/stt/speech_acts/').then((response) => {
       setSpeechAct(response.data);
     });
   }, []);
@@ -63,7 +65,7 @@ const EditPage = () => {
         setFiles(response.data);
       })
       .catch((error) => {
-        console.error("There was an error!", error);
+        console.error('There was an error!', error);
       });
   };
 
@@ -74,7 +76,7 @@ const EditPage = () => {
         setSttResults(response.data);
       })
       .catch((error) => {
-        console.error("There was an error!", error);
+        console.error('There was an error!', error);
       });
   };
 
@@ -82,20 +84,20 @@ const EditPage = () => {
     const newText = inputRefs.current[sttData.id]?.value;
 
     axios
-      .patch(backendUrl + "/stt/data/edit-text/", {
+      .patch(backendUrl + '/stt/data/edit-text/', {
         id: sttData.id,
         file_id: sttData.file_id,
         new_text: newText,
       })
       .then((response) => {})
       .catch((error) => {
-        console.error("There was an error!", error);
+        console.error('There was an error!', error);
       });
   };
 
   const handleOnClickAdd = (sttData: SttData) => {
     axios
-      .post(backendUrl + "/stt/data/add-row/", {
+      .post(backendUrl + '/stt/data/add-row/', {
         file_id: sttData.file_id,
         selected_text_order: sttData.text_order,
       })
@@ -107,14 +109,14 @@ const EditPage = () => {
         syncInputValues(response.data);
       })
       .catch((error) => {
-        console.error("There was an error!", error);
+        console.error('There was an error!', error);
       });
   };
 
   const handleOnClickDelete = (sttData: SttData) => {
     // 왜 delete 로 하면 안됨?
     axios
-      .post(backendUrl + "/stt/data/delete-row/", {
+      .post(backendUrl + '/stt/data/delete-row/', {
         file_id: sttData.file_id,
         selected_text_order: sttData.text_order,
       })
@@ -126,21 +128,21 @@ const EditPage = () => {
         syncInputValues(response.data);
       })
       .catch((error) => {
-        console.error("There was an error!", error);
+        console.error('There was an error!', error);
       });
   };
 
   const handleSelectSpeechAct = (sttData: SttData, e: any) => {
     const selectedOption = e.target.options[e.target.selectedIndex];
-    const actId = parseInt(selectedOption.getAttribute("data-act-id"));
+    const actId = parseInt(selectedOption.getAttribute('data-act-id'));
     axios
-      .patch(backendUrl + "/stt/data/edit-speech-act/", {
+      .patch(backendUrl + '/stt/data/edit-speech-act/', {
         id: sttData.id,
         act_id: actId,
       })
       .then((response) => {})
       .catch((error) => {
-        console.error("There was an error!", error);
+        console.error('There was an error!', error);
       });
   };
 
@@ -148,7 +150,7 @@ const EditPage = () => {
     const oldWord = oldWordInputRef.current?.value;
     const newWord = newWordInputRef.current?.value;
     axios
-      .patch(backendUrl + "/stt/data/replace-text/", {
+      .patch(backendUrl + '/stt/data/replace-text/', {
         file_id: sttResults[0].file_id,
         old_text: oldWord,
         new_text: newWord,
@@ -161,14 +163,14 @@ const EditPage = () => {
         syncInputValues(response.data);
       })
       .catch((error) => {
-        console.error("There was an error!", error);
+        console.error('There was an error!', error);
       });
   };
   const handleSpeakerChangeButtonClick = () => {
     const oldSpeaker = oldSpeakerInputRef.current?.value;
     const newSpeaker = newSpeakerInputRef.current?.value;
     axios
-      .patch(backendUrl + "/stt/data/replace-speaker/", {
+      .patch(backendUrl + '/stt/data/replace-speaker/', {
         file_id: sttResults[0].file_id,
         old_speaker: oldSpeaker,
         new_speaker: newSpeaker,
@@ -181,7 +183,7 @@ const EditPage = () => {
         syncInputValues(response.data);
       })
       .catch((error) => {
-        console.error("There was an error!", error);
+        console.error('There was an error!', error);
       });
   };
 
@@ -189,7 +191,7 @@ const EditPage = () => {
     const act = speechAct.find((act: SpeechAct) => act.id === id) as
       | SpeechAct
       | undefined;
-    return act ? act.act_name : "";
+    return act ? act.act_name : '';
   };
 
   const syncInputValues = (updatedResults: SttData[]) => {
@@ -202,37 +204,37 @@ const EditPage = () => {
   };
 
   return (
-    <div className="flex">
-      <Select placeholder="Select option" onChange={handleSelectUser}>
+    <div className='flex'>
+      <Select placeholder='Select User' onChange={handleSelectUser}>
         {users.map((user: User) => (
-          <option key={user.user_id} value={user.user_id}>
-            {user.user_id}
+          <option key={user.id} value={user.id}>
+            {user.name} ({user.email})
           </option>
         ))}
       </Select>
-      <Select placeholder="Select option" onChange={handleSelectFileId} mt={2}>
+      <Select placeholder='Select option' onChange={handleSelectFileId} mt={2}>
         {files.map((file: any) => (
           <option key={file.id} value={file.id}>
             {file.file_name}
           </option>
         ))}
       </Select>
-      <Grid templateColumns="repeat(4, 1fr)" gap={4} mt={3}>
+      <Grid templateColumns='repeat(4, 1fr)' gap={4} mt={3}>
         <GridItem>
-          <Input placeholder="Old Word" ref={oldWordInputRef} />
+          <Input placeholder='Old Word' ref={oldWordInputRef} />
         </GridItem>
         <GridItem>
-          <Input placeholder="New Word" ref={newWordInputRef} />
+          <Input placeholder='New Word' ref={newWordInputRef} />
         </GridItem>
         <GridItem>
-          <Input placeholder="Old Speaker" ref={oldSpeakerInputRef} />
+          <Input placeholder='Old Speaker' ref={oldSpeakerInputRef} />
         </GridItem>
         <GridItem>
-          <Input placeholder="New Speaker" ref={newSpeakerInputRef} />
+          <Input placeholder='New Speaker' ref={newSpeakerInputRef} />
         </GridItem>
       </Grid>
 
-      <Grid templateColumns="repeat(2, 1fr)" gap={4} mt={1}>
+      <Grid templateColumns='repeat(2, 1fr)' gap={4} mt={1}>
         <GridItem>
           <Button onClick={handleTextChangeButtonClick}>word replace</Button>
         </GridItem>
@@ -242,19 +244,19 @@ const EditPage = () => {
           </Button>
         </GridItem>
       </Grid>
-      <div style={{ marginTop: "40px" }}>
+      <div style={{ marginTop: '40px' }}>
         {sttResults.map((sttData) => (
-          <div key={sttData.id} style={{ marginBottom: "16px" }}>
+          <div key={sttData.id} style={{ marginBottom: '16px' }}>
             <Input
               defaultValue={sttData.text_edited}
               ref={(el): any => (inputRefs.current[sttData.id] = el)}
             />
             <div
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                marginTop: "3px",
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                marginTop: '3px',
               }}
             >
               <Button onClick={() => handleOnSave(sttData)}>save</Button>
