@@ -8,7 +8,7 @@ import { Worker, Viewer } from '@react-pdf-viewer/core';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 
 const ReportPage = () => {
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const backendUrl = process.env.BACKEND_URL;
   const [pdfSrc, setPdfSrc] = useState<string | null>(null);
   const supabase = createClient();
   const router = useRouter();
@@ -27,19 +27,13 @@ const ReportPage = () => {
     console.log('Create Report Button Clicked');
     try {
       const response = await axios.get(
-        `${backendUrl}/reports/cf313d6a-201b-4947-9725-acbd2a0d15a6/`,
+        `${backendUrl}/reports/17e5d713-c3c1-446c-8a81-022b1173a61d/`,
         {
           responseType: 'blob', // Ensure the response is a blob
         }
       );
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'report.pdf'); // or any other extension
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
 
       // Set PDF source for viewer
       setPdfSrc(url);
