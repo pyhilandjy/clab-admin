@@ -1,5 +1,82 @@
 {
+  "env": {
+    "browser": true,
+    "node": true,
+    "es2022": true,
+    "jest": true,
+    "worker": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "sourceType": "module"
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "next",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "next/core-web-vitals",
+    "plugin:storybook/recommended"
+  ],
+  "plugins": ["import", "react-hooks", "prettier", "unused-imports"],
   "rules": {
-    "quotes": ["error", "single"]
+    "@typescript-eslint/no-empty-function": "off",
+    "react/display-name": "off",
+    "no-empty-pattern": "off",
+    "no-useless-escape": "off",
+    "@typescript-eslint/no-namespace": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "react-hooks/exhaustive-deps": [
+      "warn",
+      {
+        "enableDangerousAutofixThisMayCauseInfiniteLoops": true
+      }
+    ],
+    "import/order": [
+      "warn",
+      {
+        "newlines-between": "always",
+        "groups": [
+          ["builtin", "external"],
+          "internal",
+          ["parent", "type", "sibling", "index"],
+          "unknown"
+        ],
+        "pathGroups": [
+          {
+            "pattern": "{next*,next*/**,react*,react*/**}",
+            "group": "builtin",
+            "position": "before"
+          },
+          {
+            "pattern": "{*.scss, *.css}",
+            "patternOptions": { "matchBase": true },
+            "group": "unknown",
+            "position": "after"
+          }
+        ],
+        "pathGroupsExcludedImportTypes": ["src/**"],
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive": true
+        }
+      }
+    ],
+    "no-unused-vars": "off", // or "@typescript-eslint/no-unused-vars": "off",
+    "unused-imports/no-unused-imports": "warn",
+    "unused-imports/no-unused-vars": [
+      "warn",
+      {
+        "vars": "all",
+        "varsIgnorePattern": "^_",
+        "args": "after-used",
+        "argsIgnorePattern": "^_"
+      }
+    ]
   }
 }
