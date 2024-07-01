@@ -8,7 +8,7 @@ import { Worker, Viewer } from '@react-pdf-viewer/core';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 
 const ReportPage = () => {
-  const backendUrl = process.env.BACKEND_URL;
+  const backendUrl = process.env.NEXT_PUBLIC_API_URL;
   const [pdfSrc, setPdfSrc] = useState<string | null>(null);
   const supabase = createClient();
   const router = useRouter();

@@ -25,7 +25,7 @@ type SpeechAct = {
 };
 
 const EditPage = () => {
-  const backendUrl = process.env.BACKEND_URL;
+  const backendUrl = process.env.NEXT_PUBLIC_API_URL;
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [users, setUsers] = useState<User[]>([]);
   const [files, setFiles] = useState([]);

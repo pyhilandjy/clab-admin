@@ -40,7 +40,7 @@ type SentenceLengthResponse = {
 // app/components/UserSelect.tsx 이런식으로 파일 만들어서 작성.
 // Props로 정보를 받아서 처리하는 방식으로 구현.
 const ReportPage = () => {
-  const backendUrl = process.env.BACKEND_URL;
+  const backendUrl = process.env.NEXT_PUBLIC_API_URL;
   const currentDate = dayjs().format('YYYY-MM-DD');
   const [users, setUsers] = useState<User[]>([]);
   const [userId, setUserId] = useState('');
