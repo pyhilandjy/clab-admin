@@ -18,19 +18,27 @@ type SttData = {
   text_edited: string;
   speaker: string;
   act_id: number;
+  talk_more_id: number;
 };
 type SpeechAct = {
   act_name: string;
   id: number;
 };
 
+type TalkMore = {
+  talk_more: string;
+  id: number;
+};
+
 const EditPage = () => {
   const backendUrl = process.env.NEXT_PUBLIC_API_URL;
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+  const speakerRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [users, setUsers] = useState<User[]>([]);
   const [files, setFiles] = useState([]);
   const [sttResults, setSttResults] = useState<SttData[]>([]);
   const [speechAct, setSpeechAct] = useState<SpeechAct[]>([]);
+  const [talkMore, setTalkMore] = useState<TalkMore[]>([]);
   const oldWordInputRef = useRef<HTMLInputElement | null>(null);
   const newWordInputRef = useRef<HTMLInputElement | null>(null);
   const oldSpeakerInputRef = useRef<HTMLInputElement | null>(null);
@@ -55,6 +63,9 @@ const EditPage = () => {
     });
     axios.get(backendUrl + '/stt/speech_acts/').then((response) => {
       setSpeechAct(response.data);
+    });
+    axios.get(backendUrl + '/stt/talk_more/').then((response) => {
+      setTalkMore(response.data);
     });
   }, []);
 
@@ -82,19 +93,19 @@ const EditPage = () => {
 
   const handleOnSave = (sttData: SttData) => {
     const newText = inputRefs.current[sttData.id]?.value;
-
+    const newSpeaker = speakerRefs.current[sttData.id]?.value;
     axios
       .patch(backendUrl + '/stt/data/edit-text/', {
         id: sttData.id,
         file_id: sttData.file_id,
         new_text: newText,
+        new_speaker: newSpeaker,
       })
       .then((response) => {})
       .catch((error) => {
         console.error('There was an error!', error);
       });
   };
-
   const handleOnClickAdd = (sttData: SttData) => {
     axios
       .post(backendUrl + '/stt/data/add-row/', {
@@ -139,6 +150,20 @@ const EditPage = () => {
       .patch(backendUrl + '/stt/data/edit-speech-act/', {
         id: sttData.id,
         act_id: actId,
+      })
+      .then((response) => {})
+      .catch((error) => {
+        console.error('There was an error!', error);
+      });
+  };
+
+  const handleSelectTalkMore = (sttData: SttData, e: any) => {
+    const selectedOption = e.target.options[e.target.selectedIndex];
+    const talkMore = parseInt(selectedOption.getAttribute('data-talk-more-id'));
+    axios
+      .patch(backendUrl + '/stt/data/edit-talk-more/', {
+        id: sttData.id,
+        talk_more_id: talkMore,
       })
       .then((response) => {})
       .catch((error) => {
@@ -194,6 +219,13 @@ const EditPage = () => {
     return act ? act.act_name : '';
   };
 
+  const getTalkMoreById = (id: number): string => {
+    const talk_more_data = talkMore.find(
+      (talk_more: TalkMore) => talk_more.id === id
+    ) as TalkMore | undefined;
+    return talk_more_data ? talk_more_data.talk_more : '';
+  };
+
   const syncInputValues = (updatedResults: SttData[]) => {
     updatedResults.forEach((result) => {
       const inputRef = inputRefs.current[result.id];
@@ -247,16 +279,25 @@ const EditPage = () => {
       <div style={{ marginTop: '40px' }}>
         {sttResults.map((sttData) => (
           <div key={sttData.id} style={{ marginBottom: '16px' }}>
-            <Input
-              defaultValue={sttData.text_edited}
-              ref={(el): any => (inputRefs.current[sttData.id] = el)}
-            />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Input
+                defaultValue={sttData.text_edited}
+                ref={(el: any) => (inputRefs.current[sttData.id] = el)}
+                style={{ flex: 5 }}
+              />
+              <Input
+                defaultValue={sttData.speaker}
+                ref={(el: any) => (speakerRefs.current[sttData.id] = el)}
+                style={{ flex: 1 }}
+              />
+            </div>
             <div
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                marginTop: '3px',
+                marginTop: '5px',
+                maxWidth: '800px',
               }}
             >
               <Button onClick={() => handleOnSave(sttData)}>save</Button>
@@ -267,6 +308,7 @@ const EditPage = () => {
               <Select
                 placeholder={getActNameById(sttData.act_id)}
                 onChange={(e) => handleSelectSpeechAct(sttData, e)}
+                style={{ flex: '0 0 150px', minWidth: '100px' }}
               >
                 {speechAct.map((speechact) => (
                   <option
@@ -275,6 +317,21 @@ const EditPage = () => {
                     value={speechact.act_name}
                   >
                     {speechact.act_name}
+                  </option>
+                ))}
+              </Select>
+              <Select
+                placeholder={getTalkMoreById(sttData.talk_more_id)}
+                onChange={(e) => handleSelectTalkMore(sttData, e)}
+                style={{ flex: '0 0 150px', minWidth: '100px' }}
+              >
+                {talkMore.map((talkMoreItem) => (
+                  <option
+                    key={talkMoreItem.id}
+                    data-talk-more-id={talkMoreItem.id}
+                    value={talkMoreItem.talk_more}
+                  >
+                    {talkMoreItem.talk_more}
                   </option>
                 ))}
               </Select>
