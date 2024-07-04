@@ -232,6 +232,10 @@ const EditPage = () => {
       if (inputRef) {
         inputRef.value = result.text_edited;
       }
+      const speakerRef = speakerRefs.current[result.id];
+      if (speakerRef) {
+        speakerRef.value = result.speaker;
+      }
     });
   };
 
