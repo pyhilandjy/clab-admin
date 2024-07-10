@@ -33,7 +33,7 @@ type TalkMore = {
 };
 
 const EditPage = () => {
-  const backendUrl = process.env.NEXT_PUBLIC_API_URL;
+  const backendUrl = 'http://localhost:2456';
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const speakerRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [users, setUsers] = useState<User[]>([]);
@@ -49,6 +49,9 @@ const EditPage = () => {
   const newSpeakerInputRef = useRef<HTMLInputElement | null>(null);
   const supabase = createClient();
   const router = useRouter();
+  const [modifiedData, setModifiedData] = useState<{
+    [key: string]: { [field: string]: string; file_id: string };
+  }>({});
 
   useEffect(() => {
     const checkUser = async () => {
@@ -224,6 +227,25 @@ const EditPage = () => {
       });
   };
 
+  const handleBatchSave = () => {
+    const requests = Object.entries(modifiedData).map(([id, data]) => ({
+      id,
+      file_id: data.file_id,
+      new_text: data.text_edited,
+      new_speaker: data.speaker,
+    }));
+
+    axios
+      .post(`${backendUrl}/stt/data/batch-edit/`, requests)
+      .then((response) => {
+        console.log('Batch save successful', response.data);
+        // 저장 후 필요한 추가 작업 (예: UI 업데이트)
+      })
+      .catch((error) => {
+        console.error('Batch save failed', error);
+      });
+  };
+
   const getActNameById = (id: number): string => {
     const act = speechAct.find((act: SpeechAct) => act.id === id) as
       | SpeechAct
@@ -249,6 +271,25 @@ const EditPage = () => {
         speakerRef.value = result.speaker;
       }
     });
+  };
+
+  const handleInputChange = (
+    id: string,
+    field: string,
+    value: string,
+    file_id: string
+  ) => {
+    setModifiedData((prevData) => ({
+      ...prevData,
+      [id]: {
+        ...prevData[id],
+        [field]: value,
+        file_id: file_id,
+        text_edited:
+          inputRefs.current[id]?.value || prevData[id]?.text_edited || '',
+        speaker: speakerRefs.current[id]?.value || prevData[id]?.speaker || '',
+      },
+    }));
   };
 
   return (
@@ -299,6 +340,9 @@ const EditPage = () => {
             Speaker replace
           </Button>
         </GridItem>
+        <GridItem>
+          <Button onClick={handleBatchSave}>Save All</Button>
+        </GridItem>
       </Grid>
       <div style={{ marginTop: '40px' }}>
         {sttResults.map((sttData) => (
@@ -306,12 +350,28 @@ const EditPage = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Input
                 defaultValue={sttData.text_edited}
-                ref={(el: any) => (inputRefs.current[sttData.id] = el)}
+                onChange={(e) =>
+                  handleInputChange(
+                    sttData.id,
+                    'text_edited',
+                    e.target.value,
+                    sttData.file_id
+                  )
+                }
+                ref={(el) => (inputRefs.current[sttData.id] = el)}
                 style={{ flex: 5 }}
               />
               <Input
                 defaultValue={sttData.speaker}
-                ref={(el: any) => (speakerRefs.current[sttData.id] = el)}
+                onChange={(e) =>
+                  handleInputChange(
+                    sttData.id,
+                    'speaker',
+                    e.target.value,
+                    sttData.file_id
+                  )
+                }
+                ref={(el) => (speakerRefs.current[sttData.id] = el)}
                 style={{ flex: 1 }}
               />
             </div>

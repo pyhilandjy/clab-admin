@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   env: {
-    BACKEND_URL: process.env.NEXT_PUBLIC_API_URL,
+    NEXT_PUBLIC_API_URL:
+      process.env.NEXT_PUBLIC_API_URL || 'http://localhost:2456',
   },
   images: {
     domains: ['apicall.connects-lab.com', 'localhost'],
