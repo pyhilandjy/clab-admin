@@ -1,10 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   env: {
-    BACKEND_URL: process.env.BACKEND_URL,
+    BACKEND_URL: process.env.NEXT_PUBLIC_API_URL,
   },
   images: {
-    domains: ["apicall.connects-lab.com", "localhost"],
+    domains: ['apicall.connects-lab.com', 'localhost'],
   },
 };
 
