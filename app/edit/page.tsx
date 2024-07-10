@@ -1,9 +1,10 @@
 'use client';
+import { useEffect, useRef, useState } from 'react';
 import { Input, Button, Select, Grid, GridItem } from '@chakra-ui/react';
 import axios from 'axios';
-import { useEffect, useRef, useState } from 'react';
-import { redirect, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
+import '@/styles/edit.css';
 
 type User = {
   id: string;
@@ -20,6 +21,7 @@ type SttData = {
   act_id: number;
   talk_more_id: number;
 };
+
 type SpeechAct = {
   act_name: string;
   id: number;
@@ -39,6 +41,8 @@ const EditPage = () => {
   const [sttResults, setSttResults] = useState<SttData[]>([]);
   const [speechAct, setSpeechAct] = useState<SpeechAct[]>([]);
   const [talkMore, setTalkMore] = useState<TalkMore[]>([]);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const oldWordInputRef = useRef<HTMLInputElement | null>(null);
   const newWordInputRef = useRef<HTMLInputElement | null>(null);
   const oldSpeakerInputRef = useRef<HTMLInputElement | null>(null);
@@ -49,7 +53,6 @@ const EditPage = () => {
   useEffect(() => {
     const checkUser = async () => {
       const { data, error } = await supabase.auth.getUser();
-      console.log(data?.user);
       if (error || !data?.user) {
         router.push('/login');
       }
@@ -67,7 +70,7 @@ const EditPage = () => {
     axios.get(backendUrl + '/stt/talk_more/').then((response) => {
       setTalkMore(response.data);
     });
-  }, []);
+  }, [backendUrl]);
 
   const handleSelectUser = (e: any) => {
     axios
@@ -81,8 +84,10 @@ const EditPage = () => {
   };
 
   const handleSelectFileId = (e: any) => {
+    const fileId = e.target.value;
+    setAudioUrl(`${backendUrl}/audio/webm/${fileId}`);
     axios
-      .get(backendUrl + `/stt/data/${e.target.value}`)
+      .get(backendUrl + `/stt/data/${fileId}`)
       .then((response) => {
         setSttResults(response.data);
       })
@@ -106,6 +111,7 @@ const EditPage = () => {
         console.error('There was an error!', error);
       });
   };
+
   const handleOnClickAdd = (sttData: SttData) => {
     axios
       .post(backendUrl + '/stt/data/add-row/', {
@@ -125,7 +131,6 @@ const EditPage = () => {
   };
 
   const handleOnClickDelete = (sttData: SttData) => {
-    // 왜 delete 로 하면 안됨?
     axios
       .post(backendUrl + '/stt/data/delete-row/', {
         file_id: sttData.file_id,
@@ -191,6 +196,7 @@ const EditPage = () => {
         console.error('There was an error!', error);
       });
   };
+
   const handleSpeakerChangeButtonClick = () => {
     const oldSpeaker = oldSpeakerInputRef.current?.value;
     const newSpeaker = newSpeakerInputRef.current?.value;
@@ -255,6 +261,14 @@ const EditPage = () => {
           </option>
         ))}
       </Select>
+      {audioUrl && (
+        <div className='fixed-audio-icon'>
+          <audio ref={audioRef} controls>
+            <source src={audioUrl} type='audio/webm' />
+            Your browser does not support the audio element.
+          </audio>
+        </div>
+      )}
       <Grid templateColumns='repeat(4, 1fr)' gap={4} mt={3}>
         <GridItem>
           <Input placeholder='Old Word' ref={oldWordInputRef} />
@@ -346,4 +360,5 @@ const EditPage = () => {
     </div>
   );
 };
+
 export default EditPage;
