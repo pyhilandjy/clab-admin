@@ -32,8 +32,18 @@ type TalkMore = {
   id: number;
 };
 
+interface InputProps {
+  sttData: SttData;
+  handleInputChange: (
+    id: string,
+    key: string,
+    value: string,
+    fileId: string
+  ) => void;
+}
+
 const EditPage = () => {
-  const backendUrl = 'http://localhost:2456';
+  const backendUrl = process.env.NEXT_PUBLIC_API_URL;
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const speakerRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [users, setUsers] = useState<User[]>([]);
@@ -358,7 +368,7 @@ const EditPage = () => {
                     sttData.file_id
                   )
                 }
-                ref={(el) => (inputRefs.current[sttData.id] = el)}
+                ref={(el: any) => (inputRefs.current[sttData.id] = el)}
                 style={{ flex: 5 }}
               />
               <Input
@@ -371,7 +381,7 @@ const EditPage = () => {
                     sttData.file_id
                   )
                 }
-                ref={(el) => (speakerRefs.current[sttData.id] = el)}
+                ref={(el: any) => (speakerRefs.current[sttData.id] = el)}
                 style={{ flex: 1 }}
               />
             </div>
