@@ -96,6 +96,12 @@ const EditPage = () => {
       });
   };
 
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.load();
+    }
+  }, [audioUrl]);
+
   const handleOnSave = (sttData: SttData) => {
     const newText = inputRefs.current[sttData.id]?.value;
     const newSpeaker = speakerRefs.current[sttData.id]?.value;
