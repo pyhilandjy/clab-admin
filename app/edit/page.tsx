@@ -59,9 +59,12 @@ const EditPage = () => {
   const newSpeakerInputRef = useRef<HTMLInputElement | null>(null);
   const supabase = createClient();
   const router = useRouter();
+  const [recordTime, setRecordTime] = useState(0);
   const [modifiedData, setModifiedData] = useState<{
     [key: string]: { [field: string]: string; file_id: string };
   }>({});
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     const checkUser = async () => {
@@ -96,17 +99,25 @@ const EditPage = () => {
       });
   };
 
-  const handleSelectFileId = (e: any) => {
+  const formatTime = (seconds: any) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+  };
+
+  const handleSelectFileId = async (e: any) => {
     const fileId = e.target.value;
     setAudioUrl(`${backendUrl}/audio/webm/${fileId}`);
-    axios
-      .get(backendUrl + `/stt/data/${fileId}`)
-      .then((response) => {
-        setSttResults(response.data);
-      })
-      .catch((error) => {
-        console.error('There was an error!', error);
-      });
+    try {
+      const response = await axios.get(backendUrl + `/stt/data/${fileId}`);
+      setSttResults(response.data);
+      const infoResponse = await axios.get(
+        backendUrl + `/audio/webm/info/${fileId}`
+      );
+      setRecordTime(infoResponse.data.record_time);
+    } catch (error) {
+      console.error('There was an error!', error);
+    }
   };
 
   useEffect(() => {
@@ -248,11 +259,18 @@ const EditPage = () => {
     axios
       .post(`${backendUrl}/stt/data/batch-edit/`, requests)
       .then((response) => {
-        console.log('Batch save successful', response.data);
-        // 저장 후 필요한 추가 작업 (예: UI 업데이트)
+        setSuccessMessage('save successful');
+        setTimeout(() => {
+          setSuccessMessage('');
+        }, 2000);
+        console.log('save successful', response.data);
       })
       .catch((error) => {
-        console.error('Batch save failed', error);
+        setErrorMessage('save failed');
+        setTimeout(() => {
+          setErrorMessage('');
+        }, 2000);
+        console.error('save failed', error);
       });
   };
 
@@ -324,6 +342,7 @@ const EditPage = () => {
             <source src={audioUrl} type='audio/webm' />
             Your browser does not support the audio element.
           </audio>
+          <div>총 재생 시간: {formatTime(recordTime)}</div>
         </div>
       )}
       <Grid templateColumns='repeat(4, 1fr)' gap={4} mt={3}>
@@ -354,6 +373,10 @@ const EditPage = () => {
           <Button onClick={handleBatchSave}>Save All</Button>
         </GridItem>
       </Grid>
+      {successMessage && (
+        <div className='success-message'>{successMessage}</div>
+      )}
+      {errorMessage && <div className='error-message'>{errorMessage}</div>}
       <div style={{ marginTop: '40px' }}>
         {sttResults.map((sttData) => (
           <div key={sttData.id} style={{ marginBottom: '16px' }}>
