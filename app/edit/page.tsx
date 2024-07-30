@@ -32,18 +32,9 @@ type TalkMore = {
   id: number;
 };
 
-interface InputProps {
-  sttData: SttData;
-  handleInputChange: (
-    id: string,
-    key: string,
-    value: string,
-    fileId: string
-  ) => void;
-}
-
 const EditPage = () => {
-  const backendUrl = process.env.NEXT_PUBLIC_API_URL;
+  // const backendUrl = process.env.NEXT_PUBLIC_API_URL;
+  const backendUrl = 'http://localhost:2456';
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const speakerRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [users, setUsers] = useState<User[]>([]);
@@ -59,7 +50,7 @@ const EditPage = () => {
   const newSpeakerInputRef = useRef<HTMLInputElement | null>(null);
   const supabase = createClient();
   const router = useRouter();
-  const [recordTime, setRecordTime] = useState(0);
+  const [recordTime, setRecordTime] = useState<number | null>(null);
   const [modifiedData, setModifiedData] = useState<{
     [key: string]: { [field: string]: string; file_id: string };
   }>({});
@@ -95,7 +86,12 @@ const EditPage = () => {
         setFiles(response.data);
       })
       .catch((error) => {
-        console.error('There was an error!', error);
+        if (error.response && error.response.status === 404) {
+          setFiles([]);
+          alert('해당 사용자의 STT 데이터가 없습니다.');
+        } else {
+          console.error('오류가 발생했습니다!', error);
+        }
       });
   };
 
@@ -108,15 +104,27 @@ const EditPage = () => {
   const handleSelectFileId = async (e: any) => {
     const fileId = e.target.value;
     setAudioUrl(`${backendUrl}/audio/webm/${fileId}`);
+
     try {
-      const response = await axios.get(backendUrl + `/stt/data/${fileId}`);
+      // STT 데이터 가져오기
+      const response = await axios.get(`${backendUrl}/stt/data/${fileId}`);
       setSttResults(response.data);
+
+      // 오디오 파일 정보 가져오기
       const infoResponse = await axios.get(
-        backendUrl + `/audio/webm/info/${fileId}`
+        `${backendUrl}/audio/webm/info/${fileId}`
       );
       setRecordTime(infoResponse.data.record_time);
     } catch (error) {
-      console.error('There was an error!', error);
+      if (error instanceof Error) {
+        console.error('오류가 발생했습니다!', error.message);
+      }
+      // 404 에러 처리
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        setSttResults([]);
+        setRecordTime(null);
+        alert('해당 파일에 대한 데이터가 없습니다.');
+      }
     }
   };
 
@@ -332,7 +340,7 @@ const EditPage = () => {
       <Select placeholder='Select option' onChange={handleSelectFileId} mt={2}>
         {files.map((file: any) => (
           <option key={file.id} value={file.id}>
-            {file.file_name}
+            {file.file_name} - {file.status}
           </option>
         ))}
       </Select>
