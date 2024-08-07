@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import '@/styles/edit.css';
+import Layout from '../../components/Layout';
 
 type User = {
   id: string;
@@ -329,143 +330,150 @@ const EditPage = () => {
   };
 
   return (
-    <div className='flex'>
-      <Select placeholder='Select User' onChange={handleSelectUser}>
-        {users.map((user: User) => (
-          <option key={user.id} value={user.id}>
-            {user.name} ({user.email})
-          </option>
-        ))}
-      </Select>
-      <Select placeholder='Select option' onChange={handleSelectFileId} mt={2}>
-        {files.map((file: any) => (
-          <option key={file.id} value={file.id}>
-            {file.file_name} - {file.status}
-          </option>
-        ))}
-      </Select>
-      {audioUrl && (
-        <div className='fixed-audio-icon'>
-          <audio ref={audioRef} controls>
-            <source src={audioUrl} type='audio/webm' />
-            Your browser does not support the audio element.
-          </audio>
-          <div>총 재생 시간: {formatTime(recordTime)}</div>
-        </div>
-      )}
-      <Grid templateColumns='repeat(4, 1fr)' gap={4} mt={3}>
-        <GridItem>
-          <Input placeholder='Old Word' ref={oldWordInputRef} />
-        </GridItem>
-        <GridItem>
-          <Input placeholder='New Word' ref={newWordInputRef} />
-        </GridItem>
-        <GridItem>
-          <Input placeholder='Old Speaker' ref={oldSpeakerInputRef} />
-        </GridItem>
-        <GridItem>
-          <Input placeholder='New Speaker' ref={newSpeakerInputRef} />
-        </GridItem>
-      </Grid>
-
-      <Grid templateColumns='repeat(2, 1fr)' gap={4} mt={1}>
-        <GridItem>
-          <Button onClick={handleTextChangeButtonClick}>word replace</Button>
-        </GridItem>
-        <GridItem>
-          <Button onClick={handleSpeakerChangeButtonClick}>
-            Speaker replace
-          </Button>
-        </GridItem>
-        <GridItem>
-          <Button onClick={handleBatchSave}>Save All</Button>
-        </GridItem>
-      </Grid>
-      {successMessage && (
-        <div className='success-message'>{successMessage}</div>
-      )}
-      {errorMessage && <div className='error-message'>{errorMessage}</div>}
-      <div style={{ marginTop: '40px' }}>
-        {sttResults.map((sttData) => (
-          <div key={sttData.id} style={{ marginBottom: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Input
-                defaultValue={sttData.text_edited}
-                onChange={(e) =>
-                  handleInputChange(
-                    sttData.id,
-                    'text_edited',
-                    e.target.value,
-                    sttData.file_id
-                  )
-                }
-                ref={(el: any) => (inputRefs.current[sttData.id] = el)}
-                style={{ flex: 5 }}
-              />
-              <Input
-                defaultValue={sttData.speaker}
-                onChange={(e) =>
-                  handleInputChange(
-                    sttData.id,
-                    'speaker',
-                    e.target.value,
-                    sttData.file_id
-                  )
-                }
-                ref={(el: any) => (speakerRefs.current[sttData.id] = el)}
-                style={{ flex: 1 }}
-              />
-            </div>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                marginTop: '5px',
-                maxWidth: '800px',
-              }}
-            >
-              <Button onClick={() => handleOnSave(sttData)}>save</Button>
-              <Button onClick={() => handleOnClickAdd(sttData)}>add</Button>
-              <Button onClick={() => handleOnClickDelete(sttData)}>
-                delete
-              </Button>
-              <Select
-                placeholder={getActNameById(sttData.act_id)}
-                onChange={(e) => handleSelectSpeechAct(sttData, e)}
-                style={{ flex: '0 0 150px', minWidth: '100px' }}
-              >
-                {speechAct.map((speechact) => (
-                  <option
-                    key={speechact.id}
-                    data-act-id={speechact.id}
-                    value={speechact.act_name}
-                  >
-                    {speechact.act_name}
-                  </option>
-                ))}
-              </Select>
-              <Select
-                placeholder={getTalkMoreById(sttData.talk_more_id)}
-                onChange={(e) => handleSelectTalkMore(sttData, e)}
-                style={{ flex: '0 0 150px', minWidth: '100px' }}
-              >
-                {talkMore.map((talkMoreItem) => (
-                  <option
-                    key={talkMoreItem.id}
-                    data-talk-more-id={talkMoreItem.id}
-                    value={talkMoreItem.talk_more}
-                  >
-                    {talkMoreItem.talk_more}
-                  </option>
-                ))}
-              </Select>
-            </div>
+    <Layout>
+      <div className='flex'>
+        <Select placeholder='Select User' onChange={handleSelectUser}>
+          {users.map((user: User) => (
+            <option key={user.id} value={user.id}>
+              {user.name} ({user.email})
+            </option>
+          ))}
+        </Select>
+        <Select
+          placeholder='Select option'
+          onChange={handleSelectFileId}
+          mt={2}
+        >
+          {files.map((file: any) => (
+            <option key={file.id} value={file.id}>
+              {file.file_name} - {file.status}
+            </option>
+          ))}
+        </Select>
+        {audioUrl && (
+          <div className='fixed-audio-icon'>
+            <audio ref={audioRef} controls>
+              <source src={audioUrl} type='audio/webm' />
+              Your browser does not support the audio element.
+            </audio>
+            <div>총 재생 시간: {formatTime(recordTime)}</div>
           </div>
-        ))}
+        )}
+        <Grid templateColumns='repeat(4, 1fr)' gap={4} mt={3}>
+          <GridItem>
+            <Input placeholder='Old Word' ref={oldWordInputRef} />
+          </GridItem>
+          <GridItem>
+            <Input placeholder='New Word' ref={newWordInputRef} />
+          </GridItem>
+          <GridItem>
+            <Input placeholder='Old Speaker' ref={oldSpeakerInputRef} />
+          </GridItem>
+          <GridItem>
+            <Input placeholder='New Speaker' ref={newSpeakerInputRef} />
+          </GridItem>
+        </Grid>
+
+        <Grid templateColumns='repeat(2, 1fr)' gap={4} mt={1}>
+          <GridItem>
+            <Button onClick={handleTextChangeButtonClick}>word replace</Button>
+          </GridItem>
+          <GridItem>
+            <Button onClick={handleSpeakerChangeButtonClick}>
+              Speaker replace
+            </Button>
+          </GridItem>
+          <GridItem>
+            <Button onClick={handleBatchSave}>Save All</Button>
+          </GridItem>
+        </Grid>
+        {successMessage && (
+          <div className='success-message'>{successMessage}</div>
+        )}
+        {errorMessage && <div className='error-message'>{errorMessage}</div>}
+        <div style={{ marginTop: '40px' }}>
+          {sttResults.map((sttData) => (
+            <div key={sttData.id} style={{ marginBottom: '16px' }}>
+              <div
+                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+              >
+                <Input
+                  defaultValue={sttData.text_edited}
+                  onChange={(e) =>
+                    handleInputChange(
+                      sttData.id,
+                      'text_edited',
+                      e.target.value,
+                      sttData.file_id
+                    )
+                  }
+                  ref={(el: any) => (inputRefs.current[sttData.id] = el)}
+                  style={{ flex: 5 }}
+                />
+                <Input
+                  defaultValue={sttData.speaker}
+                  onChange={(e) =>
+                    handleInputChange(
+                      sttData.id,
+                      'speaker',
+                      e.target.value,
+                      sttData.file_id
+                    )
+                  }
+                  ref={(el: any) => (speakerRefs.current[sttData.id] = el)}
+                  style={{ flex: 1 }}
+                />
+              </div>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  marginTop: '5px',
+                  maxWidth: '800px',
+                }}
+              >
+                <Button onClick={() => handleOnSave(sttData)}>save</Button>
+                <Button onClick={() => handleOnClickAdd(sttData)}>add</Button>
+                <Button onClick={() => handleOnClickDelete(sttData)}>
+                  delete
+                </Button>
+                <Select
+                  placeholder={getActNameById(sttData.act_id)}
+                  onChange={(e) => handleSelectSpeechAct(sttData, e)}
+                  style={{ flex: '0 0 150px', minWidth: '100px' }}
+                >
+                  {speechAct.map((speechact) => (
+                    <option
+                      key={speechact.id}
+                      data-act-id={speechact.id}
+                      value={speechact.act_name}
+                    >
+                      {speechact.act_name}
+                    </option>
+                  ))}
+                </Select>
+                <Select
+                  placeholder={getTalkMoreById(sttData.talk_more_id)}
+                  onChange={(e) => handleSelectTalkMore(sttData, e)}
+                  style={{ flex: '0 0 150px', minWidth: '100px' }}
+                >
+                  {talkMore.map((talkMoreItem) => (
+                    <option
+                      key={talkMoreItem.id}
+                      data-talk-more-id={talkMoreItem.id}
+                      value={talkMoreItem.talk_more}
+                    >
+                      {talkMoreItem.talk_more}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 };
-
 export default EditPage;

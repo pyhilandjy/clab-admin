@@ -1,0 +1,38 @@
+.container {
+  display: flex;
+  height: 100vh; /* 전체 창 높이를 차지하도록 설정 */
+}
+
+.sidebar {
+  width: 200px;
+  background-color: #363740; /* 진한 회색 배경색 */
+  color: #ffffff; /* 흰색 글자색 */
+  padding: 20px;
+}
+
+.adminHeader {
+  font-size: 36px; /* 글자 크기를 6배로 키움 */
+  font-weight: bold;
+  margin-bottom: 20px;
+  font-style: italic;
+  text-align: center;
+  font-family: 'Arial', sans-serif;
+}
+
+.sidebar ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.sidebar li {
+  margin-bottom: 20px;
+}
+
+.sidebar a {
+  text-decoration: none;
+  color: #ffffff; /* 링크 글자색을 흰색으로 설정 */
+}
+
+.sidebar a:hover {
+  color: #dddddd; /* 링크 호버 시 색상 */
+}

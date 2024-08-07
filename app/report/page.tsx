@@ -15,6 +15,7 @@ import './report.css';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
+import Layout from '../../components/Layout';
 
 type User = {
   id: string;
@@ -327,180 +328,182 @@ const ReportPage = () => {
   };
 
   return (
-    <div className='flex'>
-      <div className='export-button-container'>
-        <Button onClick={handleExportExcelButtonClick}>
-          Export Report Data to Excel
+    <Layout>
+      <div className='flex'>
+        <div className='export-button-container'>
+          <Button onClick={handleExportExcelButtonClick}>
+            Export Report Data to Excel
+          </Button>
+          <Button onClick={handleSttDataExportExcelButtonClick}>
+            Export Stt Data to Excel
+          </Button>
+        </div>
+        <Select placeholder='Select User' onChange={handleSelectUser}>
+          {users.map((user: User) => (
+            <option key={user.id} value={user.id}>
+              {user.name} ({user.email})
+            </option>
+          ))}
+        </Select>
+        <div>
+          start date
+          <TuiDatePicker
+            handleChange={handleStartDateChange}
+            date={new Date(startDate)}
+            inputWidth={140}
+            fontSize={16}
+          />
+        </div>
+        <div>
+          end date
+          <TuiDatePicker
+            handleChange={handleEndDateChange}
+            date={new Date(endDate)}
+            inputWidth={140}
+            fontSize={16}
+          />
+        </div>
+        <Button onClick={handleCreteRecordTimeButtonClick}>
+          Create Record Time
         </Button>
-        <Button onClick={handleSttDataExportExcelButtonClick}>
-          Export Stt Data to Excel
-        </Button>
-      </div>
-      <Select placeholder='Select User' onChange={handleSelectUser}>
-        {users.map((user: User) => (
-          <option key={user.id} value={user.id}>
-            {user.name} ({user.email})
-          </option>
-        ))}
-      </Select>
-      <div>
-        start date
-        <TuiDatePicker
-          handleChange={handleStartDateChange}
-          date={new Date(startDate)}
-          inputWidth={140}
-          fontSize={16}
-        />
-      </div>
-      <div>
-        end date
-        <TuiDatePicker
-          handleChange={handleEndDateChange}
-          date={new Date(endDate)}
-          inputWidth={140}
-          fontSize={16}
-        />
-      </div>
-      <Button onClick={handleCreteRecordTimeButtonClick}>
-        Create Record Time
-      </Button>
-      {recordTimeData && (
-        <table>
-          <thead>
-            <tr>
-              <th>Metric</th>
-              <th>Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>녹음시간</td>
-              <td>{recordTimeData['녹음시간']}</td>
-            </tr>
-          </tbody>
-        </table>
-      )}
-      <Button onClick={handleCretemorpsRportButtonClick}>
-        Create Morps Report
-      </Button>
-      {reportmorpsData && (
-        <table>
-          <thead>
-            <tr>
-              <th>Speaker</th>
-              <th>고유명사</th>
-              <th>명사</th>
-              <th>대명사</th>
-              <th>동사</th>
-              <th>형용사</th>
-              <th>부사</th>
-              <th>총단어 수</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Object.keys(reportmorpsData).map((speaker) => (
-              <tr key={speaker}>
-                <td>{speaker}</td>
-                <td>{reportmorpsData[speaker]['고유명사']}</td>
-                <td>{reportmorpsData[speaker]['명사']}</td>
-                <td>{reportmorpsData[speaker]['대명사']}</td>
-                <td>{reportmorpsData[speaker]['동사']}</td>
-                <td>{reportmorpsData[speaker]['형용사']}</td>
-                <td>{reportmorpsData[speaker]['부사']}</td>
-                <td>{reportmorpsData[speaker]['총단어 수']}</td>
+        {recordTimeData && (
+          <table>
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th>Value</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-      <Button onClick={handleCreteActCountReportButtonClick}>
-        Create ActCount Report
-      </Button>
-      {reportActCountData && (
-        <table>
-          <thead>
-            <tr>
-              <th>Speaker</th>
-              {speechAct.map((act) => (
-                <th key={act.id}>{act.act_name}</th>
+            </thead>
+            <tbody>
+              <tr>
+                <td>녹음시간</td>
+                <td>{recordTimeData['녹음시간']}</td>
+              </tr>
+            </tbody>
+          </table>
+        )}
+        <Button onClick={handleCretemorpsRportButtonClick}>
+          Create Morps Report
+        </Button>
+        {reportmorpsData && (
+          <table>
+            <thead>
+              <tr>
+                <th>Speaker</th>
+                <th>고유명사</th>
+                <th>명사</th>
+                <th>대명사</th>
+                <th>동사</th>
+                <th>형용사</th>
+                <th>부사</th>
+                <th>총단어 수</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.keys(reportmorpsData).map((speaker) => (
+                <tr key={speaker}>
+                  <td>{speaker}</td>
+                  <td>{reportmorpsData[speaker]['고유명사']}</td>
+                  <td>{reportmorpsData[speaker]['명사']}</td>
+                  <td>{reportmorpsData[speaker]['대명사']}</td>
+                  <td>{reportmorpsData[speaker]['동사']}</td>
+                  <td>{reportmorpsData[speaker]['형용사']}</td>
+                  <td>{reportmorpsData[speaker]['부사']}</td>
+                  <td>{reportmorpsData[speaker]['총단어 수']}</td>
+                </tr>
               ))}
-            </tr>
-          </thead>
-          <tbody>
-            {Object.keys(reportActCountData).map((speaker) => (
-              <tr key={speaker}>
-                <td>{speaker}</td>
+            </tbody>
+          </table>
+        )}
+        <Button onClick={handleCreteActCountReportButtonClick}>
+          Create ActCount Report
+        </Button>
+        {reportActCountData && (
+          <table>
+            <thead>
+              <tr>
+                <th>Speaker</th>
                 {speechAct.map((act) => (
-                  <td key={act.id}>
-                    {reportActCountData[speaker][act.act_name] || 0}
-                  </td>
+                  <th key={act.id}>{act.act_name}</th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-      <Button onClick={handleCreteSentenceLengthButtonClick}>
-        Create Sentence Length Report
-      </Button>
-      {sentenceLengthData && (
-        <table>
-          <thead>
-            <tr>
-              <th>Speaker</th>
-              <th>가장 긴 문장</th>
-              <th>평균 문장 길이</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Object.entries(sentenceLengthData).map(([speaker, len_data]) => (
-              <tr key={speaker}>
-                <td>{speaker}</td>
-                <td>{len_data['가장 긴 문장']}</td>
-                <td>{len_data['평균 문장 길이']}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-      <div>
-        <Button onClick={handleCreateWordCloudButtonClick}>
-          Generate Word Cloud
+            </thead>
+            <tbody>
+              {Object.keys(reportActCountData).map((speaker) => (
+                <tr key={speaker}>
+                  <td>{speaker}</td>
+                  {speechAct.map((act) => (
+                    <td key={act.id}>
+                      {reportActCountData[speaker][act.act_name] || 0}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        <Button onClick={handleCreteSentenceLengthButtonClick}>
+          Create Sentence Length Report
         </Button>
-        {wordcloudimageSrc &&
-          wordcloudimageSrc.map((src: any, index: any) => (
+        {sentenceLengthData && (
+          <table>
+            <thead>
+              <tr>
+                <th>Speaker</th>
+                <th>가장 긴 문장</th>
+                <th>평균 문장 길이</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(sentenceLengthData).map(([speaker, len_data]) => (
+                <tr key={speaker}>
+                  <td>{speaker}</td>
+                  <td>{len_data['가장 긴 문장']}</td>
+                  <td>{len_data['평균 문장 길이']}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        <div>
+          <Button onClick={handleCreateWordCloudButtonClick}>
+            Generate Word Cloud
+          </Button>
+          {wordcloudimageSrc &&
+            wordcloudimageSrc.map((src: any, index: any) => (
+              <Image
+                key={index}
+                src={src}
+                alt={`Word Cloud ${index + 1}`}
+                width={500}
+                height={500}
+                style={{ margin: '10px' }}
+              />
+            ))}
+          <Button onClick={handleCreateViolinplotButtonClick}>
+            Generate Violin Plot
+          </Button>
+          {violinplotimageSrc && (
             <Image
-              key={index}
-              src={src}
-              alt={`Word Cloud ${index + 1}`}
+              src={violinplotimageSrc}
+              alt='ViolinPlot'
               width={500}
               height={500}
-              style={{ margin: '10px' }}
+              className='violingplot-image'
             />
-          ))}
-        <Button onClick={handleCreateViolinplotButtonClick}>
-          Generate Violin Plot
-        </Button>
-        {violinplotimageSrc && (
-          <Image
-            src={violinplotimageSrc}
-            alt='ViolinPlot'
-            width={500}
-            height={500}
-            className='violingplot-image'
+          )}
+        </div>
+        <FormControl>
+          <FormLabel htmlFor='file'>Upload PDF</FormLabel>
+          <Input
+            type='file'
+            id='file'
+            accept='application/pdf'
+            onChange={handleFileChange}
           />
-        )}
+        </FormControl>
       </div>
-      <FormControl>
-        <FormLabel htmlFor='file'>Upload PDF</FormLabel>
-        <Input
-          type='file'
-          id='file'
-          accept='application/pdf'
-          onChange={handleFileChange}
-        />
-      </FormControl>
-    </div>
+    </Layout>
   );
 };
 
