@@ -22,6 +22,8 @@ import {
 import axios, { AxiosError } from 'axios';
 import Layout from '../../components/Layout';
 import MissionList from './components/MissionList';
+import { backendUrl } from '../consts';
+import api from '@/lib/api';
 
 type Plan = {
   id: string;
@@ -41,7 +43,6 @@ const PlanPage = () => {
   const handleAddPlan = () => {
     router.push('/plan/add');
   };
-  const backendUrl = 'http://localhost:2456';
   const [plans, setPlans] = useState<Plan[]>([]);
   const [missions, setMissions] = useState<{ [key: string]: Mission[] }>({});
   const [expandedPlanId, setExpandedPlanId] = useState<string | null>(null);
@@ -50,42 +51,32 @@ const PlanPage = () => {
   const cancelRef = useRef(null);
 
   useEffect(() => {
-    fetchPlans();
+    const res = api.get('/plans/');
+    res.then((response) => {
+      setPlans(response.data);
+    });
   }, []);
-
-  const fetchPlans = () => {
-    axios
-      .get(`${backendUrl}/plans/`)
-      .then((response) => {
-        setPlans(response.data);
-      })
-      .catch((error) => {
-        console.error('Error fetching plans:', error);
-      });
-  };
 
   const handleNameClick = (planId: string) => {
     if (expandedPlanId === planId) {
-      setExpandedPlanId(null); // 클릭한 계획이 이미 확장된 경우, 축소
+      setExpandedPlanId(null);
     } else {
-      // 클릭한 계획이 확장되지 않은 경우, 미션 데이터를 가져오고 확장
       if (!missions[planId]) {
-        axios
-          .get(`${backendUrl}/missions/${planId}`)
-          .then((response) => {
+        try {
+          const res = api.get(`/missions/${planId}`);
+          res.then((response) => {
             setMissions((prevMissions) => ({
               ...prevMissions,
               [planId]: response.data,
             }));
             setExpandedPlanId(planId);
-          })
-          .catch((error) => {
-            console.error(`Error fetching missions for plan ${planId}:`, error);
           });
-      } else {
-        setExpandedPlanId(planId);
+        } catch (error) {
+          console.error(`Error fetching missions for plan ${planId}:`, error);
+        }
       }
     }
+    setExpandedPlanId(planId);
   };
 
   const handleStatusChange = (planId: string, newStatus: string) => {
