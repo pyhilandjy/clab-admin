@@ -24,24 +24,27 @@ type Mission = {
 type MissionListProps = {
   missions: Mission[];
   isOpen: boolean;
-  onCreateMission: () => void;
-  onEditMission: (id: string) => void;
-  onDeleteMission: (id: string) => void;
 };
 
-const MissionList: React.FC<MissionListProps> = ({
-  missions,
-  isOpen,
-  onCreateMission,
-  onEditMission,
-  onDeleteMission,
-}) => {
+const MissionList: React.FC<MissionListProps> = ({ missions, isOpen }) => {
   const [missionStatuses, setMissionStatuses] = useState(
     missions.reduce((acc, mission) => {
       acc[mission.id] = mission.status;
       return acc;
     }, {} as Record<string, string>)
   );
+
+  const onCreateMission = () => {
+    console.log('미션 추가');
+  };
+
+  const onEditMission = (id: string) => {
+    console.log('미션 수정:', id);
+  };
+
+  const onDeleteMission = (id: string) => {
+    console.log('미션 삭제:', id);
+  };
 
   const handleStatusChange = (id: string, newStatus: string) => {
     setMissionStatuses((prevStatuses) => ({
