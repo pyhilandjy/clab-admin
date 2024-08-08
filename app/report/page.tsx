@@ -16,6 +16,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import Layout from '../../components/Layout';
+import { backendUrl } from '../consts';
 
 type User = {
   id: string;
@@ -41,7 +42,6 @@ type SentenceLengthResponse = {
 // app/components/UserSelect.tsx 이런식으로 파일 만들어서 작성.
 // Props로 정보를 받아서 처리하는 방식으로 구현.
 const ReportPage = () => {
-  const backendUrl = 'http://localhost:2456';
   const currentDate = dayjs().format('YYYY-MM-DD');
   const [users, setUsers] = useState<User[]>([]);
   const [userId, setUserId] = useState('');

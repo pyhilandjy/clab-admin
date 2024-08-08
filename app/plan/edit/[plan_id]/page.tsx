@@ -15,6 +15,7 @@ import {
 } from '@chakra-ui/react';
 import axios from 'axios';
 import Layout from '../../../../components/Layout';
+import { backendUrl } from '@/app/consts';
 
 const EditPlanPage = () => {
   const [planName, setPlanName] = useState('');
@@ -24,7 +25,6 @@ const EditPlanPage = () => {
   const [description, setDescription] = useState<string | null>(null);
   const router = useRouter();
   const { plan_id } = useParams();
-  const backendUrl = 'http://localhost:2456';
 
   useEffect(() => {
     // 기존 데이터 로드

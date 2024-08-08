@@ -15,6 +15,7 @@ import {
 } from '@chakra-ui/react';
 import axios from 'axios';
 import Layout from '../../../components/Layout';
+import { backendUrl } from '@/app/consts';
 
 const AddPlanPage = () => {
   const [planName, setPlanName] = useState('');
@@ -23,7 +24,6 @@ const AddPlanPage = () => {
   const [endAgeMonth, setEndAgeMonth] = useState('');
   const [description, setDescription] = useState('');
   const router = useRouter();
-  const backendUrl = 'http://localhost:2456';
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import '@/styles/edit.css';
 import Layout from '../../components/Layout';
+import { backendUrl } from '../consts';
 
 type User = {
   id: string;
@@ -34,8 +35,6 @@ type TalkMore = {
 };
 
 const EditPage = () => {
-  // const backendUrl = process.env.NEXT_PUBLIC_API_URL;
-  const backendUrl = 'http://localhost:2456';
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const speakerRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [users, setUsers] = useState<User[]>([]);
