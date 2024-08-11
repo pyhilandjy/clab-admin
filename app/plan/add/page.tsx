@@ -13,9 +13,8 @@ import {
   GridItem,
   Center,
 } from '@chakra-ui/react';
-import axios from 'axios';
+import api from '@/lib/api';
 import Layout from '../../../components/Layout';
-import { backendUrl } from '@/app/consts';
 
 const AddPlanPage = () => {
   const [planName, setPlanName] = useState('');
@@ -36,7 +35,7 @@ const AddPlanPage = () => {
     };
 
     try {
-      await axios.post(`${backendUrl}/plans/`, payload);
+      await api.post('/plans/', payload);
       router.push('/plan');
     } catch (error) {
       console.error('Error adding plan:', error);

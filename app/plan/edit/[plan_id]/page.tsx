@@ -13,9 +13,8 @@ import {
   GridItem,
   Center,
 } from '@chakra-ui/react';
-import axios from 'axios';
+import api from '@/lib/api';
 import Layout from '../../../../components/Layout';
-import { backendUrl } from '@/app/consts';
 
 const EditPlanPage = () => {
   const [planName, setPlanName] = useState('');
@@ -27,11 +26,10 @@ const EditPlanPage = () => {
   const { plan_id } = useParams();
 
   useEffect(() => {
-    // 기존 데이터 로드
-    axios
-      .get(`${backendUrl}/plans/${plan_id}`)
-      .then((response) => {
-        const plan = response.data[0]; // 배열의 첫 번째 요소 가져오기
+    const fetchPlanData = async () => {
+      try {
+        const response = await api.get(`/plans/${plan_id}`);
+        const plan = response.data[0];
         const {
           plan_name,
           price,
@@ -39,6 +37,7 @@ const EditPlanPage = () => {
           end_age_month,
           description,
         } = plan;
+
         setPlanName(plan_name);
         setPrice(price !== null ? price.toString() : '');
         setStartAgeMonth(
@@ -46,12 +45,14 @@ const EditPlanPage = () => {
         );
         setEndAgeMonth(end_age_month !== null ? end_age_month.toString() : '');
         setDescription(description !== null ? description : '');
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error('Error fetching plan data:', error);
         alert('데이터를 불러오는 중 오류가 발생했습니다.');
-      });
-  }, [backendUrl, plan_id]);
+      }
+    };
+
+    fetchPlanData();
+  }, [plan_id]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -65,7 +66,7 @@ const EditPlanPage = () => {
     };
 
     try {
-      await axios.put(`${backendUrl}/plans/`, payload);
+      await api.put('/plans/', payload);
       alert('플랜 수정이 성공적으로 완료되었습니다.');
       setTimeout(() => {
         router.push('/plan');

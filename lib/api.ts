@@ -6,7 +6,8 @@ import axios, {
 } from 'axios';
 
 const instance: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  // baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: 'http://localhost:2456',
   timeout: 5000,
   headers: {
     'Content-Type': 'application/json',
@@ -50,6 +51,11 @@ export const api = {
     url: string,
     config: AxiosRequestConfig = {}
   ): Promise<AxiosResponse<T>> => instance.delete<T>(url, config),
+  patch: <T = any>(
+    url: string,
+    data?: any,
+    config: AxiosRequestConfig = {}
+  ): Promise<AxiosResponse<T>> => instance.patch<T>(url, data, config),
 };
 
 export default api;

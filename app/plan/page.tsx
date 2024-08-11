@@ -22,7 +22,6 @@ import {
 import axios, { AxiosError } from 'axios';
 import Layout from '../../components/Layout';
 import MissionList from './components/MissionList';
-import { backendUrl } from '../consts';
 import api from '@/lib/api';
 
 type Plan = {
@@ -51,58 +50,58 @@ const PlanPage = () => {
   const cancelRef = useRef(null);
 
   useEffect(() => {
-    const res = api.get('/plans/');
-    res.then((response) => {
-      setPlans(response.data);
-    });
+    const fetchPlans = async () => {
+      try {
+        const response = await api.get('/plans/');
+        setPlans(response.data);
+      } catch (error) {
+        console.error('Error fetching plans:', error);
+      }
+    };
+    fetchPlans();
   }, []);
 
-  const handleNameClick = (planId: string) => {
+  const handleNameClick = async (planId: string) => {
     if (expandedPlanId === planId) {
       setExpandedPlanId(null);
     } else {
       if (!missions[planId]) {
         try {
-          const res = api.get(`/missions/${planId}`);
-          res.then((response) => {
-            setMissions((prevMissions) => ({
-              ...prevMissions,
-              [planId]: response.data,
-            }));
-            setExpandedPlanId(planId);
-          });
+          const response = await api.get(`/missions/${planId}`);
+          setMissions((prevMissions) => ({
+            ...prevMissions,
+            [planId]: response.data,
+          }));
+          setExpandedPlanId(planId);
         } catch (error) {
           console.error(`Error fetching missions for plan ${planId}:`, error);
         }
+      } else {
+        setExpandedPlanId(planId);
       }
     }
-    setExpandedPlanId(planId);
   };
 
-  const handleStatusChange = (planId: string, newStatus: string) => {
-    axios
-      .patch(`${backendUrl}/plan/status/`, {
+  const handleStatusChange = async (planId: string, newStatus: string) => {
+    try {
+      const response = await api.patch(`/plan/status/`, {
         id: planId,
         status: newStatus,
-      })
-      .then((response) => {
-        setPlans((prevPlans) =>
-          prevPlans.map((plan) =>
-            plan.id === planId ? { ...plan, status: newStatus } : plan
-          )
-        );
-      })
-      .catch((error) => {
-        console.error(`Error updating status for plan ${planId}:`, error);
       });
+      setPlans((prevPlans) =>
+        prevPlans.map((plan) =>
+          plan.id === planId ? { ...plan, status: newStatus } : plan
+        )
+      );
+    } catch (error) {
+      console.error(`Error updating status for plan ${planId}:`, error);
+    }
   };
 
   const handleDelete = async () => {
     if (selectedPlanId) {
       try {
-        const response = await axios.delete(
-          `${backendUrl}/plans/${selectedPlanId}`
-        );
+        const response = await api.delete(`/plans/${selectedPlanId}`);
         if (response.data.Code === '0') {
           setPlans((prevPlans) =>
             prevPlans.filter((plan) => plan.id !== selectedPlanId)
