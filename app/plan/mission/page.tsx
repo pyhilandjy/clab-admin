@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Table,
@@ -14,6 +14,7 @@ import {
   IconButton,
 } from '@chakra-ui/react';
 import { EditIcon, DeleteIcon } from '@chakra-ui/icons';
+import api from '@/lib/api';
 
 type Mission = {
   id: string;
@@ -24,15 +25,25 @@ type Mission = {
 type MissionListProps = {
   missions: Mission[];
   isOpen: boolean;
+  onDeleteSuccess: (missionId: string) => void; // 미션 삭제 후 성공적으로 삭제된 것을 부모 컴포넌트에 알리기 위한 콜백
 };
 
-const MissionList: React.FC<MissionListProps> = ({ missions, isOpen }) => {
-  const [missionStatuses, setMissionStatuses] = useState(
-    missions.reduce((acc, mission) => {
+const MissionList: React.FC<MissionListProps> = ({
+  missions,
+  isOpen,
+  onDeleteSuccess,
+}) => {
+  const [missionStatuses, setMissionStatuses] = useState<
+    Record<string, string>
+  >({});
+
+  useEffect(() => {
+    const initialStatuses = missions.reduce((acc, mission) => {
       acc[mission.id] = mission.status;
       return acc;
-    }, {} as Record<string, string>)
-  );
+    }, {} as Record<string, string>);
+    setMissionStatuses(initialStatuses);
+  }, [missions]);
 
   const onCreateMission = () => {
     console.log('미션 추가');
@@ -42,15 +53,31 @@ const MissionList: React.FC<MissionListProps> = ({ missions, isOpen }) => {
     console.log('미션 수정:', id);
   };
 
-  const onDeleteMission = (id: string) => {
-    console.log('미션 삭제:', id);
+  const onDeleteMission = async (id: string) => {
+    const confirmDelete = confirm('미션을 삭제하시면 메세지도 삭제됩니다.');
+    if (confirmDelete) {
+      try {
+        await api.delete(`/missions/${id}`);
+        alert('미션이 성공적으로 삭제되었습니다.');
+        onDeleteSuccess(id); // 부모 컴포넌트에 미션 삭제 성공 알림
+      } catch (error) {
+        console.error(`미션 삭제 중 오류 발생:`, error);
+        alert('미션 삭제 중 오류가 발생했습니다.');
+      }
+    }
   };
 
-  const handleStatusChange = (id: string, newStatus: string) => {
-    setMissionStatuses((prevStatuses) => ({
-      ...prevStatuses,
-      [id]: newStatus,
-    }));
+  const handleStatusChange = async (id: string, newStatus: string) => {
+    try {
+      await api.patch(`/missions/status/`, { id, status: newStatus });
+      setMissionStatuses((prevStatuses) => ({
+        ...prevStatuses,
+        [id]: newStatus,
+      }));
+    } catch (error) {
+      console.error(`미션 상태 변경 중 오류 발생:`, error);
+      alert('미션 상태 변경 중 오류가 발생했습니다.');
+    }
   };
 
   return (
@@ -76,7 +103,7 @@ const MissionList: React.FC<MissionListProps> = ({ missions, isOpen }) => {
                 <Td>
                   <Select
                     size='sm'
-                    value={missionStatuses[mission.id]}
+                    value={missionStatuses[mission.id]} // 기본값을 DB에서 불러온 값으로 설정
                     onChange={(e) =>
                       handleStatusChange(mission.id, e.target.value)
                     }
@@ -90,7 +117,7 @@ const MissionList: React.FC<MissionListProps> = ({ missions, isOpen }) => {
                     <IconButton
                       size='sm'
                       colorScheme='blue'
-                      aria-label='미션 수전'
+                      aria-label='미션 수정'
                       icon={<EditIcon />}
                       onClick={() => onEditMission(mission.id)}
                     />

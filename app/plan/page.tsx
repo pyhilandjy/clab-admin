@@ -21,7 +21,7 @@ import {
 } from '@chakra-ui/react';
 import axios, { AxiosError } from 'axios';
 import Layout from '../../components/Layout';
-import MissionList from './components/MissionList';
+import MissionList from './mission/page';
 import api from '@/lib/api';
 
 type Plan = {
@@ -137,6 +137,15 @@ const PlanPage = () => {
     router.push(`/plan/edit/${planId}`);
   };
 
+  const handleMissionDeleteSuccess = (planId: string, missionId: string) => {
+    setMissions((prevMissions) => ({
+      ...prevMissions,
+      [planId]: prevMissions[planId].filter(
+        (mission) => mission.id !== missionId
+      ),
+    }));
+  };
+
   return (
     <Layout>
       <Box p={4}>
@@ -202,6 +211,9 @@ const PlanPage = () => {
                     <MissionList
                       missions={missions[plan.id] ?? []}
                       isOpen={expandedPlanId === plan.id}
+                      onDeleteSuccess={(missionId) =>
+                        handleMissionDeleteSuccess(plan.id, missionId)
+                      } // 이 부분 추가
                     />
                   </Td>
                 </Tr>
