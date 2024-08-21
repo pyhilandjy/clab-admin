@@ -9,9 +9,9 @@ import {
   Textarea,
   VStack,
   HStack,
-  Center,
+  useToast,
 } from '@chakra-ui/react';
-import Layout from '@/components/Layout';
+import api from '@/lib/api';
 
 type MissionInput = {
   title: string;
@@ -20,10 +20,16 @@ type MissionInput = {
   message: string;
 };
 
-const AddMissionPage: React.FC = () => {
+const AddMissionPage: React.FC<{
+  onClose: () => void;
+  planId: string;
+  onSave: () => Promise<void>;
+}> = ({ onClose, planId, onSave }) => {
   const [missions, setMissions] = useState<MissionInput[]>([
     { title: '', summation: '', day: '', message: '' },
   ]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const toast = useToast();
 
   const handleInputChange = (
     index: number,
@@ -35,92 +41,99 @@ const AddMissionPage: React.FC = () => {
     setMissions(newMissions);
   };
 
-  const handleAddMission = () => {
-    setMissions([
-      ...missions,
-      { title: '', summation: '', day: '', message: '' },
-    ]);
-  };
-
   const handleSaveMissions = async () => {
+    setIsSubmitting(true);
     try {
       for (const mission of missions) {
-        // 여기에 API 호출을 추가하세요
-        // await api.post('/missions', mission);
-        console.log('Saving mission:', mission);
+        const payload = {
+          plan_id: planId,
+          ...mission,
+          day: parseInt(mission.day),
+        };
+        await api.post(`/missions/${planId}`, payload);
       }
-      alert('미션이 성공적으로 저장되었습니다.');
+      await onSave(); // 미션 저장 후 onSave 호출
+      toast({
+        title: '미션이 성공적으로 저장되었습니다.',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+      onClose();
     } catch (error) {
       console.error('Error saving missions:', error);
-      alert('미션 저장 중 오류가 발생했습니다.');
+      toast({
+        title: '미션 저장 중 오류가 발생했습니다.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <Layout>
-      <Center>
-        <Box
-          p={4}
-          width='70vw'
-          maxWidth='1200px'
-          border='1px'
-          borderColor='gray.200'
-          borderRadius='md'
-          mb={4}
+    <Box
+      p={4}
+      width='100%'
+      border='1px'
+      borderColor='gray.200'
+      borderRadius='md'
+      mb={4}
+    >
+      <VStack spacing={4} align='stretch'>
+        {missions.map((mission, index) => (
+          <Box key={index} p={4} borderWidth='1px' borderRadius='md'>
+            <FormControl mb={2}>
+              <FormLabel>Title</FormLabel>
+              <Input
+                value={mission.title}
+                onChange={(e) =>
+                  handleInputChange(index, 'title', e.target.value)
+                }
+              />
+            </FormControl>
+            <HStack spacing={4}>
+              <FormControl>
+                <FormLabel>Summation</FormLabel>
+                <Input
+                  value={mission.summation}
+                  onChange={(e) =>
+                    handleInputChange(index, 'summation', e.target.value)
+                  }
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel>Day</FormLabel>
+                <Input
+                  value={mission.day}
+                  onChange={(e) =>
+                    handleInputChange(index, 'day', e.target.value)
+                  }
+                />
+              </FormControl>
+            </HStack>
+            <FormControl mt={2}>
+              <FormLabel>Message</FormLabel>
+              <Textarea
+                value={mission.message}
+                onChange={(e) =>
+                  handleInputChange(index, 'message', e.target.value)
+                }
+              />
+            </FormControl>
+          </Box>
+        ))}
+        <Button
+          colorScheme='blue'
+          onClick={handleSaveMissions}
+          isLoading={isSubmitting}
         >
-          <VStack spacing={4} align='stretch'>
-            {missions.map((mission, index) => (
-              <Box key={index} p={4} borderWidth='1px' borderRadius='md'>
-                <FormControl mb={2}>
-                  <FormLabel>Title</FormLabel>
-                  <Input
-                    value={mission.title}
-                    onChange={(e) =>
-                      handleInputChange(index, 'title', e.target.value)
-                    }
-                  />
-                </FormControl>
-                <HStack spacing={4}>
-                  <FormControl>
-                    <FormLabel>Summation</FormLabel>
-                    <Input
-                      value={mission.summation}
-                      onChange={(e) =>
-                        handleInputChange(index, 'summation', e.target.value)
-                      }
-                    />
-                  </FormControl>
-                  <FormControl>
-                    <FormLabel>Day</FormLabel>
-                    <Input
-                      value={mission.day}
-                      onChange={(e) =>
-                        handleInputChange(index, 'day', e.target.value)
-                      }
-                    />
-                  </FormControl>
-                </HStack>
-                <FormControl mt={2}>
-                  <FormLabel>Message</FormLabel>
-                  <Textarea
-                    value={mission.message}
-                    onChange={(e) =>
-                      handleInputChange(index, 'message', e.target.value)
-                    }
-                  />
-                </FormControl>
-              </Box>
-            ))}
-            <Button colorScheme='teal' onClick={handleAddMission}>
-              추가
-            </Button>
-            <Button colorScheme='blue' onClick={handleSaveMissions}>
-              저장
-            </Button>
-          </VStack>
-        </Box>
-      </Center>
-    </Layout>
+          저장
+        </Button>
+      </VStack>
+    </Box>
   );
 };
 
