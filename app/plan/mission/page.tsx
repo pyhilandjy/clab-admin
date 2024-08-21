@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Box,
   Table,
@@ -20,12 +21,13 @@ type Mission = {
   id: string;
   title: string;
   status: string;
+  summation: string;
 };
 
 type MissionListProps = {
   missions: Mission[];
   isOpen: boolean;
-  onDeleteSuccess: (missionId: string) => void; // 미션 삭제 후 성공적으로 삭제된 것을 부모 컴포넌트에 알리기 위한 콜백
+  onDeleteSuccess: (missionId: string) => void;
 };
 
 const MissionList: React.FC<MissionListProps> = ({
@@ -37,6 +39,8 @@ const MissionList: React.FC<MissionListProps> = ({
     Record<string, string>
   >({});
 
+  const router = useRouter();
+
   useEffect(() => {
     const initialStatuses = missions.reduce((acc, mission) => {
       acc[mission.id] = mission.status;
@@ -46,7 +50,7 @@ const MissionList: React.FC<MissionListProps> = ({
   }, [missions]);
 
   const onCreateMission = () => {
-    console.log('미션 추가');
+    router.push('/plan/mission/add');
   };
 
   const onEditMission = (id: string) => {
@@ -59,7 +63,7 @@ const MissionList: React.FC<MissionListProps> = ({
       try {
         await api.delete(`/missions/${id}`);
         alert('미션이 성공적으로 삭제되었습니다.');
-        onDeleteSuccess(id); // 부모 컴포넌트에 미션 삭제 성공 알림
+        onDeleteSuccess(id);
       } catch (error) {
         console.error(`미션 삭제 중 오류 발생:`, error);
         alert('미션 삭제 중 오류가 발생했습니다.');
@@ -82,7 +86,7 @@ const MissionList: React.FC<MissionListProps> = ({
 
   return (
     <Collapse in={isOpen} animateOpacity>
-      <Box p={4} bg='gray.50'>
+      <Box p={4} width='70vw' maxWidth='1200px'>
         <HStack justifyContent='space-between' mb={4}>
           <Button colorScheme='teal' onClick={onCreateMission}>
             미션 추가
@@ -91,8 +95,9 @@ const MissionList: React.FC<MissionListProps> = ({
         <Table size='sm' variant='simple'>
           <Thead>
             <Tr>
-              <Th>Title</Th>
-              <Th>Status</Th>
+              <Th>미션명</Th>
+              <Th>요약</Th>
+              <Th>상태</Th>
               <Th></Th>
             </Tr>
           </Thead>
@@ -100,10 +105,11 @@ const MissionList: React.FC<MissionListProps> = ({
             {missions.map((mission) => (
               <Tr key={mission.id}>
                 <Td>{mission.title}</Td>
+                <Td>{mission.summation}</Td>
                 <Td>
                   <Select
                     size='sm'
-                    value={missionStatuses[mission.id]} // 기본값을 DB에서 불러온 값으로 설정
+                    value={missionStatuses[mission.id]}
                     onChange={(e) =>
                       handleStatusChange(mission.id, e.target.value)
                     }
