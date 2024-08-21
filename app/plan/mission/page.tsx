@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import {
   Box,
   Table,
@@ -13,33 +12,59 @@ import {
   Button,
   HStack,
   IconButton,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
+  useToast,
 } from '@chakra-ui/react';
 import { EditIcon, DeleteIcon } from '@chakra-ui/icons';
 import api from '@/lib/api';
+import AddMissionPage from './add/page';
+import EditMissionPage from './edit/page';
 
 type Mission = {
   id: string;
   title: string;
   status: string;
   summation: string;
+  day: string;
+  message: string;
 };
 
 type MissionListProps = {
   missions: Mission[];
   isOpen: boolean;
   onDeleteSuccess: (missionId: string) => void;
+  planId: string;
+  onAddMission: () => Promise<void>;
 };
 
 const MissionList: React.FC<MissionListProps> = ({
   missions,
   isOpen,
   onDeleteSuccess,
+  planId,
+  onAddMission,
 }) => {
   const [missionStatuses, setMissionStatuses] = useState<
     Record<string, string>
   >({});
-
-  const router = useRouter();
+  const {
+    isOpen: isAddModalOpen,
+    onOpen: onAddModalOpen,
+    onClose: onAddModalClose,
+  } = useDisclosure();
+  const {
+    isOpen: isEditModalOpen,
+    onOpen: onEditModalOpen,
+    onClose: onEditModalClose,
+  } = useDisclosure();
+  const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
+  const toast = useToast();
 
   useEffect(() => {
     const initialStatuses = missions.reduce((acc, mission) => {
@@ -49,25 +74,42 @@ const MissionList: React.FC<MissionListProps> = ({
     setMissionStatuses(initialStatuses);
   }, [missions]);
 
-  const onCreateMission = () => {
-    router.push('/plan/mission/add');
+  const handleMissionSave = async () => {
+    await onAddMission();
+    onAddModalClose();
   };
 
-  const onEditMission = (id: string) => {
-    console.log('미션 수정:', id);
+  const handleEditMission = (mission: Mission) => {
+    setSelectedMission(mission);
+    onEditModalOpen();
   };
 
-  const onDeleteMission = async (id: string) => {
-    const confirmDelete = confirm('미션을 삭제하시면 메세지도 삭제됩니다.');
-    if (confirmDelete) {
-      try {
-        await api.delete(`/missions/${id}`);
-        alert('미션이 성공적으로 삭제되었습니다.');
-        onDeleteSuccess(id);
-      } catch (error) {
-        console.error(`미션 삭제 중 오류 발생:`, error);
-        alert('미션 삭제 중 오류가 발생했습니다.');
-      }
+  const handleMissionUpdate = async () => {
+    await onAddMission();
+    onEditModalClose();
+  };
+
+  const handleDeleteMission = async (id: string) => {
+    const confirmDelete = confirm('정말로 이 미션을 삭제하시겠습니까?');
+    if (!confirmDelete) return;
+
+    try {
+      await api.delete(`/missions/${id}`);
+      onDeleteSuccess(id);
+      toast({
+        title: '미션이 성공적으로 삭제되었습니다.',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error('Error deleting mission:', error);
+      toast({
+        title: '미션 삭제 중 오류가 발생했습니다.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
 
@@ -78,70 +120,117 @@ const MissionList: React.FC<MissionListProps> = ({
         ...prevStatuses,
         [id]: newStatus,
       }));
+      toast({
+        title: '미션 상태가 성공적으로 변경되었습니다.',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
     } catch (error) {
-      console.error(`미션 상태 변경 중 오류 발생:`, error);
-      alert('미션 상태 변경 중 오류가 발생했습니다.');
+      console.error('Error updating mission status:', error);
+      toast({
+        title: '미션 상태 변경 중 오류가 발생했습니다.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
 
   return (
-    <Collapse in={isOpen} animateOpacity>
-      <Box p={4} width='70vw' maxWidth='1200px'>
-        <HStack justifyContent='space-between' mb={4}>
-          <Button colorScheme='teal' onClick={onCreateMission}>
-            미션 추가
-          </Button>
-        </HStack>
-        <Table size='sm' variant='simple'>
-          <Thead>
-            <Tr>
-              <Th>미션명</Th>
-              <Th>요약</Th>
-              <Th>상태</Th>
-              <Th></Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {missions.map((mission) => (
-              <Tr key={mission.id}>
-                <Td>{mission.title}</Td>
-                <Td>{mission.summation}</Td>
-                <Td>
-                  <Select
-                    size='sm'
-                    value={missionStatuses[mission.id]}
-                    onChange={(e) =>
-                      handleStatusChange(mission.id, e.target.value)
-                    }
-                  >
-                    <option value='active'>Active</option>
-                    <option value='inactive'>Inactive</option>
-                  </Select>
-                </Td>
-                <Td>
-                  <HStack spacing={2}>
-                    <IconButton
-                      size='sm'
-                      colorScheme='blue'
-                      aria-label='미션 수정'
-                      icon={<EditIcon />}
-                      onClick={() => onEditMission(mission.id)}
-                    />
-                    <IconButton
-                      size='sm'
-                      colorScheme='red'
-                      aria-label='미션 삭제'
-                      icon={<DeleteIcon />}
-                      onClick={() => onDeleteMission(mission.id)}
-                    />
-                  </HStack>
-                </Td>
+    <>
+      <Collapse in={isOpen} animateOpacity>
+        <Box p={4} width='70vw' maxWidth='1200px'>
+          <HStack justifyContent='space-between' mb={4}>
+            <Button colorScheme='teal' onClick={onAddModalOpen}>
+              미션 추가
+            </Button>
+          </HStack>
+          <Table size='sm' variant='simple'>
+            <Thead>
+              <Tr>
+                <Th>미션명</Th>
+                <Th>요약</Th>
+                <Th>상태</Th>
+                <Th></Th>
               </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      </Box>
-    </Collapse>
+            </Thead>
+            <Tbody>
+              {missions.map((mission) => (
+                <Tr key={mission.id}>
+                  <Td>{mission.title}</Td>
+                  <Td>{mission.summation}</Td>
+                  <Td>
+                    <Select
+                      size='sm'
+                      value={missionStatuses[mission.id]}
+                      onChange={(e) =>
+                        handleStatusChange(mission.id, e.target.value)
+                      }
+                    >
+                      <option value='active'>Active</option>
+                      <option value='inactive'>Inactive</option>
+                    </Select>
+                  </Td>
+                  <Td>
+                    <HStack spacing={2}>
+                      <IconButton
+                        size='sm'
+                        colorScheme='blue'
+                        aria-label='미션 수정'
+                        icon={<EditIcon />}
+                        onClick={() => handleEditMission(mission)}
+                      />
+                      <IconButton
+                        size='sm'
+                        colorScheme='red'
+                        aria-label='미션 삭제'
+                        icon={<DeleteIcon />}
+                        onClick={() => handleDeleteMission(mission.id)}
+                      />
+                    </HStack>
+                  </Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </Box>
+      </Collapse>
+
+      {/* 미션 추가 모달 */}
+      <Modal isOpen={isAddModalOpen} onClose={onAddModalClose} size='5xl'>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>미션 추가</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <AddMissionPage
+              onClose={onAddModalClose}
+              planId={planId}
+              onSave={handleMissionSave}
+            />
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+
+      {/* 미션 수정 모달 */}
+      {selectedMission && (
+        <Modal isOpen={isEditModalOpen} onClose={onEditModalClose} size='5xl'>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>미션 수정</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <EditMissionPage
+                onClose={onEditModalClose}
+                mission={selectedMission}
+                onSave={handleMissionUpdate}
+              />
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+      )}
+    </>
   );
 };
 
