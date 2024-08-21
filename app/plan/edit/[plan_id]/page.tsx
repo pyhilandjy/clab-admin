@@ -12,17 +12,31 @@ import {
   SimpleGrid,
   GridItem,
   Center,
+  Select,
 } from '@chakra-ui/react';
 import api from '@/lib/api';
 import Layout from '../../../../components/Layout';
 
+type Category = {
+  id: string;
+  name: string;
+  parent_id?: string;
+  sub_categories?: Category[];
+};
+
 const EditPlanPage = () => {
   const [planName, setPlanName] = useState('');
-  const [price, setPrice] = useState<string | null>(null);
-  const [startAgeMonth, setStartAgeMonth] = useState<string | null>(null);
-  const [endAgeMonth, setEndAgeMonth] = useState<string | null>(null);
-  const [day, setDay] = useState<string | null>(null);
-  const [description, setDescription] = useState<string | null>(null);
+  const [price, setPrice] = useState<string>('');
+  const [startAgeMonth, setStartAgeMonth] = useState<string>('');
+  const [endAgeMonth, setEndAgeMonth] = useState<string>('');
+  const [day, setDay] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
+  const [type, setType] = useState<string>('');
+  const [tags, setTags] = useState<string>('');
+  const [mainCategories, setMainCategories] = useState<Category[]>([]);
+  const [subCategories, setSubCategories] = useState<Category[]>([]);
+  const [selectedMainCategory, setSelectedMainCategory] = useState<string>('');
+  const [selectedSubCategory, setSelectedSubCategory] = useState<string>('');
   const router = useRouter();
   const { plan_id } = useParams();
 
@@ -31,23 +45,45 @@ const EditPlanPage = () => {
       try {
         const response = await api.get(`/plans/${plan_id}`);
         const plan = response.data[0];
-        const {
-          plan_name,
-          price,
-          start_age_month,
-          end_age_month,
-          day,
-          description,
-        } = plan;
 
-        setPlanName(plan_name);
-        setPrice(price !== null ? price.toString() : '');
+        setPlanName(plan.plan_name || '');
+        setPrice(plan.price != null ? plan.price.toString() : '');
         setStartAgeMonth(
-          start_age_month !== null ? start_age_month.toString() : ''
+          plan.start_age_month != null ? plan.start_age_month.toString() : ''
         );
-        setEndAgeMonth(end_age_month !== null ? end_age_month.toString() : '');
-        setDay(day !== null ? day.toString() : '');
-        setDescription(description !== null ? description : '');
+        setEndAgeMonth(
+          plan.end_age_month != null ? plan.end_age_month.toString() : ''
+        );
+        setDay(plan.day != null ? plan.day.toString() : '');
+        setDescription(plan.description || '');
+        setType(plan.type || '');
+        setTags(plan.tags ? plan.tags.join(', ') : '');
+
+        const categoriesResponse = await api.get('/categories/');
+        const categories: Category[] = categoriesResponse.data;
+
+        let foundMainCategory: Category | undefined;
+        let foundSubCategory: Category | undefined;
+
+        // 서브카테고리로부터 메인카테고리 찾기
+        for (const mainCategory of categories) {
+          const subCategory = mainCategory.sub_categories?.find(
+            (sub) => sub.id === plan.category_id
+          );
+          if (subCategory) {
+            foundMainCategory = mainCategory;
+            foundSubCategory = subCategory;
+            break;
+          }
+        }
+
+        if (foundMainCategory && foundSubCategory) {
+          setSelectedMainCategory(foundMainCategory.id);
+          setSubCategories(foundMainCategory.sub_categories || []);
+          setSelectedSubCategory(foundSubCategory.id);
+        }
+
+        setMainCategories(categories);
       } catch (error) {
         console.error('Error fetching plan data:', error);
         alert('데이터를 불러오는 중 오류가 발생했습니다.');
@@ -57,8 +93,19 @@ const EditPlanPage = () => {
     fetchPlanData();
   }, [plan_id]);
 
+  const handleMainCategoryChange = (mainCategoryId: string) => {
+    setSelectedMainCategory(mainCategoryId);
+    const mainCategory = mainCategories.find(
+      (category) => category.id === mainCategoryId
+    );
+    setSubCategories(mainCategory?.sub_categories || []);
+    setSelectedSubCategory(''); // 서브 카테고리 선택 초기화
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    const tagsArray = tags.split(',').map((tag) => tag.trim());
+
     const payload = {
       id: plan_id,
       plan_name: planName,
@@ -67,10 +114,13 @@ const EditPlanPage = () => {
       end_age_month: endAgeMonth !== null ? parseInt(endAgeMonth) : null,
       day: day !== null ? parseInt(day) : null,
       description,
+      type,
+      tags: tagsArray,
+      category_id: selectedSubCategory,
     };
 
     try {
-      await api.put('/plans/', payload);
+      await api.put(`/plans/${plan_id}`, payload);
       alert('플랜 수정이 성공적으로 완료되었습니다.');
       setTimeout(() => {
         router.push('/plan');
@@ -153,6 +203,66 @@ const EditPlanPage = () => {
                       value={endAgeMonth !== null ? endAgeMonth : ''}
                       onChange={(e) => setEndAgeMonth(e.target.value)}
                     />
+                  </FormControl>
+                </GridItem>
+              </SimpleGrid>
+              <SimpleGrid columns={2} spacing={4} mb={4}>
+                <GridItem colSpan={1}>
+                  <FormControl id='type'>
+                    <FormLabel>타입</FormLabel>
+                    <Select
+                      placeholder='타입을 선택하세요'
+                      value={type}
+                      onChange={(e) => setType(e.target.value)}
+                    >
+                      <option value='달성형'>달성형</option>
+                      <option value='기간형'>기간형</option>
+                    </Select>
+                  </FormControl>
+                </GridItem>
+                <GridItem colSpan={1}>
+                  <FormControl id='tags'>
+                    <FormLabel>태그 (콤마로 구분)</FormLabel>
+                    <Input
+                      type='text'
+                      value={tags}
+                      onChange={(e) => setTags(e.target.value)}
+                    />
+                  </FormControl>
+                </GridItem>
+              </SimpleGrid>
+              <SimpleGrid columns={2} spacing={4} mb={4}>
+                <GridItem colSpan={1}>
+                  <FormControl id='main_category'>
+                    <FormLabel>메인 카테고리</FormLabel>
+                    <Select
+                      placeholder='메인 카테고리를 선택하세요'
+                      value={selectedMainCategory}
+                      onChange={(e) => handleMainCategoryChange(e.target.value)}
+                    >
+                      {mainCategories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </GridItem>
+                <GridItem colSpan={1}>
+                  <FormControl id='sub_category' isRequired>
+                    <FormLabel>서브 카테고리</FormLabel>
+                    <Select
+                      placeholder='서브 카테고리를 선택하세요'
+                      value={selectedSubCategory}
+                      onChange={(e) => setSelectedSubCategory(e.target.value)}
+                      isDisabled={!selectedMainCategory}
+                    >
+                      {subCategories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </Select>
                   </FormControl>
                 </GridItem>
               </SimpleGrid>
