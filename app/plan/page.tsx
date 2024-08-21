@@ -31,10 +31,11 @@ type Plan = {
   description: string;
 };
 
-type Mission = {
+export type Mission = {
   id: string;
   title: string;
   status: string;
+  summation: string;
 };
 
 const PlanPage = () => {
@@ -213,7 +214,7 @@ const PlanPage = () => {
                       isOpen={expandedPlanId === plan.id}
                       onDeleteSuccess={(missionId) =>
                         handleMissionDeleteSuccess(plan.id, missionId)
-                      } // 이 부분 추가
+                      }
                     />
                   </Td>
                 </Tr>
