@@ -41,7 +41,7 @@ const AddPlanPage = () => {
   useEffect(() => {
     const fetchMainCategories = async () => {
       try {
-        const response = await api.get('/category/main/');
+        const response = await api.get('/categorys/main/');
         setMainCategories(response.data);
       } catch (error) {
         console.error('Error fetching main categories:', error);
@@ -56,7 +56,7 @@ const AddPlanPage = () => {
       const fetchSubCategories = async () => {
         try {
           const response = await api.get(
-            `/category/sub/?parents_id=${selectedMainCategory}`
+            `/category/sub/${selectedMainCategory}`
           );
           setSubCategories(response.data);
         } catch (error) {
