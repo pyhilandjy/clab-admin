@@ -31,11 +31,13 @@ type Plan = {
   description: string;
 };
 
-export type Mission = {
+type Mission = {
   id: string;
   title: string;
   status: string;
   summation: string;
+  day: string;
+  message: string;
 };
 
 const PlanPage = () => {
@@ -147,6 +149,18 @@ const PlanPage = () => {
     }));
   };
 
+  const handleMissionAdd = async (planId: string) => {
+    try {
+      const response = await api.get(`/missions/${planId}`);
+      setMissions((prevMissions) => ({
+        ...prevMissions,
+        [planId]: response.data,
+      }));
+    } catch (error) {
+      console.error(`Error fetching missions for plan ${planId}:`, error);
+    }
+  };
+
   return (
     <Layout>
       <Box p={4}>
@@ -215,6 +229,8 @@ const PlanPage = () => {
                       onDeleteSuccess={(missionId) =>
                         handleMissionDeleteSuccess(plan.id, missionId)
                       }
+                      planId={plan.id}
+                      onAddMission={() => handleMissionAdd(plan.id)}
                     />
                   </Td>
                 </Tr>
