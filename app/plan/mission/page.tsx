@@ -142,7 +142,7 @@ const MissionList: React.FC<MissionListProps> = ({
       <Collapse in={isOpen} animateOpacity>
         <Box p={4} width='70vw' maxWidth='1200px'>
           <HStack justifyContent='space-between' mb={4}>
-            <Button colorScheme='teal' onClick={onAddModalOpen}>
+            <Button colorScheme='blue' onClick={onAddModalOpen}>
               미션 추가
             </Button>
           </HStack>

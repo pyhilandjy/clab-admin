@@ -95,7 +95,7 @@ const AddMissionPage: React.FC<{
               />
             </FormControl>
             <HStack spacing={4}>
-              <FormControl>
+              <FormControl flex={6}>
                 <FormLabel>Summation</FormLabel>
                 <Input
                   value={mission.summation}
@@ -104,7 +104,7 @@ const AddMissionPage: React.FC<{
                   }
                 />
               </FormControl>
-              <FormControl>
+              <FormControl flex={1}>
                 <FormLabel>Day</FormLabel>
                 <Input
                   value={mission.day}
