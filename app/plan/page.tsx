@@ -18,6 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogContent,
   AlertDialogOverlay,
+  HStack,
 } from '@chakra-ui/react';
 import axios, { AxiosError } from 'axios';
 import Layout from '../../components/Layout';
@@ -48,6 +49,7 @@ const PlanPage = () => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [missions, setMissions] = useState<{ [key: string]: Mission[] }>({});
   const [expandedPlanId, setExpandedPlanId] = useState<string | null>(null);
+  const [isMissionVisible, setIsMissionVisible] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const cancelRef = useRef(null);
@@ -64,9 +66,19 @@ const PlanPage = () => {
     fetchPlans();
   }, []);
 
-  const handleNameClick = async (planId: string) => {
+  const handleNameClick = (planId: string) => {
     if (expandedPlanId === planId) {
       setExpandedPlanId(null);
+      setIsMissionVisible(false);
+    } else {
+      setExpandedPlanId(planId);
+      setIsMissionVisible(false);
+    }
+  };
+
+  const handleMissionClick = async (planId: string) => {
+    if (isMissionVisible) {
+      setIsMissionVisible(false);
     } else {
       if (!missions[planId]) {
         try {
@@ -75,13 +87,11 @@ const PlanPage = () => {
             ...prevMissions,
             [planId]: response.data,
           }));
-          setExpandedPlanId(planId);
         } catch (error) {
           console.error(`Error fetching missions for plan ${planId}:`, error);
         }
-      } else {
-        setExpandedPlanId(planId);
       }
+      setIsMissionVisible(true);
     }
   };
 
@@ -221,19 +231,41 @@ const PlanPage = () => {
                     </Button>
                   </Td>
                 </Tr>
-                <Tr>
-                  <Td colSpan={5} p={0}>
-                    <MissionList
-                      missions={missions[plan.id] ?? []}
-                      isOpen={expandedPlanId === plan.id}
-                      onDeleteSuccess={(missionId) =>
-                        handleMissionDeleteSuccess(plan.id, missionId)
-                      }
-                      planId={plan.id}
-                      onAddMission={() => handleMissionAdd(plan.id)}
-                    />
-                  </Td>
-                </Tr>
+                {expandedPlanId === plan.id && (
+                  <Tr>
+                    <Td colSpan={5} p={0}>
+                      <Box p={4}>
+                        <HStack spacing={4} mb={4}>
+                          <Button
+                            colorScheme='orange'
+                            onClick={() => handleMissionClick(plan.id)}
+                          >
+                            미션
+                          </Button>
+                          <Button
+                            colorScheme='orange'
+                            onClick={() =>
+                              alert('리포트 페이지 준비 중입니다.')
+                            }
+                          >
+                            리포트
+                          </Button>
+                        </HStack>
+                        {isMissionVisible && (
+                          <MissionList
+                            missions={missions[plan.id] ?? []}
+                            isOpen={isMissionVisible}
+                            onDeleteSuccess={(missionId) =>
+                              handleMissionDeleteSuccess(plan.id, missionId)
+                            }
+                            planId={plan.id}
+                            onAddMission={() => handleMissionAdd(plan.id)}
+                          />
+                        )}
+                      </Box>
+                    </Td>
+                  </Tr>
+                )}
               </React.Fragment>
             ))}
           </Tbody>
