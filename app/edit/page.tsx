@@ -16,7 +16,7 @@ type User = {
 
 type SttData = {
   id: string;
-  file_id: string;
+  audio_files_id: string;
   text_order: number;
   text_edited: string;
   speaker: string;
@@ -52,7 +52,7 @@ const EditPage = () => {
   const router = useRouter();
   const [recordTime, setRecordTime] = useState<number | null>(null);
   const [modifiedData, setModifiedData] = useState<{
-    [key: string]: { [field: string]: string; file_id: string };
+    [key: string]: { [field: string]: string; audio_files_id: string };
   }>({});
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -140,7 +140,7 @@ const EditPage = () => {
     axios
       .patch(backendUrl + '/stt/data/edit-text/', {
         id: sttData.id,
-        file_id: sttData.file_id,
+        audio_files_id: sttData.audio_files_id,
         new_text: newText,
         new_speaker: newSpeaker,
       })
@@ -153,11 +153,11 @@ const EditPage = () => {
   const handleOnClickAdd = (sttData: SttData) => {
     axios
       .post(backendUrl + '/stt/data/add-row/', {
-        file_id: sttData.file_id,
+        audio_files_id: sttData.audio_files_id,
         selected_text_order: sttData.text_order,
       })
       .then((response) => {
-        return axios.get(backendUrl + `/stt/data/${sttData.file_id}`);
+        return axios.get(backendUrl + `/stt/data/${sttData.audio_files_id}`);
       })
       .then((response) => {
         setSttResults(response.data);
@@ -171,11 +171,11 @@ const EditPage = () => {
   const handleOnClickDelete = (sttData: SttData) => {
     axios
       .post(backendUrl + '/stt/data/delete-row/', {
-        file_id: sttData.file_id,
+        audio_files_id: sttData.audio_files_id,
         selected_text_order: sttData.text_order,
       })
       .then((response) => {
-        return axios.get(backendUrl + `/stt/data/${sttData.file_id}`);
+        return axios.get(backendUrl + `/stt/data/${sttData.audio_files_id}`);
       })
       .then((response) => {
         setSttResults(response.data);
@@ -219,12 +219,14 @@ const EditPage = () => {
     const newWord = newWordInputRef.current?.value;
     axios
       .patch(backendUrl + '/stt/data/replace-text/', {
-        file_id: sttResults[0].file_id,
+        audio_files_id: sttResults[0].audio_files_id,
         old_text: oldWord,
         new_text: newWord,
       })
       .then((response) => {
-        return axios.get(backendUrl + `/stt/data/${sttResults[0].file_id}`);
+        return axios.get(
+          backendUrl + `/stt/data/${sttResults[0].audio_files_id}`
+        );
       })
       .then((response) => {
         setSttResults(response.data);
@@ -240,12 +242,14 @@ const EditPage = () => {
     const newSpeaker = newSpeakerInputRef.current?.value;
     axios
       .patch(backendUrl + '/stt/data/replace-speaker/', {
-        file_id: sttResults[0].file_id,
+        audio_files_id: sttResults[0].audio_files_id,
         old_speaker: oldSpeaker,
         new_speaker: newSpeaker,
       })
       .then((response) => {
-        return axios.get(backendUrl + `/stt/data/${sttResults[0].file_id}`);
+        return axios.get(
+          backendUrl + `/stt/data/${sttResults[0].audio_files_id}`
+        );
       })
       .then((response) => {
         setSttResults(response.data);
@@ -259,7 +263,7 @@ const EditPage = () => {
   const handleBatchSave = () => {
     const requests = Object.entries(modifiedData).map(([id, data]) => ({
       id,
-      file_id: data.file_id,
+      audio_files_id: data.audio_files_id,
       new_text: data.text_edited,
       new_speaker: data.speaker,
     }));
@@ -313,14 +317,14 @@ const EditPage = () => {
     id: string,
     field: string,
     value: string,
-    file_id: string
+    audio_files_id: string
   ) => {
     setModifiedData((prevData) => ({
       ...prevData,
       [id]: {
         ...prevData[id],
         [field]: value,
-        file_id: file_id,
+        audio_files_id: audio_files_id,
         text_edited:
           inputRefs.current[id]?.value || prevData[id]?.text_edited || '',
         speaker: speakerRefs.current[id]?.value || prevData[id]?.speaker || '',
@@ -403,7 +407,7 @@ const EditPage = () => {
                       sttData.id,
                       'text_edited',
                       e.target.value,
-                      sttData.file_id
+                      sttData.audio_files_id
                     )
                   }
                   ref={(el: any) => (inputRefs.current[sttData.id] = el)}
@@ -416,7 +420,7 @@ const EditPage = () => {
                       sttData.id,
                       'speaker',
                       e.target.value,
-                      sttData.file_id
+                      sttData.audio_files_id
                     )
                   }
                   ref={(el: any) => (speakerRefs.current[sttData.id] = el)}
