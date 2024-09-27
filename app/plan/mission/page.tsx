@@ -1,5 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+
+import { EditIcon, DeleteIcon } from '@chakra-ui/icons';
 import {
   Box,
   Table,
@@ -22,10 +24,11 @@ import {
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
-import { EditIcon, DeleteIcon } from '@chakra-ui/icons';
+
 import api from '@/lib/api';
-import AddMissionPage from './add/page';
-import EditMissionPage from './edit/page';
+
+import AddMissionPage from './_components/AddMissonPage';
+import EditMissionPage from './_components/EditMissionPage';
 
 type Mission = {
   id: string;
@@ -68,10 +71,13 @@ const MissionList: React.FC<MissionListProps> = ({
   const toast = useToast();
 
   useEffect(() => {
-    const initialStatuses = missions.reduce((acc, mission) => {
-      acc[mission.id] = mission.status;
-      return acc;
-    }, {} as Record<string, string>);
+    const initialStatuses = missions.reduce(
+      (acc, mission) => {
+        acc[mission.id] = mission.status;
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
     setMissionStatuses(initialStatuses);
   }, [missions]);
 
