@@ -1,5 +1,11 @@
 'use client';
-import dayjs from 'dayjs';
+
+import './report.css';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { TuiDatePicker } from 'nextjs-tui-date-picker';
+import { useEffect, useState } from 'react';
+
 import {
   Button,
   Select,
@@ -9,12 +15,10 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import axios from 'axios';
-import { TuiDatePicker } from 'nextjs-tui-date-picker';
-import { useEffect, useState } from 'react';
-import './report.css';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import dayjs from 'dayjs';
+
 import { createClient } from '@/utils/supabase/client';
+
 import Layout from '../../components/Layout';
 import { backendUrl } from '../consts';
 
@@ -192,7 +196,7 @@ const ReportPage = () => {
         const localPaths = response.data;
         if (Array.isArray(localPaths)) {
           const urls: any = localPaths.map(
-            (path) => `${backendUrl}/report/images/${path.split('/').pop()}`
+            (path) => `${backendUrl}/report/images/${path.split('/').pop()}`,
           );
           setWordcloudImageSrc(urls);
         } else {
@@ -213,7 +217,7 @@ const ReportPage = () => {
           start_date: startDate,
           end_date: endDate,
         },
-        { responseType: 'blob' }
+        { responseType: 'blob' },
       )
       .then((response) => {
         console.log(response.data);
@@ -234,7 +238,7 @@ const ReportPage = () => {
           start_date: startDate,
           end_date: endDate,
         },
-        { responseType: 'blob' }
+        { responseType: 'blob' },
       )
       .then((response) => {
         const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -259,7 +263,7 @@ const ReportPage = () => {
           start_date: startDate,
           end_date: endDate,
         },
-        { responseType: 'blob' }
+        { responseType: 'blob' },
       )
       .then((response) => {
         const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -276,7 +280,7 @@ const ReportPage = () => {
   };
 
   const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -317,6 +321,7 @@ const ReportPage = () => {
         isClosable: true,
       });
     } catch (error) {
+      console.error('Error uploading file:', error);
       toast({
         title: 'Upload failed.',
         description: 'There was an error uploading the file.',
