@@ -2,10 +2,11 @@
 const nextConfig = {
   env: {
     NEXT_PUBLIC_API_URL:
-      process.env.NEXT_PUBLIC_API_URL || 'http://localhost:2456',
+      process.env.NEXT_PUBLIC_API_URL ||
+      'https://admin.apicall.connects-lab.com',
   },
   images: {
-    domains: ['apicall.connects-lab.com', 'localhost'],
+    domains: ['admin.apicall.connects-lab.com', 'localhost'],
   },
 };
 
