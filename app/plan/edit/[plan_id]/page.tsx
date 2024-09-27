@@ -44,7 +44,7 @@ const EditPlanPage = () => {
     const fetchPlanData = async () => {
       try {
         const response = await api.get(`/plans/${plan_id}`);
-        const plan = response.data[0];
+        const plan = response.data;
 
         setPlanName(plan.plan_name || '');
         setPrice(plan.price != null ? plan.price.toString() : '');

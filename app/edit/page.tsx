@@ -22,6 +22,7 @@ type SttData = {
   speaker: string;
   act_id: number;
   talk_more_id: number;
+  act_types_id: number;
 };
 
 type SpeechAct = {
@@ -34,14 +35,25 @@ type TalkMore = {
   id: number;
 };
 
+type ActType = {
+  act_type: string;
+  id: number;
+};
+
+type file = {
+  id: string;
+};
+
 const EditPage = () => {
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const speakerRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [users, setUsers] = useState<User[]>([]);
-  const [files, setFiles] = useState([]);
+  const [files, setFiles] = useState<file[]>([]);
+  const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [sttResults, setSttResults] = useState<SttData[]>([]);
   const [speechAct, setSpeechAct] = useState<SpeechAct[]>([]);
   const [talkMore, setTalkMore] = useState<TalkMore[]>([]);
+  const [actTypes, setActTypes] = useState<ActType[]>([]);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const oldWordInputRef = useRef<HTMLInputElement | null>(null);
@@ -77,6 +89,9 @@ const EditPage = () => {
     axios.get(backendUrl + '/stt/talk_more/').then((response) => {
       setTalkMore(response.data);
     });
+    axios.get(backendUrl + '/stt/act_types/').then((response) => {
+      setActTypes(response.data);
+    });
   }, [backendUrl]);
 
   const handleSelectUser = (e: any) => {
@@ -103,6 +118,7 @@ const EditPage = () => {
 
   const handleSelectFileId = async (e: any) => {
     const fileId = e.target.value;
+    setSelectedFileId(fileId);
     setAudioUrl(`${backendUrl}/audio/webm/${fileId}`);
 
     try {
@@ -214,6 +230,20 @@ const EditPage = () => {
       });
   };
 
+  const handleSelectActType = (sttData: SttData, e: any) => {
+    const selectedOption = e.target.options[e.target.selectedIndex];
+    const actType = parseInt(selectedOption.getAttribute('data-act-type-id'));
+    axios
+      .patch(backendUrl + '/stt/data/edit-act-type/', {
+        id: sttData.id,
+        act_types_id: actType,
+      })
+      .then((response) => {})
+      .catch((error) => {
+        console.error('There was an error!', error);
+      });
+  };
+
   const handleTextChangeButtonClick = () => {
     const oldWord = oldWordInputRef.current?.value;
     const newWord = newWordInputRef.current?.value;
@@ -286,6 +316,22 @@ const EditPage = () => {
       });
   };
 
+  const handleRunMlSpeechActType = () => {
+    axios
+      .patch(
+        `${backendUrl}/stt/speech-act-type/?audio_files_id=${selectedFileId}`
+      )
+      .then((response) => {
+        return axios.get(`${backendUrl}/stt/data/${selectedFileId}`);
+      })
+      .then((response) => {
+        setSttResults(response.data);
+      })
+      .catch((error) => {
+        console.error('ML 처리 중 오류 발생 또는 데이터 갱신 실패:', error);
+      });
+  };
+
   const getActNameById = (id: number): string => {
     const act = speechAct.find((act: SpeechAct) => act.id === id) as
       | SpeechAct
@@ -298,6 +344,13 @@ const EditPage = () => {
       (talk_more: TalkMore) => talk_more.id === id
     ) as TalkMore | undefined;
     return talk_more_data ? talk_more_data.talk_more : '';
+  };
+
+  const getActTypeById = (id: number): string => {
+    const actType = actTypes.find((actType: ActType) => actType.id === id) as
+      | ActType
+      | undefined;
+    return actType ? actType.act_type : '';
   };
 
   const syncInputValues = (updatedResults: SttData[]) => {
@@ -389,6 +442,9 @@ const EditPage = () => {
           <GridItem>
             <Button onClick={handleBatchSave}>Save All</Button>
           </GridItem>
+          <GridItem>
+            <Button onClick={handleRunMlSpeechActType}>Run ML Act</Button>
+          </GridItem>
         </Grid>
         {successMessage && (
           <div className='success-message'>{successMessage}</div>
@@ -453,6 +509,21 @@ const EditPage = () => {
                       value={speechact.act_name}
                     >
                       {speechact.act_name}
+                    </option>
+                  ))}
+                </Select>
+                <Select
+                  value={getActTypeById(sttData.act_types_id)}
+                  onChange={(e) => handleSelectActType(sttData, e)}
+                  style={{ flex: '0 0 150px', minWidth: '100px' }}
+                >
+                  {actTypes.map((actType) => (
+                    <option
+                      key={actType.id}
+                      data-act-type-id={actType.id}
+                      value={actType.act_type}
+                    >
+                      {actType.act_type}
                     </option>
                   ))}
                 </Select>
