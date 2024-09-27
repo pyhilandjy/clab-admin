@@ -1,9 +1,12 @@
 'use client';
+import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+
 import { Input, Button, Select, Grid, GridItem } from '@chakra-ui/react';
 import axios from 'axios';
-import { useRouter } from 'next/navigation';
+
 import { createClient } from '@/utils/supabase/client';
+
 import '@/styles/edit.css';
 import Layout from '../../components/Layout';
 import { backendUrl } from '../consts';
@@ -128,7 +131,7 @@ const EditPage = () => {
 
       // 오디오 파일 정보 가져오기
       const infoResponse = await axios.get(
-        `${backendUrl}/audio/webm/info/${fileId}`
+        `${backendUrl}/audio/webm/info/${fileId}`,
       );
       setRecordTime(infoResponse.data.record_time);
     } catch (error) {
@@ -160,7 +163,6 @@ const EditPage = () => {
         new_text: newText,
         new_speaker: newSpeaker,
       })
-      .then((response) => {})
       .catch((error) => {
         console.error('There was an error!', error);
       });
@@ -172,7 +174,7 @@ const EditPage = () => {
         audio_files_id: sttData.audio_files_id,
         selected_text_order: sttData.text_order,
       })
-      .then((response) => {
+      .then(() => {
         return axios.get(backendUrl + `/stt/data/${sttData.audio_files_id}`);
       })
       .then((response) => {
@@ -190,7 +192,7 @@ const EditPage = () => {
         audio_files_id: sttData.audio_files_id,
         selected_text_order: sttData.text_order,
       })
-      .then((response) => {
+      .then(() => {
         return axios.get(backendUrl + `/stt/data/${sttData.audio_files_id}`);
       })
       .then((response) => {
@@ -210,7 +212,7 @@ const EditPage = () => {
         id: sttData.id,
         act_id: actId,
       })
-      .then((response) => {})
+      .then(() => {})
       .catch((error) => {
         console.error('There was an error!', error);
       });
@@ -224,7 +226,7 @@ const EditPage = () => {
         id: sttData.id,
         talk_more_id: talkMore,
       })
-      .then((response) => {})
+      .then(() => {})
       .catch((error) => {
         console.error('There was an error!', error);
       });
@@ -238,7 +240,7 @@ const EditPage = () => {
         id: sttData.id,
         act_types_id: actType,
       })
-      .then((response) => {})
+      .then(() => {})
       .catch((error) => {
         console.error('There was an error!', error);
       });
@@ -253,9 +255,9 @@ const EditPage = () => {
         old_text: oldWord,
         new_text: newWord,
       })
-      .then((response) => {
+      .then(() => {
         return axios.get(
-          backendUrl + `/stt/data/${sttResults[0].audio_files_id}`
+          backendUrl + `/stt/data/${sttResults[0].audio_files_id}`,
         );
       })
       .then((response) => {
@@ -276,9 +278,9 @@ const EditPage = () => {
         old_speaker: oldSpeaker,
         new_speaker: newSpeaker,
       })
-      .then((response) => {
+      .then(() => {
         return axios.get(
-          backendUrl + `/stt/data/${sttResults[0].audio_files_id}`
+          backendUrl + `/stt/data/${sttResults[0].audio_files_id}`,
         );
       })
       .then((response) => {
@@ -319,9 +321,9 @@ const EditPage = () => {
   const handleRunMlSpeechActType = () => {
     axios
       .patch(
-        `${backendUrl}/stt/speech-act-type/?audio_files_id=${selectedFileId}`
+        `${backendUrl}/stt/speech-act-type/?audio_files_id=${selectedFileId}`,
       )
-      .then((response) => {
+      .then(() => {
         return axios.get(`${backendUrl}/stt/data/${selectedFileId}`);
       })
       .then((response) => {
@@ -341,7 +343,7 @@ const EditPage = () => {
 
   const getTalkMoreById = (id: number): string => {
     const talk_more_data = talkMore.find(
-      (talk_more: TalkMore) => talk_more.id === id
+      (talk_more: TalkMore) => talk_more.id === id,
     ) as TalkMore | undefined;
     return talk_more_data ? talk_more_data.talk_more : '';
   };
@@ -370,7 +372,7 @@ const EditPage = () => {
     id: string,
     field: string,
     value: string,
-    audio_files_id: string
+    audio_files_id: string,
   ) => {
     setModifiedData((prevData) => ({
       ...prevData,
@@ -463,7 +465,7 @@ const EditPage = () => {
                       sttData.id,
                       'text_edited',
                       e.target.value,
-                      sttData.audio_files_id
+                      sttData.audio_files_id,
                     )
                   }
                   ref={(el: any) => (inputRefs.current[sttData.id] = el)}
@@ -476,7 +478,7 @@ const EditPage = () => {
                       sttData.id,
                       'speaker',
                       e.target.value,
-                      sttData.audio_files_id
+                      sttData.audio_files_id,
                     )
                   }
                   ref={(el: any) => (speakerRefs.current[sttData.id] = el)}
