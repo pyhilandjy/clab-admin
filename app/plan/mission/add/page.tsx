@@ -26,11 +26,7 @@ type Props = {
   onSave: () => Promise<void>;
 };
 
-const AddMissionPage: React.FunctionComponent<Props> = ({
-  onClose,
-  planId,
-  onSave,
-}) => {
+function AddMissionPage({ onClose, planId, onSave }: Props) {
   const [missions, setMissions] = useState<MissionInput[]>([
     { title: '', summation: '', day: '', message: '' },
   ]);
@@ -40,7 +36,7 @@ const AddMissionPage: React.FunctionComponent<Props> = ({
   const handleInputChange = (
     index: number,
     field: keyof MissionInput,
-    value: string
+    value: string,
   ) => {
     const newMissions = [...missions];
     newMissions[index][field] = value;
@@ -141,6 +137,6 @@ const AddMissionPage: React.FunctionComponent<Props> = ({
       </VStack>
     </Box>
   );
-};
+}
 
 export default AddMissionPage;
