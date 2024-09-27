@@ -1,11 +1,12 @@
 'use client';
 
-import { Link } from '@chakra-ui/next-js';
-import { Box } from '@chakra-ui/react';
+import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
+import { Box } from '@chakra-ui/react';
+
 import { createClient } from '@/utils/supabase/client';
-import { useRouter } from 'next/navigation';
+
 import Layout from '../components/Layout';
 export default function Page() {
   const supabase = createClient();
