@@ -27,8 +27,8 @@ import {
 
 import api from '@/lib/api';
 
-import AddMissionPage from './_components/AddMissonPage';
-import EditMissionPage from './_components/EditMissionPage';
+import AddMissionPage from './AddMissonPage';
+import EditMissionPage from './EditMissionPage';
 
 type Mission = {
   id: string;

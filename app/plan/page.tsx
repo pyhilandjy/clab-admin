@@ -25,7 +25,7 @@ import { AxiosError } from 'axios';
 
 import api from '@/lib/api';
 
-import MissionList from './mission/page';
+import MissionList from './_components/mission/MissionList';
 import Layout from '../../components/Layout';
 
 type Plan = {
