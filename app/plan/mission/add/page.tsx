@@ -20,11 +20,17 @@ type MissionInput = {
   message: string;
 };
 
-const AddMissionPage: React.FC<{
+type Props = {
   onClose: () => void;
   planId: string;
   onSave: () => Promise<void>;
-}> = ({ onClose, planId, onSave }) => {
+};
+
+const AddMissionPage: React.FunctionComponent<Props> = ({
+  onClose,
+  planId,
+  onSave,
+}) => {
   const [missions, setMissions] = useState<MissionInput[]>([
     { title: '', summation: '', day: '', message: '' },
   ]);
