@@ -13,18 +13,18 @@ import {
 } from '@chakra-ui/react';
 import api from '@/lib/api';
 
-type MissionInput = {
+interface MissionInput {
   title: string;
   summation: string;
   day: string;
   message: string;
-};
+}
 
-type Props = {
+interface Props {
   onClose: () => void;
   planId: string;
   onSave: () => Promise<void>;
-};
+}
 
 function AddMissionPage({ onClose, planId, onSave }: Props) {
   const [missions, setMissions] = useState<MissionInput[]>([
