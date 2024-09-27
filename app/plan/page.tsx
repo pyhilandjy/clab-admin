@@ -1,6 +1,7 @@
 'use client';
-import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import React, { useEffect, useState, useRef } from 'react';
+
 import {
   Button,
   Table,
@@ -20,10 +21,12 @@ import {
   AlertDialogOverlay,
   HStack,
 } from '@chakra-ui/react';
-import axios, { AxiosError } from 'axios';
-import Layout from '../../components/Layout';
-import MissionList from './mission/page';
+import { AxiosError } from 'axios';
+
 import api from '@/lib/api';
+
+import MissionList from './mission/page';
+import Layout from '../../components/Layout';
 
 type Plan = {
   id: string;
@@ -97,14 +100,14 @@ const PlanPage = () => {
 
   const handleStatusChange = async (planId: string, newStatus: string) => {
     try {
-      const response = await api.patch(`/plan/status/`, {
-        id: planId,
-        status: newStatus,
-      });
+      // const response = await api.patch(`/plan/status/`, {
+      //   id: planId,
+      //   status: newStatus,
+      // });
       setPlans((prevPlans) =>
         prevPlans.map((plan) =>
-          plan.id === planId ? { ...plan, status: newStatus } : plan
-        )
+          plan.id === planId ? { ...plan, status: newStatus } : plan,
+        ),
       );
     } catch (error) {
       console.error(`Error updating status for plan ${planId}:`, error);
@@ -117,7 +120,7 @@ const PlanPage = () => {
         const response = await api.delete(`/plans/${selectedPlanId}`);
         if (response.data.Code === '0') {
           setPlans((prevPlans) =>
-            prevPlans.filter((plan) => plan.id !== selectedPlanId)
+            prevPlans.filter((plan) => plan.id !== selectedPlanId),
           );
         } else {
           alert(response.data.message);
@@ -154,7 +157,7 @@ const PlanPage = () => {
     setMissions((prevMissions) => ({
       ...prevMissions,
       [planId]: prevMissions[planId].filter(
-        (mission) => mission.id !== missionId
+        (mission) => mission.id !== missionId,
       ),
     }));
   };
