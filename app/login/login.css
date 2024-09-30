@@ -1,0 +1,81 @@
+/* 로그인 컨테이너 전체 레이아웃 */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f0f2f5;
+}
+
+/* 로그인 폼 스타일 */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  width: 300px;
+}
+
+/* 제목 스타일 */
+.login-title {
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+/* 라벨 스타일 */
+.login-label {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: #555;
+}
+
+/* 인풋 필드 스타일 */
+.login-input {
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.login-input:focus {
+  border-color: #007bff;
+}
+
+/* 버튼 스타일 */
+.login-button {
+  padding: 0.75rem;
+  font-size: 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.login-button:hover {
+  background-color: #0056b3;
+}
+
+/* 반응형을 위한 미디어 쿼리 */
+@media (max-width: 400px) {
+  .login-form {
+    width: 100%;
+    padding: 1.5rem;
+  }
+
+  .login-title {
+    font-size: 1.25rem;
+  }
+
+  .login-button {
+    padding: 0.5rem;
+  }
+}
