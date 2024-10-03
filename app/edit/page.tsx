@@ -1,11 +1,8 @@
 'use client';
-import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
 import { Input, Button, Select, Grid, GridItem } from '@chakra-ui/react';
 import axios from 'axios';
-
-import { createClient } from '@/utils/supabase/client';
 
 import '@/styles/edit.css';
 import Layout from '../../components/Layout';
@@ -63,24 +60,12 @@ const EditPage = () => {
   const newWordInputRef = useRef<HTMLInputElement | null>(null);
   const oldSpeakerInputRef = useRef<HTMLInputElement | null>(null);
   const newSpeakerInputRef = useRef<HTMLInputElement | null>(null);
-  const supabase = createClient();
-  const router = useRouter();
   const [recordTime, setRecordTime] = useState<number | null>(null);
   const [modifiedData, setModifiedData] = useState<{
     [key: string]: { [field: string]: string; audio_files_id: string };
   }>({});
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-
-  useEffect(() => {
-    const checkUser = async () => {
-      const { data, error } = await supabase.auth.getUser();
-      if (error || !data?.user) {
-        router.push('/login');
-      }
-    };
-    checkUser();
-  }, [supabase, router]);
 
   useEffect(() => {
     axios.get(backendUrl + '/users/').then((response) => {

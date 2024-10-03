@@ -1,6 +1,7 @@
 'use client';
-import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+
 import {
   Box,
   Button,
@@ -14,7 +15,9 @@ import {
   Center,
   Select,
 } from '@chakra-ui/react';
+
 import api from '@/lib/api';
+
 import Layout from '../../../components/Layout';
 
 type Category = {
@@ -56,7 +59,7 @@ const AddPlanPage = () => {
       const fetchSubCategories = async () => {
         try {
           const response = await api.get(
-            `/category/sub/${selectedMainCategory}`
+            `/category/sub/${selectedMainCategory}`,
           );
           setSubCategories(response.data);
         } catch (error) {

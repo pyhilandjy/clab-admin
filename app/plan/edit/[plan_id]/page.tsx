@@ -1,6 +1,7 @@
 'use client';
-import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+
 import {
   Box,
   Button,
@@ -14,7 +15,9 @@ import {
   Center,
   Select,
 } from '@chakra-ui/react';
+
 import api from '@/lib/api';
+
 import Layout from '../../../../components/Layout';
 
 type Category = {
@@ -49,10 +52,10 @@ const EditPlanPage = () => {
         setPlanName(plan.plan_name || '');
         setPrice(plan.price != null ? plan.price.toString() : '');
         setStartAgeMonth(
-          plan.start_age_month != null ? plan.start_age_month.toString() : ''
+          plan.start_age_month != null ? plan.start_age_month.toString() : '',
         );
         setEndAgeMonth(
-          plan.end_age_month != null ? plan.end_age_month.toString() : ''
+          plan.end_age_month != null ? plan.end_age_month.toString() : '',
         );
         setDay(plan.day != null ? plan.day.toString() : '');
         setDescription(plan.description || '');
@@ -68,7 +71,7 @@ const EditPlanPage = () => {
         // 서브카테고리로부터 메인카테고리 찾기
         for (const mainCategory of categories) {
           const subCategory = mainCategory.sub_categories?.find(
-            (sub) => sub.id === plan.category_id
+            (sub) => sub.id === plan.category_id,
           );
           if (subCategory) {
             foundMainCategory = mainCategory;
@@ -96,7 +99,7 @@ const EditPlanPage = () => {
   const handleMainCategoryChange = (mainCategoryId: string) => {
     setSelectedMainCategory(mainCategoryId);
     const mainCategory = mainCategories.find(
-      (category) => category.id === mainCategoryId
+      (category) => category.id === mainCategoryId,
     );
     setSubCategories(mainCategory?.sub_categories || []);
     setSelectedSubCategory(''); // 서브 카테고리 선택 초기화

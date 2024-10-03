@@ -2,7 +2,6 @@
 
 import './report.css';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import { TuiDatePicker } from 'nextjs-tui-date-picker';
 import { useEffect, useState } from 'react';
 
@@ -16,8 +15,6 @@ import {
 } from '@chakra-ui/react';
 import axios from 'axios';
 import dayjs from 'dayjs';
-
-import { createClient } from '@/utils/supabase/client';
 
 import Layout from '../../components/Layout';
 import { backendUrl } from '../consts';
@@ -60,26 +57,7 @@ const ReportPage = () => {
   const [wordcloudimageSrc, setWordcloudImageSrc] = useState<any>(null);
   const [violinplotimageSrc, setViolinplotImageSrc] = useState(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const supabase = createClient();
-  const router = useRouter();
   const toast = useToast();
-
-  useEffect(() => {
-    const checkUser = async () => {
-      const { data, error } = await supabase.auth.getUser();
-      console.log(data?.user);
-      if (error || !data?.user) {
-        router.push('/login');
-      }
-    };
-    checkUser();
-  }, [supabase, router]);
-
-  // useEffect(() => {
-  //   axios.get(backendUrl + "/users/").then((response) => {
-  //     setUsers(response.data);
-  //   });
-  // }, []);
 
   useEffect(() => {
     axios.get(backendUrl + '/users/').then((response) => {
