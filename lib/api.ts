@@ -6,8 +6,8 @@ import axios, {
 } from 'axios';
 
 const instance: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-  // baseURL: 'http://localhost:2456',
+  // baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: 'http://localhost:2456',
   timeout: 5000,
   headers: {
     'Content-Type': 'application/json',
@@ -29,32 +29,32 @@ const handleError = (error: AxiosError): Promise<never> => {
 
 instance.interceptors.response.use(
   (response: AxiosResponse) => response,
-  (error: AxiosError) => handleError(error)
+  (error: AxiosError) => handleError(error),
 );
 
 export const api = {
   get: <T = any>(
     url: string,
-    config: AxiosRequestConfig = {}
+    config: AxiosRequestConfig = {},
   ): Promise<AxiosResponse<T>> => instance.get<T>(url, config),
   post: <T = any>(
     url: string,
     data?: any,
-    config: AxiosRequestConfig = {}
+    config: AxiosRequestConfig = {},
   ): Promise<AxiosResponse<T>> => instance.post<T>(url, data, config),
   put: <T = any>(
     url: string,
     data?: any,
-    config: AxiosRequestConfig = {}
+    config: AxiosRequestConfig = {},
   ): Promise<AxiosResponse<T>> => instance.put<T>(url, data, config),
   delete: <T = any>(
     url: string,
-    config: AxiosRequestConfig = {}
+    config: AxiosRequestConfig = {},
   ): Promise<AxiosResponse<T>> => instance.delete<T>(url, config),
   patch: <T = any>(
     url: string,
     data?: any,
-    config: AxiosRequestConfig = {}
+    config: AxiosRequestConfig = {},
   ): Promise<AxiosResponse<T>> => instance.patch<T>(url, data, config),
 };
 
