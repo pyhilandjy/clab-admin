@@ -1,3 +1,4 @@
+'use client';
 import { login } from '@/app/login/actions';
 import './login.css';
 
