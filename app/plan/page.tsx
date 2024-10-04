@@ -21,28 +21,19 @@ import {
   AlertDialogOverlay,
   HStack,
 } from '@chakra-ui/react';
-import { AxiosError } from 'axios';
 
-import api from '@/lib/api';
+import {
+  fetchPlans,
+  fetchMission,
+  updatePlanStatus,
+  deletePlan,
+} from '@/api/plan';
 
 import MissionList from './_components/mission/MissionList';
 import Layout from '../../components/Layout';
 
-type Plan = {
-  id: string;
-  plan_name: string;
-  status: string;
-  description: string;
-};
-
-type Mission = {
-  id: string;
-  title: string;
-  status: string;
-  summation: string;
-  day: string;
-  message: string;
-};
+import { Plan } from '@/types/plan';
+import { Mission } from '@/types/mission';
 
 const PlanPage = () => {
   const router = useRouter();
@@ -58,15 +49,15 @@ const PlanPage = () => {
   const cancelRef = useRef(null);
 
   useEffect(() => {
-    const fetchPlans = async () => {
+    const loadPlans = async () => {
       try {
-        const response = await api.get('/plans/');
+        const response = await fetchPlans();
         setPlans(response.data);
       } catch (error) {
-        console.error('Error fetching plans:', error);
+        console.error('플랜을 불러오는 중 오류가 발생했습니다:', error);
       }
     };
-    fetchPlans();
+    loadPlans();
   }, []);
 
   const handleNameClick = (planId: string) => {
@@ -85,7 +76,7 @@ const PlanPage = () => {
     } else {
       if (!missions[planId]) {
         try {
-          const response = await api.get(`/missions/${planId}`);
+          const response = await fetchMission(planId);
           setMissions((prevMissions) => ({
             ...prevMissions,
             [planId]: response.data,
@@ -100,10 +91,7 @@ const PlanPage = () => {
 
   const handleStatusChange = async (planId: string, newStatus: string) => {
     try {
-      // const response = await api.patch(`/plan/status/`, {
-      //   id: planId,
-      //   status: newStatus,
-      // });
+      await updatePlanStatus(planId, newStatus);
       setPlans((prevPlans) =>
         prevPlans.map((plan) =>
           plan.id === planId ? { ...plan, status: newStatus } : plan,
@@ -117,21 +105,17 @@ const PlanPage = () => {
   const handleDelete = async () => {
     if (selectedPlanId) {
       try {
-        const response = await api.delete(`/plans/${selectedPlanId}`);
+        const response = await deletePlan(selectedPlanId);
         if (response.data.Code === '0') {
           setPlans((prevPlans) =>
             prevPlans.filter((plan) => plan.id !== selectedPlanId),
           );
-        } else {
+        } else if (response.data.Code === '1001') {
           alert(response.data.message);
         }
       } catch (error) {
         console.error(`Error deleting plan ${selectedPlanId}:`, error);
-        const axiosError = error as AxiosError<{ message: string }>;
-        const errorMessage =
-          axiosError.response?.data?.message ||
-          '패키지 삭제 중 오류가 발생했습니다.';
-        alert(errorMessage);
+        alert('패키지 삭제 중 오류가 발생했습니다.');
       } finally {
         setIsOpen(false);
         setSelectedPlanId(null);
@@ -164,7 +148,7 @@ const PlanPage = () => {
 
   const handleMissionAdd = async (planId: string) => {
     try {
-      const response = await api.get(`/missions/${planId}`);
+      const response = await fetchMission(planId);
       setMissions((prevMissions) => ({
         ...prevMissions,
         [planId]: response.data,
@@ -173,7 +157,6 @@ const PlanPage = () => {
       console.error(`Error fetching missions for plan ${planId}:`, error);
     }
   };
-
   return (
     <Layout>
       <Box p={4}>

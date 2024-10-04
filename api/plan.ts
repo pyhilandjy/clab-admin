@@ -1,30 +1,30 @@
 import api from '@/lib/api';
+import { Mission } from '@/types/mission';
+import { Category, Plan } from '@/types/plan';
 
-export type Category = {
-  id: string;
-  name: string;
-  parent_id?: string;
-  sub_categories?: Category[];
-};
+//plan.tsx
+export const fetchPlans = () => api.get<Plan[]>('/plans/');
 
-export type Plan = {
-  id?: string;
-  plan_name: string;
-  price: number | null;
-  start_age_month: number | null;
-  end_age_month: number | null;
-  day: number | null;
-  description: string;
-  type: string;
-  tags: string[];
-  category_id: string;
-};
+export const fetchMission = (planId: string) =>
+  api.get<Mission[]>(`/missions/${planId}`);
+
+export const updatePlanStatus = (planId: string, status: string) =>
+  api.patch(`/plans/${planId}/status/`, { status });
+
+export const deletePlan = (planId: string) => api.delete(`/plans/${planId}`);
+
+//plan/add.tsx
+export const fetchMainCategories = () =>
+  api.get<Category[]>('/categories/main/');
+
+export const fetchSubCategories = (mainCategoryId: string) =>
+  api.get(`/categories/sub/${mainCategoryId}`);
+
+export const createPlan = (payload: any) => api.post<Plan>('/plans/', payload);
 
 export const fetchPlan = (planId: string) => api.get<Plan>(`/plans/${planId}`);
 
 export const fetchCategories = () => api.get<Category[]>('/categories/');
-
-export const createPlan = (plan: Plan) => api.post<Plan>('/plans/', plan);
 
 export const updatePlan = (planId: string, plan: Plan) =>
   api.put<Plan>(`/plans/${planId}`, plan);
