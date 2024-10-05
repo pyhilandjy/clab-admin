@@ -44,6 +44,7 @@ const EditPage = () => {
   const [files, setFiles] = useState<file[]>([]);
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [sttResults, setSttResults] = useState<SttData[]>([]);
+  // speechAct, talkMore, actTypes 상태관리 변경 placeholder -> value 변경되어야함 (수정필요)
   const [speechAct, setSpeechAct] = useState<SpeechAct[]>([]);
   const [talkMore, setTalkMore] = useState<TalkMore[]>([]);
   const [actTypes, setActTypes] = useState<ActTypes[]>([]);
@@ -244,12 +245,9 @@ const EditPage = () => {
     }));
     try {
       await batchEdit(requests);
-      setSuccessMessage('Save successful');
-      setTimeout(() => setSuccessMessage(''), 2000);
+      alert('저장 성공');
     } catch (error) {
-      setErrorMessage('Save failed');
-      setTimeout(() => setErrorMessage(''), 2000);
-      console.error('Save failed', error);
+      alert('저장 실패');
     }
   };
 
@@ -449,7 +447,7 @@ const EditPage = () => {
                   ))}
                 </Select>
                 <Select
-                  value={getActTypeById(sttData.act_types_id)}
+                  placeholder={getActTypeById(sttData.act_types_id)}
                   onChange={(e) => handleSelectActType(sttData, e)}
                   style={{ flex: '0 0 150px', minWidth: '100px' }}
                 >

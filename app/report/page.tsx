@@ -39,9 +39,6 @@ type SentenceLengthResponse = {
   [speaker: string]: SentenceLengthData;
 };
 
-// 원래 User 선택하는 부분은 edit page 에도 있고, 여기에도 동일하니 따로 컴포넌트로 분리하는게 좋음.
-// app/components/UserSelect.tsx 이런식으로 파일 만들어서 작성.
-// Props로 정보를 받아서 처리하는 방식으로 구현.
 const ReportPage = () => {
   const currentDate = dayjs().format('YYYY-MM-DD');
   const [users, setUsers] = useState<User[]>([]);
