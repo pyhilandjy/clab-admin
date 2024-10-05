@@ -2,7 +2,6 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { Input, Button, Select, Grid, GridItem } from '@chakra-ui/react';
-import axios from 'axios';
 
 import {
   fetchUsers,
@@ -35,6 +34,7 @@ import {
 
 import '@/styles/edit.css';
 import Layout from '../../components/Layout';
+// backendUrl 빼야함 audio 불러올때 사용중
 import { backendUrl } from '../consts';
 
 const EditPage = () => {
