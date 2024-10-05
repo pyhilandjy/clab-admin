@@ -1,49 +1,87 @@
 import api from '@/lib/api';
+import {
+  User,
+  SttData,
+  SpeechAct,
+  TalkMore,
+  ActTypes,
+  file,
+} from '@/types/sttEdit';
 
-export type User = {
-  id: string;
-  name: string;
-  email: string;
-};
+export const fetchUsers = () => api.get<User[]>('/users/');
 
-export type SttData = {
-  id: string;
-  audio_files_id: string;
-  text_order: number;
-  text_edited: string;
-  speaker: string;
-  act_id: number;
-  talk_more_id: number;
-  act_types_id: number;
-};
+export const fetchSpeechActs = () => api.get<SpeechAct[]>('/stt/speech_acts/');
 
-export type SpeechAct = {
-  act_name: string;
-  id: number;
-};
+export const fetchTalkMore = () => api.get<TalkMore[]>('/stt/talk_more/');
 
-export type TalkMore = {
-  talk_more: string;
-  id: number;
-};
+export const fetchActTypes = () => api.get<ActTypes[]>('/stt/act_types/');
 
-export type ActTypes = {
-  act_type: string;
-  id: number;
-};
+export const fetchUserFiles = (userId: string) =>
+  api.get<file[]>(`/audio/user/${userId}/files`);
 
-export type file = {
-  id: string;
-};
+export const fetchSttData = (fileId: string) =>
+  api.get<SttData[]>(`/stt/data/${fileId}`);
 
-export const fetchUser = () => api.get<User>(`/users/`);
-export const fetchSpeechAct = () => api.get<SpeechAct>(`/stt/speech_acts/`);
-export const fetchTalkMore = () => api.get<TalkMore>(`/stt/tack_more/`);
-export const fetchActTypes = () => api.get<ActTypes>(`/stt/act_types/`);
+export const fetchAudioInfo = (fileId: string) =>
+  api.get<{ record_time: number }>(`/audio/webm/info/${fileId}`);
 
-// export const fetchCategories = () => api.get<Category[]>('/categories/');
+export const updateText = (
+  id: string,
+  audioFilesId: string,
+  newText: string,
+  newSpeaker: string,
+) =>
+  api.patch('/stt/data/edit-text/', {
+    id,
+    audio_files_id: audioFilesId,
+    new_text: newText,
+    new_speaker: newSpeaker,
+  });
 
-// export const createPlan = (plan: Plan) => api.post<Plan>('/plans/', plan);
+export const addRow = (audioFilesId: string, textOrder: number) =>
+  api.post('/stt/data/add-row/', {
+    audio_files_id: audioFilesId,
+    selected_text_order: textOrder,
+  });
 
-// export const updatePlan = (planId: string, plan: Plan) =>
-//   api.put<Plan>(`/plans/${planId}`, plan);
+export const deleteRow = (audioFilesId: string, textOrder: number) =>
+  api.post('/stt/data/delete-row/', {
+    audio_files_id: audioFilesId,
+    selected_text_order: textOrder,
+  });
+
+export const updateSpeechAct = (id: string, actId: number) =>
+  api.patch('/stt/data/edit-speech-act/', { id, act_id: actId });
+
+export const updateTalkMore = (id: string, talkMoreId: number) =>
+  api.patch('/stt/data/edit-talk-more/', { id, talk_more_id: talkMoreId });
+
+export const updateActType = (id: string, actTypeId: number) =>
+  api.patch('/stt/data/edit-act-type/', { id, act_types_id: actTypeId });
+
+export const replaceText = (
+  audioFilesId: string,
+  oldText: string,
+  newText: string,
+) =>
+  api.patch('/stt/data/replace-text/', {
+    audio_files_id: audioFilesId,
+    old_text: oldText,
+    new_text: newText,
+  });
+
+export const replaceSpeaker = (
+  audioFilesId: string,
+  oldSpeaker: string,
+  newSpeaker: string,
+) =>
+  api.patch('/stt/data/replace-speaker/', {
+    audio_files_id: audioFilesId,
+    old_speaker: oldSpeaker,
+    new_speaker: newSpeaker,
+  });
+
+export const batchEdit = (data: any) => api.post('/stt/data/batch-edit/', data);
+
+export const runMlSpeechActType = (audioFilesId: string) =>
+  api.patch(`/stt/speech-act-type/?audio_files_id=${audioFilesId}`);

@@ -4,45 +4,38 @@ import { useEffect, useRef, useState } from 'react';
 import { Input, Button, Select, Grid, GridItem } from '@chakra-ui/react';
 import axios from 'axios';
 
+import {
+  fetchUsers,
+  fetchSpeechActs,
+  fetchTalkMore,
+  fetchActTypes,
+  fetchUserFiles,
+  fetchSttData,
+  fetchAudioInfo,
+  updateText,
+  addRow,
+  deleteRow,
+  updateSpeechAct,
+  updateTalkMore,
+  updateActType,
+  replaceText,
+  replaceSpeaker,
+  batchEdit,
+  runMlSpeechActType,
+} from '@/api/sttEdit';
+
+import {
+  User,
+  SttData,
+  SpeechAct,
+  TalkMore,
+  ActTypes,
+  file,
+} from '@/types/sttEdit';
+
 import '@/styles/edit.css';
 import Layout from '../../components/Layout';
 import { backendUrl } from '../consts';
-
-type User = {
-  id: string;
-  name: string;
-  email: string;
-};
-
-type SttData = {
-  id: string;
-  audio_files_id: string;
-  text_order: number;
-  text_edited: string;
-  speaker: string;
-  act_id: number;
-  talk_more_id: number;
-  act_types_id: number;
-};
-
-type SpeechAct = {
-  act_name: string;
-  id: number;
-};
-
-type TalkMore = {
-  talk_more: string;
-  id: number;
-};
-
-type ActType = {
-  act_type: string;
-  id: number;
-};
-
-type file = {
-  id: string;
-};
 
 const EditPage = () => {
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -53,7 +46,7 @@ const EditPage = () => {
   const [sttResults, setSttResults] = useState<SttData[]>([]);
   const [speechAct, setSpeechAct] = useState<SpeechAct[]>([]);
   const [talkMore, setTalkMore] = useState<TalkMore[]>([]);
-  const [actTypes, setActTypes] = useState<ActType[]>([]);
+  const [actTypes, setActTypes] = useState<ActTypes[]>([]);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const oldWordInputRef = useRef<HTMLInputElement | null>(null);
@@ -68,34 +61,47 @@ const EditPage = () => {
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
-    axios.get(backendUrl + '/users/').then((response) => {
-      setUsers(response.data);
-    });
-    axios.get(backendUrl + '/stt/speech_acts/').then((response) => {
-      setSpeechAct(response.data);
-    });
-    axios.get(backendUrl + '/stt/talk_more/').then((response) => {
-      setTalkMore(response.data);
-    });
-    axios.get(backendUrl + '/stt/act_types/').then((response) => {
-      setActTypes(response.data);
-    });
-  }, [backendUrl]);
+    const loadInitialData = async () => {
+      try {
+        const usersResponse = await fetchUsers();
+        setUsers(usersResponse.data);
 
-  const handleSelectUser = (e: any) => {
-    axios
-      .get(backendUrl + `/audio/user/${e.target.value}/files`)
-      .then((response) => {
-        setFiles(response.data);
-      })
-      .catch((error) => {
-        if (error.response && error.response.status === 404) {
-          setFiles([]);
-          alert('해당 사용자의 STT 데이터가 없습니다.');
-        } else {
-          console.error('오류가 발생했습니다!', error);
-        }
-      });
+        const speechActsResponse = await fetchSpeechActs();
+        setSpeechAct(speechActsResponse.data);
+
+        const talkMoreResponse = await fetchTalkMore();
+        setTalkMore(talkMoreResponse.data);
+
+        const actTypesResponse = await fetchActTypes();
+        setActTypes(actTypesResponse.data);
+      } catch (error) {
+        console.error('초기 데이터를 불러오는 중 오류가 발생했습니다:', error);
+      }
+    };
+
+    loadInitialData();
+  }, []);
+
+  const handleError = (error: unknown, customMessage: string) => {
+    if (error instanceof Error) {
+      console.error(customMessage, error.message);
+    } else {
+      console.error(customMessage, error);
+    }
+  };
+
+  const handleSelectUser = async (e: any) => {
+    try {
+      const response = await fetchUserFiles(e.target.value);
+      setFiles(response.data);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('404')) {
+        setFiles([]);
+        alert('해당 사용자의 STT 데이터가 없습니다.');
+      } else {
+        handleError(error, '유저 파일을 불러오는 중 오류가 발생했습니다:');
+      }
+    }
   };
 
   const formatTime = (seconds: any) => {
@@ -108,23 +114,17 @@ const EditPage = () => {
     const fileId = e.target.value;
     setSelectedFileId(fileId);
     setAudioUrl(`${backendUrl}/audio/webm/${fileId}`);
-
     try {
-      // STT 데이터 가져오기
-      const response = await axios.get(`${backendUrl}/stt/data/${fileId}`);
+      const response = await fetchSttData(fileId);
       setSttResults(response.data);
-
-      // 오디오 파일 정보 가져오기
-      const infoResponse = await axios.get(
-        `${backendUrl}/audio/webm/info/${fileId}`,
-      );
+      const infoResponse = await fetchAudioInfo(fileId);
       setRecordTime(infoResponse.data.record_time);
     } catch (error) {
       if (error instanceof Error) {
         console.error('오류가 발생했습니다!', error.message);
       }
       // 404 에러 처리
-      if (axios.isAxiosError(error) && error.response?.status === 404) {
+      if (error instanceof Error && error.message.includes('404')) {
         setSttResults([]);
         setRecordTime(null);
         alert('해당 파일에 대한 데이터가 없습니다.');
@@ -138,185 +138,134 @@ const EditPage = () => {
     }
   }, [audioUrl]);
 
-  const handleOnSave = (sttData: SttData) => {
+  const handleOnSave = async (sttData: SttData) => {
     const newText = inputRefs.current[sttData.id]?.value;
     const newSpeaker = speakerRefs.current[sttData.id]?.value;
-    axios
-      .patch(backendUrl + '/stt/data/edit-text/', {
-        id: sttData.id,
-        audio_files_id: sttData.audio_files_id,
-        new_text: newText,
-        new_speaker: newSpeaker,
-      })
-      .catch((error) => {
-        console.error('There was an error!', error);
-      });
+    if (!newText || !newSpeaker) {
+      alert('텍스트와 화자는 빈 값일 수 없습니다. 행을 삭제해주세요');
+      return;
+    }
+    try {
+      await updateText(sttData.id, sttData.audio_files_id, newText, newSpeaker);
+    } catch (error) {
+      handleError(error, '저장 중 오류가 발생했습니다:');
+      alert('저장 실패');
+    }
   };
 
-  const handleOnClickAdd = (sttData: SttData) => {
-    axios
-      .post(backendUrl + '/stt/data/add-row/', {
-        audio_files_id: sttData.audio_files_id,
-        selected_text_order: sttData.text_order,
-      })
-      .then(() => {
-        return axios.get(backendUrl + `/stt/data/${sttData.audio_files_id}`);
-      })
-      .then((response) => {
-        setSttResults(response.data);
-        syncInputValues(response.data);
-      })
-      .catch((error) => {
-        console.error('There was an error!', error);
-      });
+  const handleOnClickAdd = async (sttData: SttData) => {
+    try {
+      await addRow(sttData.audio_files_id, sttData.text_order);
+      const response = await fetchSttData(sttData.audio_files_id);
+      setSttResults(response.data);
+      syncInputValues(response.data);
+    } catch (error) {
+      console.error('There was an error!', error);
+    }
   };
 
-  const handleOnClickDelete = (sttData: SttData) => {
-    axios
-      .post(backendUrl + '/stt/data/delete-row/', {
-        audio_files_id: sttData.audio_files_id,
-        selected_text_order: sttData.text_order,
-      })
-      .then(() => {
-        return axios.get(backendUrl + `/stt/data/${sttData.audio_files_id}`);
-      })
-      .then((response) => {
-        setSttResults(response.data);
-        syncInputValues(response.data);
-      })
-      .catch((error) => {
-        console.error('There was an error!', error);
-      });
+  const handleOnClickDelete = async (sttData: SttData) => {
+    try {
+      await deleteRow(sttData.audio_files_id, sttData.text_order);
+      const response = await fetchSttData(sttData.audio_files_id);
+      setSttResults(response.data);
+      syncInputValues(response.data);
+    } catch (error) {
+      console.error('There was an error!', error);
+    }
   };
 
-  const handleSelectSpeechAct = (sttData: SttData, e: any) => {
+  const handleSelectSpeechAct = async (sttData: SttData, e: any) => {
     const selectedOption = e.target.options[e.target.selectedIndex];
     const actId = parseInt(selectedOption.getAttribute('data-act-id'));
-    axios
-      .patch(backendUrl + '/stt/data/edit-speech-act/', {
-        id: sttData.id,
-        act_id: actId,
-      })
-      .then(() => {})
-      .catch((error) => {
-        console.error('There was an error!', error);
-      });
+    try {
+      await updateSpeechAct(sttData.id, actId);
+    } catch (error) {
+      console.error('There was an error!', error);
+    }
   };
 
-  const handleSelectTalkMore = (sttData: SttData, e: any) => {
+  const handleSelectTalkMore = async (sttData: SttData, e: any) => {
     const selectedOption = e.target.options[e.target.selectedIndex];
     const talkMore = parseInt(selectedOption.getAttribute('data-talk-more-id'));
-    axios
-      .patch(backendUrl + '/stt/data/edit-talk-more/', {
-        id: sttData.id,
-        talk_more_id: talkMore,
-      })
-      .then(() => {})
-      .catch((error) => {
-        console.error('There was an error!', error);
-      });
+    try {
+      await updateTalkMore(sttData.id, talkMore);
+    } catch (error) {
+      console.error('There was an error!', error);
+    }
   };
 
-  const handleSelectActType = (sttData: SttData, e: any) => {
+  const handleSelectActType = async (sttData: SttData, e: any) => {
     const selectedOption = e.target.options[e.target.selectedIndex];
     const actType = parseInt(selectedOption.getAttribute('data-act-type-id'));
-    axios
-      .patch(backendUrl + '/stt/data/edit-act-type/', {
-        id: sttData.id,
-        act_types_id: actType,
-      })
-      .then(() => {})
-      .catch((error) => {
-        console.error('There was an error!', error);
-      });
+    try {
+      await updateActType(sttData.id, actType);
+    } catch (error) {
+      console.error('There was an error!', error);
+    }
   };
 
-  const handleTextChangeButtonClick = () => {
+  const handleTextChangeButtonClick = async () => {
     const oldWord = oldWordInputRef.current?.value;
     const newWord = newWordInputRef.current?.value;
-    axios
-      .patch(backendUrl + '/stt/data/replace-text/', {
-        audio_files_id: sttResults[0].audio_files_id,
-        old_text: oldWord,
-        new_text: newWord,
-      })
-      .then(() => {
-        return axios.get(
-          backendUrl + `/stt/data/${sttResults[0].audio_files_id}`,
-        );
-      })
-      .then((response) => {
-        setSttResults(response.data);
-        syncInputValues(response.data);
-      })
-      .catch((error) => {
-        console.error('There was an error!', error);
-      });
+    try {
+      await replaceText(sttResults[0].audio_files_id, oldWord!, newWord!);
+      const response = await fetchSttData(sttResults[0].audio_files_id);
+      setSttResults(response.data);
+      syncInputValues(response.data);
+    } catch (error) {
+      console.error('There was an error!', error);
+    }
   };
 
-  const handleSpeakerChangeButtonClick = () => {
+  const handleSpeakerChangeButtonClick = async () => {
     const oldSpeaker = oldSpeakerInputRef.current?.value;
     const newSpeaker = newSpeakerInputRef.current?.value;
-    axios
-      .patch(backendUrl + '/stt/data/replace-speaker/', {
-        audio_files_id: sttResults[0].audio_files_id,
-        old_speaker: oldSpeaker,
-        new_speaker: newSpeaker,
-      })
-      .then(() => {
-        return axios.get(
-          backendUrl + `/stt/data/${sttResults[0].audio_files_id}`,
-        );
-      })
-      .then((response) => {
-        setSttResults(response.data);
-        syncInputValues(response.data);
-      })
-      .catch((error) => {
-        console.error('There was an error!', error);
-      });
+    try {
+      await replaceSpeaker(
+        sttResults[0].audio_files_id,
+        oldSpeaker!,
+        newSpeaker!,
+      );
+      const response = await fetchSttData(sttResults[0].audio_files_id);
+      setSttResults(response.data);
+      syncInputValues(response.data);
+    } catch (error) {
+      console.error('There was an error!', error);
+    }
   };
 
-  const handleBatchSave = () => {
+  const handleBatchSave = async () => {
     const requests = Object.entries(modifiedData).map(([id, data]) => ({
       id,
       audio_files_id: data.audio_files_id,
       new_text: data.text_edited,
       new_speaker: data.speaker,
     }));
-
-    axios
-      .post(`${backendUrl}/stt/data/batch-edit/`, requests)
-      .then((response) => {
-        setSuccessMessage('save successful');
-        setTimeout(() => {
-          setSuccessMessage('');
-        }, 2000);
-        console.log('save successful', response.data);
-      })
-      .catch((error) => {
-        setErrorMessage('save failed');
-        setTimeout(() => {
-          setErrorMessage('');
-        }, 2000);
-        console.error('save failed', error);
-      });
+    try {
+      await batchEdit(requests);
+      setSuccessMessage('Save successful');
+      setTimeout(() => setSuccessMessage(''), 2000);
+    } catch (error) {
+      setErrorMessage('Save failed');
+      setTimeout(() => setErrorMessage(''), 2000);
+      console.error('Save failed', error);
+    }
   };
 
-  const handleRunMlSpeechActType = () => {
-    axios
-      .patch(
-        `${backendUrl}/stt/speech-act-type/?audio_files_id=${selectedFileId}`,
-      )
-      .then(() => {
-        return axios.get(`${backendUrl}/stt/data/${selectedFileId}`);
-      })
-      .then((response) => {
-        setSttResults(response.data);
-      })
-      .catch((error) => {
-        console.error('ML 처리 중 오류 발생 또는 데이터 갱신 실패:', error);
-      });
+  const handleRunMlSpeechActType = async () => {
+    if (!selectedFileId) {
+      console.error('파일이 선택되지 않았습니다.');
+      return;
+    }
+
+    try {
+      await runMlSpeechActType(selectedFileId);
+      const response = await fetchSttData(selectedFileId);
+      setSttResults(response.data);
+    } catch (error) {
+      console.error('ML 처리 중 오류 발생 또는 데이터 갱신 실패:', error);
+    }
   };
 
   const getActNameById = (id: number): string => {
@@ -334,8 +283,8 @@ const EditPage = () => {
   };
 
   const getActTypeById = (id: number): string => {
-    const actType = actTypes.find((actType: ActType) => actType.id === id) as
-      | ActType
+    const actType = actTypes.find((actType: ActTypes) => actType.id === id) as
+      | ActTypes
       | undefined;
     return actType ? actType.act_type : '';
   };
