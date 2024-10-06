@@ -1,5 +1,7 @@
-import { Link } from '@chakra-ui/next-js';
 import { ReactNode } from 'react';
+
+import { Link } from '@chakra-ui/next-js';
+
 import styles from './Layout.module.css';
 
 interface LayoutProps {
