@@ -19,10 +19,13 @@ const Layout = ({ children }: LayoutProps) => {
             <Link href='/report'>리포트</Link>
           </li>
           <li>
-            <Link href='/sttEdit'>STT수정</Link>
+            <Link href='/stt-edit'>STT수정</Link>
           </li>
           <li>
             <Link href='/plan'>패키지관리</Link>
+          </li>
+          <li>
+            <Link href='/new-stt-edit'>작업중</Link>
           </li>
         </ul>
       </nav>
