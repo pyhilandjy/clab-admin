@@ -32,4 +32,6 @@ export type ActTypes = {
 
 export type file = {
   id: string;
+  file_name: string;
+  status: string;
 };
