@@ -22,7 +22,6 @@ import {
   batchEdit,
   runMlSpeechActType,
 } from '@/api/sttEdit';
-
 import {
   User,
   SttData,
@@ -58,8 +57,8 @@ const EditPage = () => {
   const [modifiedData, setModifiedData] = useState<{
     [key: string]: { [field: string]: string; audio_files_id: string };
   }>({});
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage] = useState('');
+  const [errorMessage] = useState('');
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -177,30 +176,47 @@ const EditPage = () => {
   };
 
   const handleSelectSpeechAct = async (sttData: SttData, e: any) => {
-    const selectedOption = e.target.options[e.target.selectedIndex];
-    const actId = parseInt(selectedOption.getAttribute('data-act-id'));
+    const selectedId = e.target.value;
+    const actId = parseInt(selectedId);
     try {
       await updateSpeechAct(sttData.id, actId);
+      setSttResults((prevResults) =>
+        prevResults.map((item) =>
+          item.id === sttData.id ? { ...item, act_id: actId } : item,
+        ),
+      );
     } catch (error) {
       console.error('There was an error!', error);
     }
   };
 
   const handleSelectTalkMore = async (sttData: SttData, e: any) => {
-    const selectedOption = e.target.options[e.target.selectedIndex];
-    const talkMore = parseInt(selectedOption.getAttribute('data-talk-more-id'));
+    const selectedId = e.target.value;
+    const talkMoreId = parseInt(selectedId);
+
     try {
-      await updateTalkMore(sttData.id, talkMore);
+      await updateTalkMore(sttData.id, talkMoreId);
+      setSttResults((prevResults) =>
+        prevResults.map((item) =>
+          item.id === sttData.id ? { ...item, talk_more_id: talkMoreId } : item,
+        ),
+      );
     } catch (error) {
       console.error('There was an error!', error);
     }
   };
 
   const handleSelectActType = async (sttData: SttData, e: any) => {
-    const selectedOption = e.target.options[e.target.selectedIndex];
-    const actType = parseInt(selectedOption.getAttribute('data-act-type-id'));
+    console.log(sttData);
+    const selectedId = e.target.value;
+    const actTypeId = parseInt(selectedId);
     try {
-      await updateActType(sttData.id, actType);
+      await updateActType(sttData.id, actTypeId);
+      setSttResults((prevResults) =>
+        prevResults.map((item) =>
+          item.id === sttData.id ? { ...item, act_types_id: actTypeId } : item,
+        ),
+      );
     } catch (error) {
       console.error('There was an error!', error);
     }
@@ -247,6 +263,7 @@ const EditPage = () => {
       await batchEdit(requests);
       alert('저장 성공');
     } catch (error) {
+      console.error('There was an error!', error);
       alert('저장 실패');
     }
   };
@@ -264,27 +281,6 @@ const EditPage = () => {
     } catch (error) {
       console.error('ML 처리 중 오류 발생 또는 데이터 갱신 실패:', error);
     }
-  };
-
-  const getActNameById = (id: number): string => {
-    const act = speechAct.find((act: SpeechAct) => act.id === id) as
-      | SpeechAct
-      | undefined;
-    return act ? act.act_name : '';
-  };
-
-  const getTalkMoreById = (id: number): string => {
-    const talk_more_data = talkMore.find(
-      (talk_more: TalkMore) => talk_more.id === id,
-    ) as TalkMore | undefined;
-    return talk_more_data ? talk_more_data.talk_more : '';
-  };
-
-  const getActTypeById = (id: number): string => {
-    const actType = actTypes.find((actType: ActTypes) => actType.id === id) as
-      | ActTypes
-      | undefined;
-    return actType ? actType.act_type : '';
   };
 
   const syncInputValues = (updatedResults: SttData[]) => {
@@ -329,12 +325,8 @@ const EditPage = () => {
             </option>
           ))}
         </Select>
-        <Select
-          placeholder='Select option'
-          onChange={handleSelectFileId}
-          mt={2}
-        >
-          {files.map((file: any) => (
+        <Select placeholder='Select file' onChange={handleSelectFileId} mt={2}>
+          {files.map((file: file) => (
             <option key={file.id} value={file.id}>
               {file.file_name} - {file.status}
             </option>
@@ -432,7 +424,7 @@ const EditPage = () => {
                   delete
                 </Button>
                 <Select
-                  placeholder={getActNameById(sttData.act_id)}
+                  value={sttData.act_id}
                   onChange={(e) => handleSelectSpeechAct(sttData, e)}
                   style={{ flex: '0 0 150px', minWidth: '100px' }}
                 >
@@ -440,14 +432,14 @@ const EditPage = () => {
                     <option
                       key={speechact.id}
                       data-act-id={speechact.id}
-                      value={speechact.act_name}
+                      value={speechact.id}
                     >
                       {speechact.act_name}
                     </option>
                   ))}
                 </Select>
                 <Select
-                  placeholder={getActTypeById(sttData.act_types_id)}
+                  value={sttData.act_types_id}
                   onChange={(e) => handleSelectActType(sttData, e)}
                   style={{ flex: '0 0 150px', minWidth: '100px' }}
                 >
@@ -455,14 +447,14 @@ const EditPage = () => {
                     <option
                       key={actType.id}
                       data-act-type-id={actType.id}
-                      value={actType.act_type}
+                      value={actType.id}
                     >
                       {actType.act_type}
                     </option>
                   ))}
                 </Select>
                 <Select
-                  placeholder={getTalkMoreById(sttData.talk_more_id)}
+                  value={sttData.talk_more_id}
                   onChange={(e) => handleSelectTalkMore(sttData, e)}
                   style={{ flex: '0 0 150px', minWidth: '100px' }}
                 >
@@ -470,7 +462,7 @@ const EditPage = () => {
                     <option
                       key={talkMoreItem.id}
                       data-talk-more-id={talkMoreItem.id}
-                      value={talkMoreItem.talk_more}
+                      value={talkMoreItem.id}
                     >
                       {talkMoreItem.talk_more}
                     </option>
