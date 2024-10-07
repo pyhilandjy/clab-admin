@@ -67,9 +67,9 @@ const PlanForm: React.FC<PlanFormProps> = ({
         p={5}
         mb={10}
         width='70%'
-        position='absolute'
-        top='3%'
-        left='16%'
+        position='relative'
+        top='30px'
+        left='3%'
       >
         <Box
           display='flex'
@@ -85,11 +85,11 @@ const PlanForm: React.FC<PlanFormProps> = ({
           </Button>
         </Box>
 
-        <SimpleGrid columns={2} spacing={4} mb={4}>
+        <SimpleGrid columns={2} spacing={150} mb={4}>
           <GridItem colSpan={2}>
             <FormControl id='plan_name' isRequired>
               <Box display='flex' alignItems='center'>
-                <FormLabel width='128px' mb={0}>
+                <FormLabel width='147px' mb={0}>
                   플랜 이름
                 </FormLabel>
                 <Input
@@ -103,11 +103,11 @@ const PlanForm: React.FC<PlanFormProps> = ({
           </GridItem>
         </SimpleGrid>
 
-        <SimpleGrid columns={2} spacing={4} mb={4}>
+        <SimpleGrid columns={2} spacing={150} mb={4}>
           <GridItem colSpan={1}>
             <FormControl id='price'>
               <Box display='flex' alignItems='center'>
-                <FormLabel width='157px' mb={0}>
+                <FormLabel width='248px' mb={0}>
                   가격
                 </FormLabel>
                 <Input
@@ -116,13 +116,14 @@ const PlanForm: React.FC<PlanFormProps> = ({
                   name='price'
                   onChange={onChange}
                 />
+                <Box ml={2}>원</Box>
               </Box>
             </FormControl>
           </GridItem>
           <GridItem colSpan={1}>
             <FormControl id='day' isRequired>
               <Box display='flex' alignItems='center'>
-                <FormLabel width='150px' mb={0}>
+                <FormLabel width='140px' mb={0}>
                   미션 갯수
                 </FormLabel>
                 <Input
@@ -130,17 +131,19 @@ const PlanForm: React.FC<PlanFormProps> = ({
                   value={day}
                   name='day'
                   onChange={onChange}
+                  width={300}
                 />
+                <Box ml={2}>개</Box>
               </Box>
             </FormControl>
           </GridItem>
         </SimpleGrid>
 
-        <SimpleGrid columns={2} spacing={4} mb={4}>
+        <SimpleGrid columns={2} spacing={150} mb={4}>
           <GridItem colSpan={1}>
             <FormControl id='type'>
               <Box display='flex' alignItems='center'>
-                <FormLabel width='150px' mb={0}>
+                <FormLabel width='200px' mb={0}>
                   타입
                 </FormLabel>
                 <Select
@@ -173,15 +176,15 @@ const PlanForm: React.FC<PlanFormProps> = ({
           </GridItem>
         </SimpleGrid>
 
-        <SimpleGrid columns={2} spacing={4} mb={4}>
+        <SimpleGrid columns={2} spacing={150} mb={4}>
           <GridItem colSpan={1}>
             <FormControl id='main_category'>
               <Box display='flex' alignItems='center'>
-                <FormLabel width='150px' mb={0}>
-                  메인 카테고리
+                <FormLabel width='200px' mb={0}>
+                  카테고리
                 </FormLabel>
                 <Select
-                  placeholder='메인 카테고리를 선택하세요'
+                  placeholder='카테고리를 선택하세요'
                   value={selectedMainCategory}
                   onChange={(e) => handleMainCategoryChange(e.target.value)}
                 >
@@ -218,11 +221,11 @@ const PlanForm: React.FC<PlanFormProps> = ({
           </GridItem>
         </SimpleGrid>
 
-        <SimpleGrid columns={2} spacing={4} mb={4}>
+        <SimpleGrid columns={2} spacing={150} mb={4}>
           <GridItem colSpan={1}>
             <FormControl id='recommended_age'>
               <Box display='flex' alignItems='center'>
-                <FormLabel width='140px' mb={0}>
+                <FormLabel width='250px' mb={0}>
                   추천 월령
                 </FormLabel>
                 <Box display='flex' gap={4}>
