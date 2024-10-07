@@ -25,27 +25,12 @@ import {
   useToast,
 } from '@chakra-ui/react';
 
-import api from '@/lib/api';
+import { deleteMission, updateMissionStatus } from '@/api/mission';
 
 import AddMissionPage from './AddMissonPage';
 import EditMissionPage from './EditMissionPage';
 
-type Mission = {
-  id: string;
-  title: string;
-  status: string;
-  summation: string;
-  day: string;
-  message: string;
-};
-
-type MissionListProps = {
-  missions: Mission[];
-  isOpen: boolean;
-  onDeleteSuccess: (missionId: string) => void;
-  planId: string;
-  onAddMission: () => Promise<void>;
-};
+import { Mission, MissionListProps } from '@/types/mission';
 
 const MissionList: React.FC<MissionListProps> = ({
   missions,
@@ -101,7 +86,7 @@ const MissionList: React.FC<MissionListProps> = ({
     if (!confirmDelete) return;
 
     try {
-      await api.delete(`/missions/${id}`);
+      await deleteMission(id);
       onDeleteSuccess(id);
       toast({
         title: '미션이 성공적으로 삭제되었습니다.',
@@ -122,7 +107,7 @@ const MissionList: React.FC<MissionListProps> = ({
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
-      await api.patch(`/missions/status/`, { id, status: newStatus });
+      await updateMissionStatus(id, newStatus);
       setMissionStatuses((prevStatuses) => ({
         ...prevStatuses,
         [id]: newStatus,
@@ -147,7 +132,15 @@ const MissionList: React.FC<MissionListProps> = ({
   return (
     <>
       <Collapse in={isOpen} animateOpacity>
-        <Box p={4} width='70vw' maxWidth='1200px'>
+        <Box
+          p={4}
+          width='70vw'
+          maxWidth='1200px'
+          bg='gray.50'
+          borderRadius='md'
+          border='1px solid'
+          borderColor='gray.200'
+        >
           <HStack justifyContent='space-between' mb={4}>
             <Button colorScheme='blue' onClick={onAddModalOpen}>
               미션 추가
@@ -156,6 +149,7 @@ const MissionList: React.FC<MissionListProps> = ({
           <Table size='sm' variant='simple'>
             <Thead>
               <Tr>
+                <Th>순서</Th>
                 <Th>미션명</Th>
                 <Th>요약</Th>
                 <Th>상태</Th>
@@ -163,42 +157,45 @@ const MissionList: React.FC<MissionListProps> = ({
               </Tr>
             </Thead>
             <Tbody>
-              {missions.map((mission) => (
-                <Tr key={mission.id}>
-                  <Td>{mission.title}</Td>
-                  <Td>{mission.summation}</Td>
-                  <Td>
-                    <Select
-                      size='sm'
-                      value={missionStatuses[mission.id]}
-                      onChange={(e) =>
-                        handleStatusChange(mission.id, e.target.value)
-                      }
-                    >
-                      <option value='active'>Active</option>
-                      <option value='inactive'>Inactive</option>
-                    </Select>
-                  </Td>
-                  <Td>
-                    <HStack spacing={2}>
-                      <IconButton
+              {missions
+                .sort((a, b) => Number(a.day) - Number(b.day))
+                .map((mission) => (
+                  <Tr key={mission.id}>
+                    <Td>{mission.day}</Td>
+                    <Td>{mission.title}</Td>
+                    <Td>{mission.summation}</Td>
+                    <Td>
+                      <Select
                         size='sm'
-                        colorScheme='blue'
-                        aria-label='미션 수정'
-                        icon={<EditIcon />}
-                        onClick={() => handleEditMission(mission)}
-                      />
-                      <IconButton
-                        size='sm'
-                        colorScheme='red'
-                        aria-label='미션 삭제'
-                        icon={<DeleteIcon />}
-                        onClick={() => handleDeleteMission(mission.id)}
-                      />
-                    </HStack>
-                  </Td>
-                </Tr>
-              ))}
+                        value={missionStatuses[mission.id]}
+                        onChange={(e) =>
+                          handleStatusChange(mission.id, e.target.value)
+                        }
+                      >
+                        <option value='active'>Active</option>
+                        <option value='inactive'>Inactive</option>
+                      </Select>
+                    </Td>
+                    <Td>
+                      <HStack spacing={2}>
+                        <IconButton
+                          size='sm'
+                          colorScheme='blue'
+                          aria-label='미션 수정'
+                          icon={<EditIcon />}
+                          onClick={() => handleEditMission(mission)}
+                        />
+                        <IconButton
+                          size='sm'
+                          colorScheme='red'
+                          aria-label='미션 삭제'
+                          icon={<DeleteIcon />}
+                          onClick={() => handleDeleteMission(mission.id)}
+                        />
+                      </HStack>
+                    </Td>
+                  </Tr>
+                ))}
             </Tbody>
           </Table>
         </Box>
