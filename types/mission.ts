@@ -1,3 +1,4 @@
+// mission.ts
 export interface Mission {
   id: string;
   title: string;
@@ -7,7 +8,7 @@ export interface Mission {
   status: string;
 }
 
-export interface MissionInput {
+export interface MissionAdd {
   title: string;
   summation: string;
   day: string;
@@ -17,7 +18,15 @@ export interface MissionInput {
 export interface Props {
   onClose: () => void;
   planId?: string;
-  mission?: MissionInput;
+  mission?: Mission;
   onSave: () => Promise<void>;
   isEdit?: boolean;
+}
+
+export interface MissionListProps {
+  missions: Mission[];
+  isOpen: boolean;
+  onDeleteSuccess: (missionId: string) => void;
+  planId: string;
+  onAddMission: () => Promise<void>;
 }
