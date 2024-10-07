@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 import {
   Box,
@@ -10,26 +10,14 @@ import {
   Input,
   Textarea,
   VStack,
-  HStack,
   useToast,
+  SimpleGrid,
+  GridItem,
 } from '@chakra-ui/react';
 
-import api from '@/lib/api';
+import { addMission, updateMission } from '@/api/mission';
 
-interface MissionInput {
-  title: string;
-  summation: string;
-  day: string;
-  message: string;
-}
-
-interface Props {
-  onClose: () => void;
-  planId?: string;
-  mission?: MissionInput;
-  onSave: () => Promise<void>;
-  isEdit?: boolean;
-}
+import { MissionAdd, Props } from '@/types/mission';
 
 const MissionForm: React.FC<Props> = ({
   onClose,
@@ -38,30 +26,24 @@ const MissionForm: React.FC<Props> = ({
   onSave,
   isEdit = false,
 }) => {
-  const [missionData, setMissionData] = useState<MissionInput>(
+  const [missionData, setMissionData] = useState<MissionAdd>(
     mission || { title: '', summation: '', day: '', message: '' },
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
 
-  const handleInputChange = (field: keyof MissionInput, value: string) => {
+  const handleInputChange = (field: keyof MissionAdd, value: string) => {
     setMissionData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSaveMission = async () => {
     setIsSubmitting(true);
     try {
-      if (isEdit) {
-        await api.patch(`/missions/`, missionData);
+      if (isEdit && mission && 'id' in mission) {
+        await updateMission(mission.id, missionData);
       } else {
-        const payload = {
-          plan_id: planId,
-          ...missionData,
-          day: parseInt(missionData.day),
-        };
-        await api.post(`/missions/${planId}`, payload);
+        await addMission(planId!, missionData);
       }
-
       await onSave();
       toast({
         title: `미션이 성공적으로 ${isEdit ? '수정' : '저장'}되었습니다.`,
@@ -85,49 +67,72 @@ const MissionForm: React.FC<Props> = ({
 
   return (
     <Box
-      p={4}
-      width='100%'
-      border='1px'
+      p={5}
+      width='80%'
+      border='1px solid'
       borderColor='gray.200'
       borderRadius='md'
-      mb={4}
+      mb={6}
+      boxShadow='sm'
+      mx='auto' // 중앙 배치
     >
-      <VStack spacing={4} align='stretch'>
-        <FormControl mb={2}>
-          <FormLabel>미션명</FormLabel>
-          <Input
-            value={missionData.title}
-            onChange={(e) => handleInputChange('title', e.target.value)}
-          />
-        </FormControl>
-        <HStack spacing={4}>
-          <FormControl>
-            <FormLabel>요약</FormLabel>
-            <Input
-              value={missionData.summation}
-              onChange={(e) => handleInputChange('summation', e.target.value)}
-            />
-          </FormControl>
-          <FormControl>
-            <FormLabel>일수</FormLabel>
-            <Input
-              type='number'
-              value={missionData.day}
-              onChange={(e) => handleInputChange('day', e.target.value)}
-            />
-          </FormControl>
-        </HStack>
-        <FormControl mt={2}>
-          <FormLabel>미션 메세지</FormLabel>
-          <Textarea
-            value={missionData.message}
-            onChange={(e) => handleInputChange('message', e.target.value)}
-          />
-        </FormControl>
+      <VStack spacing={6} align='stretch'>
+        {/* 미션명 */}
+        <SimpleGrid columns={2} spacing={6}>
+          <GridItem colSpan={2}>
+            <FormControl isRequired>
+              <FormLabel>미션명</FormLabel>
+              <Input
+                value={missionData.title}
+                onChange={(e) => handleInputChange('title', e.target.value)}
+              />
+            </FormControl>
+          </GridItem>
+        </SimpleGrid>
+
+        {/* 요약과 일수 */}
+        <SimpleGrid columns={2} spacing={6}>
+          <GridItem colSpan={1}>
+            <FormControl>
+              <FormLabel>요약</FormLabel>
+              <Input
+                value={missionData.summation}
+                onChange={(e) => handleInputChange('summation', e.target.value)}
+              />
+            </FormControl>
+          </GridItem>
+          <GridItem colSpan={1}>
+            <FormControl isRequired>
+              <FormLabel>발행순서</FormLabel>
+              <Input
+                placeholder='숫자만 입력하세요'
+                type='number'
+                value={missionData.day}
+                onChange={(e) => handleInputChange('day', e.target.value)}
+              />
+            </FormControl>
+          </GridItem>
+        </SimpleGrid>
+
+        {/* 미션 메세지 */}
+        <SimpleGrid columns={2} spacing={6}>
+          <GridItem colSpan={2}>
+            <FormControl>
+              <FormLabel>미션 메세지</FormLabel>
+              <Textarea
+                value={missionData.message}
+                onChange={(e) => handleInputChange('message', e.target.value)}
+              />
+            </FormControl>
+          </GridItem>
+        </SimpleGrid>
+
+        {/* 저장 버튼 */}
         <Button
           colorScheme='blue'
           onClick={handleSaveMission}
           isLoading={isSubmitting}
+          alignSelf='flex-end' // 버튼을 오른쪽에 배치
         >
           {isEdit ? '수정' : '저장'}
         </Button>
