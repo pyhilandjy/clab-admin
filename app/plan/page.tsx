@@ -28,12 +28,15 @@ import {
   updatePlanStatus,
   deletePlan,
 } from '@/api/plan';
+import { fetchReports } from '@/api/report';
 
 import MissionList from './_components/mission/MissionList';
+import ReportList from './_components/report/ReportList';
 import Layout from '../../components/Layout';
 
 import { Plan } from '@/types/plan';
 import { Mission } from '@/types/mission';
+import { Report } from '@/types/report';
 
 const PlanPage = () => {
   const router = useRouter();
@@ -42,8 +45,10 @@ const PlanPage = () => {
   };
   const [plans, setPlans] = useState<Plan[]>([]);
   const [missions, setMissions] = useState<{ [key: string]: Mission[] }>({});
+  const [reports, setReports] = useState<{ [key: string]: Report[] }>({});
   const [expandedPlanId, setExpandedPlanId] = useState<string | null>(null);
   const [isMissionVisible, setIsMissionVisible] = useState<boolean>(false);
+  const [isReportVisible, setIsReportVisible] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const cancelRef = useRef(null);
@@ -64,9 +69,11 @@ const PlanPage = () => {
     if (expandedPlanId === planId) {
       setExpandedPlanId(null);
       setIsMissionVisible(false);
+      setIsReportVisible(false);
     } else {
       setExpandedPlanId(planId);
       setIsMissionVisible(false);
+      setIsReportVisible(false);
     }
   };
 
@@ -86,6 +93,36 @@ const PlanPage = () => {
         }
       }
       setIsMissionVisible(true);
+    }
+  };
+
+  const handleReportClick = async (planId: string) => {
+    if (isReportVisible) {
+      setIsReportVisible(false);
+    } else {
+      if (!missions[planId]) {
+        try {
+          const missionResponse = await fetchMission(planId);
+          setMissions((prevMissions) => ({
+            ...prevMissions,
+            [planId]: missionResponse.data,
+          }));
+        } catch (error) {
+          console.error(`Error fetching missions for plan ${planId}:`, error);
+        }
+      }
+      if (!reports[planId]) {
+        try {
+          const reportResponse = await fetchReports(planId);
+          setReports((prevReports) => ({
+            ...prevReports,
+            [planId]: reportResponse.data,
+          }));
+        } catch (error) {
+          console.error(`Error fetching reports for plan ${planId}:`, error);
+        }
+      }
+      setIsReportVisible(true);
     }
   };
 
@@ -157,6 +194,26 @@ const PlanPage = () => {
       console.error(`Error fetching missions for plan ${planId}:`, error);
     }
   };
+
+  const handleReportAdd = async (planId: string) => {
+    try {
+      const response = await fetchReports(planId); // fetchReports 호출 필요
+      setReports((prevReports) => ({
+        ...prevReports,
+        [planId]: response.data,
+      }));
+    } catch (error) {
+      console.error(`Error fetching reports for plan ${planId}:`, error);
+    }
+  };
+
+  const handleReportDeleteSuccess = (planId: string, reportId: string) => {
+    setReports((prevReports) => ({
+      ...prevReports,
+      [planId]: prevReports[planId].filter((report) => report.id !== reportId),
+    }));
+  };
+
   return (
     <Layout>
       <Box p={4}>
@@ -230,9 +287,7 @@ const PlanPage = () => {
                           </Button>
                           <Button
                             colorScheme='orange'
-                            onClick={() =>
-                              alert('리포트 페이지 준비 중입니다.')
-                            }
+                            onClick={() => handleReportClick(plan.id)}
                           >
                             리포트
                           </Button>
@@ -246,6 +301,18 @@ const PlanPage = () => {
                             }
                             planId={plan.id}
                             onAddMission={() => handleMissionAdd(plan.id)}
+                          />
+                        )}
+                        {isReportVisible && (
+                          <ReportList
+                            reports={reports[plan.id] ?? []}
+                            missions={missions[plan.id] ?? []}
+                            planId={plan.id}
+                            isOpen={isReportVisible}
+                            onAddReport={() => handleReportAdd(plan.id)}
+                            onDeleteSuccess={(reportId) =>
+                              handleReportDeleteSuccess(plan.id, reportId)
+                            }
                           />
                         )}
                       </Box>
