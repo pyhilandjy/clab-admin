@@ -27,7 +27,7 @@ const Layout = ({ children }: LayoutProps) => {
             <Link href='/plan'>패키지관리</Link>
           </li>
           <li>
-            <Link href='/new-stt-edit'>작업중</Link>
+            <Link href='/report-manage'>리포트관리</Link>
           </li>
         </ul>
       </nav>
