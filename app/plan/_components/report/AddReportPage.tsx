@@ -3,8 +3,6 @@ import { Mission } from '@/types/mission';
 import { addReport } from '@/api/report';
 import ReportForm from './ReportForm';
 
-import { updateReport } from '@/api/report';
-
 interface AddReportPageProps {
   planId: string;
   missions: Mission[];
