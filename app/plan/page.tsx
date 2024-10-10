@@ -81,6 +81,8 @@ const PlanPage = () => {
     if (isMissionVisible) {
       setIsMissionVisible(false);
     } else {
+      setIsReportVisible(false);
+
       if (!missions[planId]) {
         try {
           const response = await fetchMission(planId);
@@ -100,6 +102,8 @@ const PlanPage = () => {
     if (isReportVisible) {
       setIsReportVisible(false);
     } else {
+      setIsMissionVisible(false);
+
       if (!missions[planId]) {
         try {
           const missionResponse = await fetchMission(planId);
