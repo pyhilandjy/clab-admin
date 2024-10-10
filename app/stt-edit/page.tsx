@@ -1,7 +1,14 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 
-import { Input, Button, Select, Grid, GridItem } from '@chakra-ui/react';
+import {
+  Input,
+  Button,
+  Select,
+  Grid,
+  GridItem,
+  Checkbox,
+} from '@chakra-ui/react';
 
 import {
   fetchUsers,
@@ -21,7 +28,8 @@ import {
   replaceSpeaker,
   batchEdit,
   runMlSpeechActType,
-} from '@/api/sttEdit';
+  updateturnin,
+} from '@/api/stt-edit';
 import {
   User,
   SttData,
@@ -29,7 +37,7 @@ import {
   TalkMore,
   ActTypes,
   file,
-} from '@/types/sttEdit';
+} from '@/types/stt-edit';
 
 import '@/styles/edit.css';
 import Layout from '../../components/Layout';
@@ -283,6 +291,19 @@ const EditPage = () => {
     }
   };
 
+  const handleTurnChange = async (sttData: SttData, isChecked: boolean) => {
+    try {
+      await updateturnin(sttData.id, isChecked);
+      setSttResults((prevResults) =>
+        prevResults.map((item) =>
+          item.id === sttData.id ? { ...item, is_turn: isChecked } : item,
+        ),
+      );
+    } catch (error) {
+      console.error('There was an error!', error);
+    }
+  };
+
   const syncInputValues = (updatedResults: SttData[]) => {
     updatedResults.forEach((result) => {
       const inputRef = inputRefs.current[result.id];
@@ -468,6 +489,12 @@ const EditPage = () => {
                     </option>
                   ))}
                 </Select>
+                <Checkbox
+                  isChecked={sttData.is_turn}
+                  onChange={(e) => handleTurnChange(sttData, e.target.checked)}
+                >
+                  Turn
+                </Checkbox>
               </div>
             </div>
           ))}

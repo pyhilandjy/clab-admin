@@ -13,6 +13,7 @@ export type SttData = {
   act_id: number;
   talk_more_id: number;
   act_types_id: number;
+  is_turn: boolean;
 };
 
 export type SpeechAct = {

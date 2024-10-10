@@ -6,7 +6,7 @@ import {
   TalkMore,
   ActTypes,
   file,
-} from '@/types/sttEdit';
+} from '@/types/stt-edit';
 
 export const fetchUsers = () => api.get<User[]>('/users/');
 
@@ -85,3 +85,6 @@ export const batchEdit = (data: any) => api.post('/stt/data/batch-edit/', data);
 
 export const runMlSpeechActType = (audioFilesId: string) =>
   api.patch(`/stt/speech-act-type/?audio_files_id=${audioFilesId}`);
+
+export const updateturnin = (id: string, turn: boolean) =>
+  api.patch(`/stt/data/is-turn/`, { id, is_turn: turn });
