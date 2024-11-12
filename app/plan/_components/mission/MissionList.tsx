@@ -26,11 +26,10 @@ import {
 } from '@chakra-ui/react';
 
 import { deleteMission, updateMissionStatus } from '@/api/mission';
+import { Mission, MissionListProps } from '@/types/mission';
 
 import AddMissionPage from './AddMissonPage';
 import EditMissionPage from './EditMissionPage';
-
-import { Mission, MissionListProps } from '@/types/mission';
 
 const MissionList: React.FC<MissionListProps> = ({
   missions,

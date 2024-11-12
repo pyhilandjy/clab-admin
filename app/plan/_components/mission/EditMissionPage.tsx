@@ -1,7 +1,8 @@
 import React from 'react';
-import MissionForm from './MissionForm';
 
 import { Props } from '@/types/mission';
+
+import MissionForm from './MissionForm';
 
 const EditMissionPage: React.FC<Props> = ({ onClose, mission, onSave }) => {
   return (

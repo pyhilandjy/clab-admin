@@ -29,14 +29,13 @@ import {
   deletePlan,
 } from '@/api/plan';
 import { fetchReports } from '@/api/report';
+import { Mission } from '@/types/mission';
+import { Plan } from '@/types/plan';
+import { Report } from '@/types/report';
 
 import MissionList from './_components/mission/MissionList';
 import ReportList from './_components/report/ReportList';
 import Layout from '../../components/Layout';
-
-import { Plan } from '@/types/plan';
-import { Mission } from '@/types/mission';
-import { Report } from '@/types/report';
 
 const PlanPage = () => {
   const router = useRouter();
@@ -70,10 +69,12 @@ const PlanPage = () => {
       setExpandedPlanId(null);
       setIsMissionVisible(false);
       setIsReportVisible(false);
+      handleMissionClick(planId);
     } else {
       setExpandedPlanId(planId);
       setIsMissionVisible(false);
       setIsReportVisible(false);
+      handleMissionClick(planId);
     }
   };
 
