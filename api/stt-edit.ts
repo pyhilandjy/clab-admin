@@ -5,7 +5,8 @@ import {
   SpeechAct,
   TalkMore,
   ActTypes,
-  file,
+  File,
+  Quaritative,
 } from '@/types/stt-edit';
 
 export const fetchUsers = () => api.get<User[]>('/users/');
@@ -17,7 +18,7 @@ export const fetchTalkMore = () => api.get<TalkMore[]>('/stt/talk_more/');
 export const fetchActTypes = () => api.get<ActTypes[]>('/stt/act_types/');
 
 export const fetchUserFiles = (userId: string) =>
-  api.get<file[]>(`/audio/user/${userId}/files`);
+  api.get<File[]>(`/audio/user/${userId}/files`);
 
 export const fetchSttData = (fileId: string) =>
   api.get<SttData[]>(`/stt/data/${fileId}`);
@@ -88,3 +89,9 @@ export const runMlSpeechActType = (audioFilesId: string) =>
 
 export const updateturnin = (id: string, turn: boolean) =>
   api.patch(`/stt/data/is-turn/`, { id, is_turn: turn });
+
+export const runLlmQuaritative = (fileId: string) =>
+  api.get(`/stt/data/${fileId}/report/quaritative/`);
+
+export const createQualitativeData = (quaritativeData: Quaritative) =>
+  api.post('/stt/data/report/quaritative/', quaritativeData);

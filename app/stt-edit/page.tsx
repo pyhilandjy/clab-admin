@@ -8,6 +8,12 @@ import {
   Grid,
   GridItem,
   Checkbox,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from '@chakra-ui/react';
 
 import {
@@ -29,6 +35,8 @@ import {
   batchEdit,
   runMlSpeechActType,
   updateturnin,
+  runLlmQuaritative,
+  createQualitativeData,
 } from '@/api/stt-edit';
 import {
   User,
@@ -36,22 +44,21 @@ import {
   SpeechAct,
   TalkMore,
   ActTypes,
-  file,
+  File,
+  Quaritative,
 } from '@/types/stt-edit';
 
 import '@/styles/edit.css';
 import Layout from '../../components/Layout';
-// backendUrl 빼야함 audio 불러올때 사용중
 import { backendUrl } from '../consts';
 
 const EditPage = () => {
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const speakerRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [users, setUsers] = useState<User[]>([]);
-  const [files, setFiles] = useState<file[]>([]);
+  const [files, setFiles] = useState<File[]>([]);
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [sttResults, setSttResults] = useState<SttData[]>([]);
-  // speechAct, talkMore, actTypes 상태관리 변경 placeholder -> value 변경되어야함 (수정필요)
   const [speechAct, setSpeechAct] = useState<SpeechAct[]>([]);
   const [talkMore, setTalkMore] = useState<TalkMore[]>([]);
   const [actTypes, setActTypes] = useState<ActTypes[]>([]);
@@ -65,8 +72,11 @@ const EditPage = () => {
   const [modifiedData, setModifiedData] = useState<{
     [key: string]: { [field: string]: string; audio_files_id: string };
   }>({});
-  const [successMessage] = useState('');
-  const [errorMessage] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [editedQuaritativeData, setEditedQuaritativeData] = useState<
+    Quaritative[]
+  >([]);
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -90,32 +100,15 @@ const EditPage = () => {
     loadInitialData();
   }, []);
 
-  const handleError = (error: unknown, customMessage: string) => {
-    if (error instanceof Error) {
-      console.error(customMessage, error.message);
-    } else {
-      console.error(customMessage, error);
-    }
-  };
-
   const handleSelectUser = async (e: any) => {
     try {
       const response = await fetchUserFiles(e.target.value);
       setFiles(response.data);
     } catch (error) {
-      if (error instanceof Error && error.message.includes('404')) {
-        setFiles([]);
-        alert('해당 사용자의 STT 데이터가 없습니다.');
-      } else {
-        handleError(error, '유저 파일을 불러오는 중 오류가 발생했습니다:');
-      }
+      console.error('유저 파일을 불러오는 중 오류가 발생했습니다:', error);
+      setFiles([]);
+      alert('해당 사용자의 STT 데이터가 없습니다.');
     }
-  };
-
-  const formatTime = (seconds: any) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
   };
 
   const handleSelectFileId = async (e: any) => {
@@ -128,15 +121,10 @@ const EditPage = () => {
       const infoResponse = await fetchAudioInfo(fileId);
       setRecordTime(infoResponse.data.record_time);
     } catch (error) {
-      if (error instanceof Error) {
-        console.error('오류가 발생했습니다!', error.message);
-      }
-      // 404 에러 처리
-      if (error instanceof Error && error.message.includes('404')) {
-        setSttResults([]);
-        setRecordTime(null);
-        alert('해당 파일에 대한 데이터가 없습니다.');
-      }
+      console.error('파일을 불러오는 중 오류가 발생했습니다:', error);
+      setSttResults([]);
+      setRecordTime(null);
+      alert('해당 파일에 대한 데이터가 없습니다.');
     }
   };
 
@@ -145,6 +133,37 @@ const EditPage = () => {
       audioRef.current.load();
     }
   }, [audioUrl]);
+
+  const handleOnClickQualitative = async () => {
+    if (!selectedFileId) {
+      console.error('올바르지 않은 파일 ID:', selectedFileId);
+      return;
+    }
+    setIsModalOpen(true);
+    setIsLoading(true);
+    try {
+      const response = await runLlmQuaritative(selectedFileId);
+      setEditedQuaritativeData(response.data);
+    } catch (error) {
+      console.error('There was an error!', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleQualitativeDataSave = async () => {
+    if (!selectedFileId || !editedQuaritativeData) return;
+    try {
+      await Promise.all(
+        editedQuaritativeData.map((data) => createQualitativeData(data)),
+      );
+      alert('저장 성공');
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('저장 중 오류가 발생했습니다:', error);
+      alert('저장 실패');
+    }
+  };
 
   const handleOnSave = async (sttData: SttData) => {
     const newText = inputRefs.current[sttData.id]?.value;
@@ -156,7 +175,7 @@ const EditPage = () => {
     try {
       await updateText(sttData.id, sttData.audio_files_id, newText, newSpeaker);
     } catch (error) {
-      handleError(error, '저장 중 오류가 발생했습니다:');
+      console.error('저장 중 오류가 발생했습니다:', error);
       alert('저장 실패');
     }
   };
@@ -215,7 +234,6 @@ const EditPage = () => {
   };
 
   const handleSelectActType = async (sttData: SttData, e: any) => {
-    console.log(sttData);
     const selectedId = e.target.value;
     const actTypeId = parseInt(selectedId);
     try {
@@ -271,7 +289,7 @@ const EditPage = () => {
       await batchEdit(requests);
       alert('저장 성공');
     } catch (error) {
-      console.error('There was an error!', error);
+      console.error('저장 실패:', error);
       alert('저장 실패');
     }
   };
@@ -347,7 +365,7 @@ const EditPage = () => {
           ))}
         </Select>
         <Select placeholder='Select file' onChange={handleSelectFileId} mt={2}>
-          {files.map((file: file) => (
+          {files.map((file: File) => (
             <option key={file.id} value={file.id}>
               {file.file_name} - {file.status}
             </option>
@@ -359,7 +377,7 @@ const EditPage = () => {
               <source src={audioUrl} type='audio/webm' />
               Your browser does not support the audio element.
             </audio>
-            <div>총 재생 시간: {formatTime(recordTime)}</div>
+            <div>총 재생 시간: {recordTime}</div>
           </div>
         )}
         <Grid templateColumns='repeat(4, 1fr)' gap={4} mt={3}>
@@ -379,11 +397,11 @@ const EditPage = () => {
 
         <Grid templateColumns='repeat(2, 1fr)' gap={4} mt={1}>
           <GridItem>
-            <Button onClick={handleTextChangeButtonClick}>word replace</Button>
+            <Button onClick={handleTextChangeButtonClick}>Word Replace</Button>
           </GridItem>
           <GridItem>
             <Button onClick={handleSpeakerChangeButtonClick}>
-              Speaker replace
+              Speaker Replace
             </Button>
           </GridItem>
           <GridItem>
@@ -392,11 +410,52 @@ const EditPage = () => {
           <GridItem>
             <Button onClick={handleRunMlSpeechActType}>Run ML Act</Button>
           </GridItem>
+          <GridItem>
+            <Button onClick={handleOnClickQualitative}>Run LLM</Button>
+
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+              <ModalOverlay />
+              <ModalContent className='modal-content'>
+                <ModalHeader>Qualitative Analysis</ModalHeader>
+                <ModalBody className='modal-body'>
+                  {editedQuaritativeData.map((item, index) => (
+                    <div key={index} className='data-section'>
+                      <div className='data-section-title'>Mood</div>
+                      <div className='data-section-content'>{item.mood}</div>
+
+                      <div className='data-section-title'>Description</div>
+                      <div className='data-section-content'>
+                        {item.description}
+                      </div>
+
+                      <div className='data-section-title'>Alternative</div>
+                      <div className='data-section-content'>
+                        {item.alternative || ''}
+                      </div>
+
+                      <div className='data-section-title'>Expectation</div>
+                      <div className='data-section-content'>
+                        {item.expection}
+                      </div>
+                    </div>
+                  ))}
+                </ModalBody>
+                <ModalFooter>
+                  <Button
+                    colorScheme='blue'
+                    onClick={handleQualitativeDataSave}
+                    isDisabled={isLoading}
+                  >
+                    Save
+                  </Button>
+                  <Button variant='ghost' onClick={() => setIsModalOpen(false)}>
+                    Close
+                  </Button>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
+          </GridItem>
         </Grid>
-        {successMessage && (
-          <div className='success-message'>{successMessage}</div>
-        )}
-        {errorMessage && <div className='error-message'>{errorMessage}</div>}
         <div style={{ marginTop: '40px' }}>
           {sttResults.map((sttData) => (
             <div key={sttData.id} style={{ marginBottom: '16px' }}>
@@ -439,10 +498,10 @@ const EditPage = () => {
                   maxWidth: '800px',
                 }}
               >
-                <Button onClick={() => handleOnSave(sttData)}>save</Button>
-                <Button onClick={() => handleOnClickAdd(sttData)}>add</Button>
+                <Button onClick={() => handleOnSave(sttData)}>Save</Button>
+                <Button onClick={() => handleOnClickAdd(sttData)}>Add</Button>
                 <Button onClick={() => handleOnClickDelete(sttData)}>
-                  delete
+                  Delete
                 </Button>
                 <Select
                   value={sttData.act_id}
@@ -450,11 +509,7 @@ const EditPage = () => {
                   style={{ flex: '0 0 150px', minWidth: '100px' }}
                 >
                   {speechAct.map((speechact) => (
-                    <option
-                      key={speechact.id}
-                      data-act-id={speechact.id}
-                      value={speechact.id}
-                    >
+                    <option key={speechact.id} value={speechact.id}>
                       {speechact.act_name}
                     </option>
                   ))}
@@ -465,11 +520,7 @@ const EditPage = () => {
                   style={{ flex: '0 0 150px', minWidth: '100px' }}
                 >
                   {actTypes.map((actType) => (
-                    <option
-                      key={actType.id}
-                      data-act-type-id={actType.id}
-                      value={actType.id}
-                    >
+                    <option key={actType.id} value={actType.id}>
                       {actType.act_type}
                     </option>
                   ))}
@@ -480,11 +531,7 @@ const EditPage = () => {
                   style={{ flex: '0 0 150px', minWidth: '100px' }}
                 >
                   {talkMore.map((talkMoreItem) => (
-                    <option
-                      key={talkMoreItem.id}
-                      data-talk-more-id={talkMoreItem.id}
-                      value={talkMoreItem.id}
-                    >
+                    <option key={talkMoreItem.id} value={talkMoreItem.id}>
                       {talkMoreItem.talk_more}
                     </option>
                   ))}
@@ -503,4 +550,5 @@ const EditPage = () => {
     </Layout>
   );
 };
+
 export default EditPage;

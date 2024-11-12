@@ -31,8 +31,16 @@ export type ActTypes = {
   id: number;
 };
 
-export type file = {
+export type File = {
   id: string;
   file_name: string;
   status: string;
+};
+
+export type Quaritative = {
+  stt_data_id: string;
+  mood: string;
+  description: string;
+  alternative?: string;
+  expection: string;
 };
