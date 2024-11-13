@@ -1,6 +1,8 @@
 import React from 'react';
-import { Mission } from '@/types/mission';
+
 import { addReport } from '@/api/report';
+import { Mission } from '@/types/mission';
+
 import ReportForm from './ReportForm';
 
 interface AddReportPageProps {
@@ -18,8 +20,11 @@ const AddReportPage: React.FC<AddReportPageProps> = ({
 }) => {
   const handleSave = async (reportData: {
     title: string;
-    quant_analysis: string[];
-    qual_analysis: string[];
+    wordcloud: boolean;
+    sentence_length: boolean;
+    pos_ratio: boolean;
+    speech_act: boolean;
+    insight: boolean;
     missions_id: string[];
   }) => {
     try {
@@ -35,8 +40,11 @@ const AddReportPage: React.FC<AddReportPageProps> = ({
     <ReportForm
       reportData={{
         title: '',
-        quant_analysis: [],
-        qual_analysis: [],
+        wordcloud: false,
+        sentence_length: false,
+        pos_ratio: false,
+        speech_act: false,
+        insight: false,
         missions_id: [],
       }}
       missions={missions}

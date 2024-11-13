@@ -1,7 +1,9 @@
 import React from 'react';
+
+import { updateReport } from '@/api/report';
 import { Mission } from '@/types/mission';
 import { Report } from '@/types/report';
-import { updateReport } from '@/api/report';
+
 import ReportForm from './ReportForm';
 
 interface EditReportPageProps {
@@ -19,8 +21,11 @@ const EditReportPage: React.FC<EditReportPageProps> = ({
 }) => {
   const handleSave = async (updatedReportData: {
     title: string;
-    quant_analysis: string[];
-    qual_analysis: string[];
+    wordcloud: boolean;
+    sentence_length: boolean;
+    pos_ratio: boolean;
+    speech_act: boolean;
+    insight: boolean;
     missions_id: string[];
   }) => {
     try {
@@ -36,8 +41,11 @@ const EditReportPage: React.FC<EditReportPageProps> = ({
     <ReportForm
       reportData={{
         title: report.title,
-        quant_analysis: report.quant_analysis,
-        qual_analysis: report.qual_analysis,
+        wordcloud: report.wordcloud,
+        sentence_length: report.sentence_length,
+        pos_ratio: report.pos_ratio,
+        speech_act: report.speech_act,
+        insight: report.insight,
         missions_id: report.missions_id,
       }}
       missions={missions}

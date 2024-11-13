@@ -26,12 +26,11 @@ import {
 } from '@chakra-ui/react';
 
 import { deleteReport } from '@/api/report';
+import { Report } from '@/types/report';
+import { ReportListProps } from '@/types/report';
+
 import AddReportPage from './AddReportPage';
 import EditReportPage from './EditReportPage';
-
-import { Report } from '@/types/report';
-
-import { ReportListProps } from '@/types/report';
 
 const ReportList: React.FC<ReportListProps> = ({
   reports,
@@ -124,12 +123,17 @@ const ReportList: React.FC<ReportListProps> = ({
               {reports.map((report) => (
                 <Tr key={report.id}>
                   <Td>{report.title}</Td>
-                  <Td>{report.quant_analysis.join(', ')}</Td>
                   <Td>
-                    {report.qual_analysis.length > 0
-                      ? report.qual_analysis.join(', ')
-                      : ''}
+                    {[
+                      report.wordcloud && '워드클라우드',
+                      report.sentence_length && '문장길이',
+                      report.pos_ratio && '품사비율',
+                      report.speech_act && '문장분류',
+                    ]
+                      .filter(Boolean)
+                      .join(', ')}
                   </Td>
+                  <Td>{report.insight ? '인사이트' : ''}</Td>
                   <Td>
                     {report.missions_id
                       .map((missionId) =>

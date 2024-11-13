@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+
 import {
   Box,
   Button,
@@ -9,12 +10,16 @@ import {
   VStack,
   HStack,
 } from '@chakra-ui/react';
+
 import { Mission } from '@/types/mission';
 
 interface ReportData {
   title: string;
-  quant_analysis: string[];
-  qual_analysis: string[];
+  wordcloud: boolean;
+  sentence_length: boolean;
+  pos_ratio: boolean;
+  speech_act: boolean;
+  insight: boolean;
   missions_id: string[];
 }
 
@@ -31,22 +36,25 @@ const ReportForm: React.FC<ReportFormProps> = ({
   onSave,
   onClose,
 }) => {
-  const [reportData, setReportData] = useState<ReportData>(initialReportData);
+  const [reportData, setReportData] = useState<ReportData>({
+    title: initialReportData.title || '',
+    wordcloud: initialReportData.wordcloud || false,
+    sentence_length: initialReportData.sentence_length || false,
+    pos_ratio: initialReportData.pos_ratio || false,
+    speech_act: initialReportData.speech_act || false,
+    insight: initialReportData.insight || false,
+    missions_id: initialReportData.missions_id || [],
+  });
 
   useEffect(() => {
     setReportData(initialReportData);
   }, [initialReportData]);
 
-  const handleCheckboxChange = (
-    field: 'quant_analysis' | 'qual_analysis',
-    value: string,
-  ) => {
-    setReportData((prev) => {
-      const newValues = prev[field].includes(value)
-        ? prev[field].filter((item) => item !== value)
-        : [...prev[field], value];
-      return { ...prev, [field]: newValues };
-    });
+  const handleCheckboxChange = (field: keyof ReportData) => {
+    setReportData((prev) => ({
+      ...prev,
+      [field]: !prev[field],
+    }));
   };
 
   const handleMissionSelect = (missionId: string) => {
@@ -80,42 +88,26 @@ const ReportForm: React.FC<ReportFormProps> = ({
           <FormLabel>양적 분석</FormLabel>
           <HStack spacing={4}>
             <Checkbox
-              isChecked={reportData.quant_analysis.includes('워드클라우드')}
-              onChange={() =>
-                handleCheckboxChange('quant_analysis', '워드클라우드')
-              }
+              isChecked={reportData.wordcloud}
+              onChange={() => handleCheckboxChange('wordcloud')}
             >
               워드클라우드
             </Checkbox>
             <Checkbox
-              isChecked={reportData.quant_analysis.includes('문장길이')}
-              onChange={() =>
-                handleCheckboxChange('quant_analysis', '문장길이')
-              }
+              isChecked={reportData.sentence_length}
+              onChange={() => handleCheckboxChange('sentence_length')}
             >
               문장길이
             </Checkbox>
             <Checkbox
-              isChecked={reportData.quant_analysis.includes('품사비율')}
-              onChange={() =>
-                handleCheckboxChange('quant_analysis', '품사비율')
-              }
+              isChecked={reportData.pos_ratio}
+              onChange={() => handleCheckboxChange('pos_ratio')}
             >
               품사비율
             </Checkbox>
             <Checkbox
-              isChecked={reportData.quant_analysis.includes('대화내용')}
-              onChange={() =>
-                handleCheckboxChange('quant_analysis', '대화내용')
-              }
-            >
-              대화내용
-            </Checkbox>
-            <Checkbox
-              isChecked={reportData.quant_analysis.includes('문장분류')}
-              onChange={() =>
-                handleCheckboxChange('quant_analysis', '문장분류')
-              }
+              isChecked={reportData.speech_act}
+              onChange={() => handleCheckboxChange('speech_act')}
             >
               문장분류
             </Checkbox>
@@ -125,8 +117,8 @@ const ReportForm: React.FC<ReportFormProps> = ({
         <FormControl>
           <FormLabel>질적 분석</FormLabel>
           <Checkbox
-            isChecked={reportData.qual_analysis.includes('인사이트')}
-            onChange={() => handleCheckboxChange('qual_analysis', '인사이트')}
+            isChecked={reportData.insight}
+            onChange={() => handleCheckboxChange('insight')}
           >
             인사이트
           </Checkbox>

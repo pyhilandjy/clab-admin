@@ -69,6 +69,7 @@ const ReportPage = () => {
     if (selectedFile) {
       handleUpload();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedFile]);
 
   const handleStartDateChange = (date: Date) => {
