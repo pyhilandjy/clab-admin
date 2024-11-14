@@ -1,7 +1,7 @@
 export type Plan = {
   id: string;
   plan_name: string;
-  price: number | null; // null을 허용하도록 수정
+  price: number | null;
   start_age_month: number | null;
   end_age_month: number | null;
   day: number | null;
