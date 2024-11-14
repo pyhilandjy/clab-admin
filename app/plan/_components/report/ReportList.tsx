@@ -26,18 +26,17 @@ import {
 } from '@chakra-ui/react';
 
 import { deleteReport } from '@/api/report';
-import { Report } from '@/types/report';
-import { ReportListProps } from '@/types/report';
+import { ReportWithMissions, ReportListProps } from '@/types/report';
 
 import AddReportPage from './AddReportPage';
 import EditReportPage from './EditReportPage';
 
 const ReportList: React.FC<ReportListProps> = ({
   reports,
-  missions,
   isOpen,
   onDeleteSuccess,
   onAddReport,
+  missions,
   planId,
 }) => {
   const {
@@ -50,7 +49,8 @@ const ReportList: React.FC<ReportListProps> = ({
     onOpen: onEditModalOpen,
     onClose: onEditModalClose,
   } = useDisclosure();
-  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+  const [selectedReport, setSelectedReport] =
+    useState<ReportWithMissions | null>(null);
   const toast = useToast();
 
   const handleReportSave = async () => {
@@ -58,7 +58,7 @@ const ReportList: React.FC<ReportListProps> = ({
     onAddModalClose();
   };
 
-  const handleEditReport = (report: Report) => {
+  const handleEditReport = (report: ReportWithMissions) => {
     setSelectedReport(report);
     onEditModalOpen();
   };
@@ -120,29 +120,24 @@ const ReportList: React.FC<ReportListProps> = ({
               </Tr>
             </Thead>
             <Tbody>
-              {reports.map((report) => (
-                <Tr key={report.id}>
-                  <Td>{report.title}</Td>
+              {reports.map((reportWithMissions) => (
+                <Tr key={reportWithMissions.report.id}>
+                  <Td>{reportWithMissions.report.title}</Td>
                   <Td>
                     {[
-                      report.wordcloud && '워드클라우드',
-                      report.sentence_length && '문장길이',
-                      report.pos_ratio && '품사비율',
-                      report.speech_act && '문장분류',
+                      reportWithMissions.report.wordcloud && '워드클라우드',
+                      reportWithMissions.report.sentence_length && '문장길이',
+                      reportWithMissions.report.pos_ratio && '품사비율',
+                      reportWithMissions.report.speech_act && '문장분류',
                     ]
                       .filter(Boolean)
                       .join(', ')}
                   </Td>
-                  <Td>{report.insight ? '인사이트' : ''}</Td>
+                  <Td>{reportWithMissions.report.insight ? '인사이트' : ''}</Td>
                   <Td>
-                    {report.missions_id
-                      .map((missionId) =>
-                        missions.find((m) => m.id === missionId),
-                      )
-                      .filter(Boolean)
-                      .sort((a, b) => (a!.day > b!.day ? 1 : -1))
-                      .map((mission) => mission!.title)
-                      .join(', ')}
+                    {reportWithMissions.missions
+                      ?.map((mission) => mission.title)
+                      .join(', ') || '연결된 미션 없음'}
                   </Td>
                   <Td>
                     <HStack spacing={2}>
@@ -151,14 +146,16 @@ const ReportList: React.FC<ReportListProps> = ({
                         colorScheme='blue'
                         aria-label='리포트 수정'
                         icon={<EditIcon />}
-                        onClick={() => handleEditReport(report)}
+                        onClick={() => handleEditReport(reportWithMissions)}
                       />
                       <IconButton
                         size='sm'
                         colorScheme='red'
                         aria-label='리포트 삭제'
                         icon={<DeleteIcon />}
-                        onClick={() => handleDeleteReport(report.id)}
+                        onClick={() =>
+                          handleDeleteReport(reportWithMissions.report.id)
+                        }
                       />
                     </HStack>
                   </Td>
@@ -193,7 +190,7 @@ const ReportList: React.FC<ReportListProps> = ({
             <ModalCloseButton />
             <ModalBody>
               <EditReportPage
-                report={selectedReport}
+                reportWithMissions={selectedReport}
                 missions={missions}
                 onClose={onEditModalClose}
                 onSave={handleReportUpdate}

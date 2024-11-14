@@ -1,24 +1,32 @@
+import { AxiosResponse } from 'axios';
+
 import api from '@/lib/api';
-import { Report, ReportAdd } from '@/types/report';
+import { ReportWithMissions, ReportAdd } from '@/types/report';
 
-export const fetchReports = (planId: string) => {
-  return api.get(`/reports/${planId}`);
-};
-
-export const deleteReport = (reportId: string) => {
-  return api.delete(`/reports/${reportId}`);
-};
-
-export const addReport = (
+export const fetchReports = async (
   planId: string,
-  reportData: Omit<ReportAdd, 'plan_id'>,
-) => {
-  return api.post(`/reports/${planId}`, reportData);
+): Promise<ReportWithMissions[]> => {
+  const response: AxiosResponse<ReportWithMissions[]> = await api.get(
+    `/reports/${planId}`,
+  );
+  return response.data;
 };
 
-export const updateReport = (
+export const deleteReport = async (reportId: string): Promise<void> => {
+  await api.delete(`/reports/${reportId}`);
+};
+
+export const addReport = (planId: string, reportData: ReportAdd) => {
+  const missions_id = reportData.missions.map((mission) => ({
+    id: mission.id,
+  }));
+  return api.post(`/reports/${planId}`, { ...reportData.report, missions_id });
+};
+
+export const updateReport = async (
   reportId: string,
-  reportData: Omit<Report, 'id'>,
-) => {
-  return api.put(`/reports/${reportId}`, reportData);
+  reportData: ReportAdd & { id: string },
+): Promise<void> => {
+  const missions_id = reportData.missions.map((mission) => mission.id);
+  await api.put(`/reports/${reportId}`, { ...reportData, missions_id });
 };

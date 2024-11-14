@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 import {
   Box,
@@ -12,62 +12,47 @@ import {
 } from '@chakra-ui/react';
 
 import { Mission } from '@/types/mission';
-
-interface ReportData {
-  title: string;
-  wordcloud: boolean;
-  sentence_length: boolean;
-  pos_ratio: boolean;
-  speech_act: boolean;
-  insight: boolean;
-  missions_id: string[];
-}
+import { ReportAdd } from '@/types/report';
 
 interface ReportFormProps {
-  reportData: ReportData;
+  reportAddData: ReportAdd;
   missions: Mission[];
-  onSave: (updatedReportData: ReportData) => Promise<void>;
+  onSave: (reportAddData: ReportAdd) => Promise<void>;
   onClose: () => void;
 }
 
 const ReportForm: React.FC<ReportFormProps> = ({
-  reportData: initialReportData,
+  reportAddData: initialReportAddData,
   missions,
   onSave,
   onClose,
 }) => {
-  const [reportData, setReportData] = useState<ReportData>({
-    title: initialReportData.title || '',
-    wordcloud: initialReportData.wordcloud || false,
-    sentence_length: initialReportData.sentence_length || false,
-    pos_ratio: initialReportData.pos_ratio || false,
-    speech_act: initialReportData.speech_act || false,
-    insight: initialReportData.insight || false,
-    missions_id: initialReportData.missions_id || [],
-  });
+  const [reportAddData, setReportAddData] =
+    useState<ReportAdd>(initialReportAddData);
 
-  useEffect(() => {
-    setReportData(initialReportData);
-  }, [initialReportData]);
-
-  const handleCheckboxChange = (field: keyof ReportData) => {
-    setReportData((prev) => ({
+  const handleCheckboxChange = (field: keyof ReportAdd['report']) => {
+    setReportAddData((prev) => ({
       ...prev,
-      [field]: !prev[field],
+      report: { ...prev.report, [field]: !prev.report[field] },
     }));
   };
 
   const handleMissionSelect = (missionId: string) => {
-    setReportData((prev) => {
-      const newMissions = prev.missions_id.includes(missionId)
-        ? prev.missions_id.filter((id) => id !== missionId)
-        : [...prev.missions_id, missionId];
-      return { ...prev, missions_id: newMissions };
+    setReportAddData((prev) => {
+      const isCurrentlyChecked = prev.missions.some(
+        (mission) => mission.id === missionId,
+      );
+
+      const updatedMissions = isCurrentlyChecked
+        ? prev.missions.filter((mission) => mission.id !== missionId)
+        : [...prev.missions, { id: missionId }];
+
+      return { ...prev, missions: updatedMissions };
     });
   };
 
   const handleSubmit = async () => {
-    await onSave(reportData);
+    await onSave(reportAddData);
     onClose();
   };
 
@@ -77,9 +62,12 @@ const ReportForm: React.FC<ReportFormProps> = ({
         <FormControl isRequired mb={2}>
           <FormLabel>리포트명</FormLabel>
           <Input
-            value={reportData.title}
+            value={reportAddData.report.title}
             onChange={(e) =>
-              setReportData({ ...reportData, title: e.target.value })
+              setReportAddData((prev) => ({
+                ...prev,
+                report: { ...prev.report, title: e.target.value },
+              }))
             }
           />
         </FormControl>
@@ -88,25 +76,25 @@ const ReportForm: React.FC<ReportFormProps> = ({
           <FormLabel>양적 분석</FormLabel>
           <HStack spacing={4}>
             <Checkbox
-              isChecked={reportData.wordcloud}
+              isChecked={reportAddData.report.wordcloud}
               onChange={() => handleCheckboxChange('wordcloud')}
             >
               워드클라우드
             </Checkbox>
             <Checkbox
-              isChecked={reportData.sentence_length}
+              isChecked={reportAddData.report.sentence_length}
               onChange={() => handleCheckboxChange('sentence_length')}
             >
               문장길이
             </Checkbox>
             <Checkbox
-              isChecked={reportData.pos_ratio}
+              isChecked={reportAddData.report.pos_ratio}
               onChange={() => handleCheckboxChange('pos_ratio')}
             >
               품사비율
             </Checkbox>
             <Checkbox
-              isChecked={reportData.speech_act}
+              isChecked={reportAddData.report.speech_act}
               onChange={() => handleCheckboxChange('speech_act')}
             >
               문장분류
@@ -117,7 +105,7 @@ const ReportForm: React.FC<ReportFormProps> = ({
         <FormControl>
           <FormLabel>질적 분석</FormLabel>
           <Checkbox
-            isChecked={reportData.insight}
+            isChecked={reportAddData.report.insight}
             onChange={() => handleCheckboxChange('insight')}
           >
             인사이트
@@ -130,10 +118,12 @@ const ReportForm: React.FC<ReportFormProps> = ({
             {missions.map((mission) => (
               <Checkbox
                 key={mission.id}
-                isChecked={reportData.missions_id.includes(mission.id)}
+                isChecked={reportAddData.missions.some(
+                  (selectedMission) => selectedMission.id === mission.id,
+                )}
                 onChange={() => handleMissionSelect(mission.id)}
               >
-                {mission.title} (Day {mission.day})
+                {mission.title}
               </Checkbox>
             ))}
           </VStack>

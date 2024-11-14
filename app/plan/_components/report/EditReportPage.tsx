@@ -2,34 +2,29 @@ import React from 'react';
 
 import { updateReport } from '@/api/report';
 import { Mission } from '@/types/mission';
-import { Report } from '@/types/report';
+import { ReportWithMissions, ReportAdd } from '@/types/report';
 
 import ReportForm from './ReportForm';
 
 interface EditReportPageProps {
-  report: Report;
+  reportWithMissions: ReportWithMissions;
   missions: Mission[];
   onClose: () => void;
   onSave: () => Promise<void>;
 }
 
 const EditReportPage: React.FC<EditReportPageProps> = ({
-  report,
+  reportWithMissions,
   missions,
   onClose,
   onSave,
 }) => {
-  const handleSave = async (updatedReportData: {
-    title: string;
-    wordcloud: boolean;
-    sentence_length: boolean;
-    pos_ratio: boolean;
-    speech_act: boolean;
-    insight: boolean;
-    missions_id: string[];
-  }) => {
+  const handleSave = async (updatedReportData: ReportAdd) => {
     try {
-      await updateReport(report.id, updatedReportData);
+      await updateReport(reportWithMissions.report.id, {
+        ...updatedReportData,
+        id: reportWithMissions.report.id,
+      });
       await onSave();
       onClose();
     } catch (error) {
@@ -37,16 +32,23 @@ const EditReportPage: React.FC<EditReportPageProps> = ({
     }
   };
 
+  console.log('모달오픈');
+  console.log(missions);
+
   return (
     <ReportForm
-      reportData={{
-        title: report.title,
-        wordcloud: report.wordcloud,
-        sentence_length: report.sentence_length,
-        pos_ratio: report.pos_ratio,
-        speech_act: report.speech_act,
-        insight: report.insight,
-        missions_id: report.missions_id,
+      reportAddData={{
+        report: {
+          title: reportWithMissions.report.title,
+          wordcloud: reportWithMissions.report.wordcloud,
+          sentence_length: reportWithMissions.report.sentence_length,
+          pos_ratio: reportWithMissions.report.pos_ratio,
+          speech_act: reportWithMissions.report.speech_act,
+          insight: reportWithMissions.report.insight,
+        },
+        missions: reportWithMissions.missions.map((mission) => ({
+          id: mission.id,
+        })),
       }}
       missions={missions}
       onSave={handleSave}

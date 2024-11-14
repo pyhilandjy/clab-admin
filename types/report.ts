@@ -1,28 +1,32 @@
 import { Mission } from './mission';
 
-export interface Report {
-  id: string;
-  title: string;
-  wordcloud: boolean;
-  sentence_length: boolean;
-  pos_ratio: boolean;
-  speech_act: boolean;
-  insight: boolean;
-  missions_id: string[];
+export interface ReportWithMissions {
+  report: {
+    id: string;
+    title: string;
+    wordcloud: boolean;
+    sentence_length: boolean;
+    pos_ratio: boolean;
+    speech_act: boolean;
+    insight: boolean;
+  };
+  missions: Mission[];
 }
 
 export interface ReportAdd {
-  title: string;
-  wordcloud: boolean;
-  sentence_length: boolean;
-  pos_ratio: boolean;
-  speech_act: boolean;
-  insight: boolean;
-  planId?: string;
+  report: {
+    title: string;
+    wordcloud: boolean;
+    sentence_length: boolean;
+    pos_ratio: boolean;
+    speech_act: boolean;
+    insight: boolean;
+  };
+  missions: { id: string }[];
 }
 
 export interface ReportListProps {
-  reports: Report[];
+  reports: ReportWithMissions[];
   missions: Mission[];
   isOpen: boolean;
   planId: string;

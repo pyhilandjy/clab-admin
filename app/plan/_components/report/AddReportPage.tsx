@@ -2,6 +2,7 @@ import React from 'react';
 
 import { addReport } from '@/api/report';
 import { Mission } from '@/types/mission';
+import { ReportAdd } from '@/types/report';
 
 import ReportForm from './ReportForm';
 
@@ -18,17 +19,9 @@ const AddReportPage: React.FC<AddReportPageProps> = ({
   onClose,
   onSave,
 }) => {
-  const handleSave = async (reportData: {
-    title: string;
-    wordcloud: boolean;
-    sentence_length: boolean;
-    pos_ratio: boolean;
-    speech_act: boolean;
-    insight: boolean;
-    missions_id: string[];
-  }) => {
+  const handleSave = async (reportAddData: ReportAdd) => {
     try {
-      await addReport(planId, reportData);
+      await addReport(planId, reportAddData);
       await onSave();
       onClose();
     } catch (error) {
@@ -36,16 +29,21 @@ const AddReportPage: React.FC<AddReportPageProps> = ({
     }
   };
 
+  console.log('모달오픈');
+  console.log(missions);
+
   return (
     <ReportForm
-      reportData={{
-        title: '',
-        wordcloud: false,
-        sentence_length: false,
-        pos_ratio: false,
-        speech_act: false,
-        insight: false,
-        missions_id: [],
+      reportAddData={{
+        report: {
+          title: '',
+          wordcloud: false,
+          sentence_length: false,
+          pos_ratio: false,
+          speech_act: false,
+          insight: false,
+        },
+        missions: [],
       }}
       missions={missions}
       onSave={handleSave}

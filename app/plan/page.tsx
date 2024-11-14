@@ -1,4 +1,5 @@
 'use client';
+
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState, useRef } from 'react';
 
@@ -31,7 +32,7 @@ import {
 import { fetchReports } from '@/api/report';
 import { Mission } from '@/types/mission';
 import { Plan } from '@/types/plan';
-import { Report } from '@/types/report';
+import { ReportWithMissions } from '@/types/report';
 
 import MissionList from './_components/mission/MissionList';
 import ReportList from './_components/report/ReportList';
@@ -44,7 +45,9 @@ const PlanPage = () => {
   };
   const [plans, setPlans] = useState<Plan[]>([]);
   const [missions, setMissions] = useState<{ [key: string]: Mission[] }>({});
-  const [reports, setReports] = useState<{ [key: string]: Report[] }>({});
+  const [reports, setReports] = useState<{
+    [key: string]: ReportWithMissions[];
+  }>({});
   const [expandedPlanId, setExpandedPlanId] = useState<string | null>(null);
   const [isMissionVisible, setIsMissionVisible] = useState<boolean>(false);
   const [isReportVisible, setIsReportVisible] = useState<boolean>(false);
@@ -69,7 +72,6 @@ const PlanPage = () => {
       setExpandedPlanId(null);
       setIsMissionVisible(false);
       setIsReportVisible(false);
-      handleMissionClick(planId);
     } else {
       setExpandedPlanId(planId);
       setIsMissionVisible(false);
@@ -105,23 +107,12 @@ const PlanPage = () => {
     } else {
       setIsMissionVisible(false);
 
-      if (!missions[planId]) {
-        try {
-          const missionResponse = await fetchMission(planId);
-          setMissions((prevMissions) => ({
-            ...prevMissions,
-            [planId]: missionResponse.data,
-          }));
-        } catch (error) {
-          console.error(`Error fetching missions for plan ${planId}:`, error);
-        }
-      }
       if (!reports[planId]) {
         try {
           const reportResponse = await fetchReports(planId);
           setReports((prevReports) => ({
             ...prevReports,
-            [planId]: reportResponse.data,
+            [planId]: reportResponse,
           }));
         } catch (error) {
           console.error(`Error fetching reports for plan ${planId}:`, error);
@@ -144,7 +135,7 @@ const PlanPage = () => {
     }
   };
 
-  const handleDelete = async () => {
+  const handleDeletePlan = async () => {
     if (selectedPlanId) {
       try {
         const response = await deletePlan(selectedPlanId);
@@ -202,10 +193,10 @@ const PlanPage = () => {
 
   const handleReportAdd = async (planId: string) => {
     try {
-      const response = await fetchReports(planId); // fetchReports 호출 필요
+      const response = await fetchReports(planId);
       setReports((prevReports) => ({
         ...prevReports,
-        [planId]: response.data,
+        [planId]: response,
       }));
     } catch (error) {
       console.error(`Error fetching reports for plan ${planId}:`, error);
@@ -215,7 +206,9 @@ const PlanPage = () => {
   const handleReportDeleteSuccess = (planId: string, reportId: string) => {
     setReports((prevReports) => ({
       ...prevReports,
-      [planId]: prevReports[planId].filter((report) => report.id !== reportId),
+      [planId]: prevReports[planId].filter(
+        (report) => report.report.id !== reportId,
+      ),
     }));
   };
 
@@ -311,9 +304,9 @@ const PlanPage = () => {
                         {isReportVisible && (
                           <ReportList
                             reports={reports[plan.id] ?? []}
-                            missions={missions[plan.id] ?? []}
                             planId={plan.id}
                             isOpen={isReportVisible}
+                            missions={missions[plan.id] ?? []}
                             onAddReport={() => handleReportAdd(plan.id)}
                             onDeleteSuccess={(reportId) =>
                               handleReportDeleteSuccess(plan.id, reportId)
@@ -343,7 +336,7 @@ const PlanPage = () => {
                 <Button ref={cancelRef} onClick={closeDeleteModal}>
                   아니요
                 </Button>
-                <Button colorScheme='red' onClick={handleDelete} ml={3}>
+                <Button colorScheme='red' onClick={handleDeletePlan} ml={3}>
                   삭제
                 </Button>
               </AlertDialogFooter>
