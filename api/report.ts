@@ -27,6 +27,8 @@ export const updateReport = async (
   reportId: string,
   reportData: ReportAdd & { id: string },
 ): Promise<void> => {
-  const missions_id = reportData.missions.map((mission) => mission.id);
-  await api.put(`/reports/${reportId}`, { ...reportData, missions_id });
+  const missions_id = reportData.missions.map((mission) => ({
+    id: mission.id,
+  }));
+  await api.put(`/reports/${reportId}`, { ...reportData.report, missions_id });
 };
