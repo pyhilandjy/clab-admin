@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+
 import {
   Table,
   Thead,
@@ -17,8 +18,13 @@ import {
   Switch,
 } from '@chakra-ui/react';
 
-import { fetchReports, fetchReportAudioFiles } from '@/api/report-management';
+import {
+  fetchReports,
+  fetchReportAudioFiles,
+  updateAudioFileIsUsed,
+} from '@/api/report-management';
 import { Report, ReportAudioFile } from '@/types/report-management';
+
 import Layout from '../../components/Layout';
 
 const ReportsManagement = () => {
@@ -171,20 +177,64 @@ const ReportsManagement = () => {
                                         <Td>
                                           <HStack align='center'>
                                             <Text>
-                                              {file.is_use
+                                              {file.is_used
                                                 ? '활성화'
                                                 : '비활성화'}
                                             </Text>
                                             <Switch
                                               size='md'
-                                              isChecked={file.is_use}
-                                              isReadOnly
+                                              isChecked={file.is_used}
                                               colorScheme='teal'
+                                              onChange={async () => {
+                                                try {
+                                                  await updateAudioFileIsUsed(
+                                                    file.audio_file_id,
+                                                    !file.is_used,
+                                                  );
+                                                  setAudioFiles((prev) => ({
+                                                    ...prev,
+                                                    [report.user_reports_id]:
+                                                      prev[
+                                                        report.user_reports_id
+                                                      ].map((f) =>
+                                                        f.audio_file_id ===
+                                                        file.audio_file_id
+                                                          ? {
+                                                              ...f,
+                                                              is_used:
+                                                                !file.is_used,
+                                                            }
+                                                          : f,
+                                                      ),
+                                                  }));
+                                                } catch (error) {
+                                                  console.error(
+                                                    'Error updating is_used:',
+                                                    error,
+                                                  );
+                                                }
+                                              }}
                                             />
                                           </HStack>
                                         </Td>
                                         <Td>
-                                          <Button>편집</Button>
+                                          <Box
+                                            position='relative'
+                                            display='inline-block'
+                                          >
+                                            <Button>편집</Button>
+                                            {file.is_edited === false && (
+                                              <Box
+                                                position='absolute'
+                                                top='-5px'
+                                                left='-5px'
+                                                width='7px'
+                                                height='7px'
+                                                borderRadius='full'
+                                                backgroundColor='red.500'
+                                              />
+                                            )}
+                                          </Box>
                                         </Td>
                                       </Tr>
                                     ),

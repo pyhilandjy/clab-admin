@@ -35,3 +35,12 @@ export const fetchReportAudioFiles = async (
     throw error;
   }
 };
+
+export const updateAudioFileIsUsed = async (
+  audioFileId: string,
+  isUsed: boolean,
+) => {
+  await api.patch(`/management/reports/audio_files/${audioFileId}`, {
+    is_used: isUsed,
+  });
+};

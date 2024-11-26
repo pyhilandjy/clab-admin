@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+
 import {
   Table,
   Thead,
@@ -13,9 +14,14 @@ import {
   Box,
   Text,
   Spinner,
+  Switch,
+  HStack,
 } from '@chakra-ui/react';
 
-import { fetchReportAudioFiles } from '@/api/report-management';
+import {
+  fetchReportAudioFiles,
+  updateAudioFileIsUsed,
+} from '@/api/report-management';
 import { ReportAudioFile } from '@/types/report-management';
 
 type ReportAudioFilesListProps = {
@@ -39,6 +45,22 @@ const ReportAudioFilesList: React.FC<ReportAudioFilesListProps> = ({
         .finally(() => setIsLoading(false));
     }
   }, [isExpanded, userReportsId]);
+
+  const handleToggle = async (audioFileId: string, currentValue: boolean) => {
+    try {
+      await updateAudioFileIsUsed(audioFileId, !currentValue);
+
+      setAudioFiles((prevFiles) =>
+        prevFiles.map((file) =>
+          file.audio_file_id === audioFileId
+            ? { ...file, is_used: !currentValue }
+            : file,
+        ),
+      );
+    } catch (error) {
+      console.error('Error updating audio file:', error);
+    }
+  };
 
   return (
     <Collapse in={isExpanded} animateOpacity>
@@ -68,7 +90,19 @@ const ReportAudioFilesList: React.FC<ReportAudioFilesListProps> = ({
                     <Td>{new Date(file.record_date).toLocaleString()}</Td>
                     <Td>{file.record_time}</Td>
                     <Td>{file.mission_title}</Td>
-                    <Td>{file.is_use ? 'Yes' : 'No'}</Td>
+                    <Td>
+                      <HStack align='center'>
+                        <Text>{file.is_used ? '활성화' : '비활성화'}</Text>
+                        <Switch
+                          size='md'
+                          isChecked={file.is_used}
+                          onChange={() =>
+                            handleToggle(file.audio_file_id, file.is_used)
+                          }
+                          colorScheme='teal'
+                        />
+                      </HStack>
+                    </Td>
                   </Tr>
                 ))}
               </Tbody>
