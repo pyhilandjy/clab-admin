@@ -76,7 +76,6 @@ const EditPage = () => {
   const newWordInputRef = useRef<HTMLInputElement | null>(null);
   const oldSpeakerInputRef = useRef<HTMLInputElement | null>(null);
   const newSpeakerInputRef = useRef<HTMLInputElement | null>(null);
-  const [recordTime, setRecordTime] = useState<number | null>(null);
   const [modifiedData, setModifiedData] = useState<{
     [key: string]: { [field: string]: string; audio_files_id: string };
   }>({});
@@ -116,13 +115,12 @@ const EditPage = () => {
             setSelectedAudioFilesId(queryAudioFilesId);
             setAudioUrl(`${backendUrl}/audio/webm/${queryAudioFilesId}`);
 
-            const [sttDataResponse, audioInfoResponse] = await Promise.all([
+            const [sttDataResponse] = await Promise.all([
               fetchSttData(queryAudioFilesId),
               fetchAudioInfo(queryAudioFilesId),
             ]);
 
             setSttResults(sttDataResponse.data);
-            setRecordTime(audioInfoResponse.data.record_time);
           }
         }
       } catch (error) {
@@ -155,12 +153,9 @@ const EditPage = () => {
     try {
       const response = await fetchSttData(audioFileId);
       setSttResults(response.data);
-      const infoResponse = await fetchAudioInfo(audioFileId);
-      setRecordTime(infoResponse.data.record_time);
     } catch (error) {
       console.error('파일을 불러오는 중 오류가 발생했습니다:', error);
       setSttResults([]);
-      setRecordTime(null);
       alert('해당 파일에 대한 데이터가 없습니다.');
     }
   };
@@ -418,12 +413,21 @@ const EditPage = () => {
           ))}
         </Select>
         {audioUrl && (
-          <div className='fixed-audio-icon'>
-            <audio ref={audioRef} controls>
+          <div
+            className='fixed-audio-icon'
+            style={{
+              display: 'flex',
+              alignItems: 'left',
+              justifyContent: 'space-between',
+              width: '90%',
+              position: 'fixed',
+              top: '900px',
+            }}
+          >
+            <audio ref={audioRef} controls style={{ flex: 1, width: '90%' }}>
               <source src={audioUrl} type='audio/webm' />
               Your browser does not support the audio element.
             </audio>
-            <div>총 재생 시간: {recordTime}</div>
           </div>
         )}
         <Grid templateColumns='repeat(4, 1fr)' gap={4} mt={3}>
