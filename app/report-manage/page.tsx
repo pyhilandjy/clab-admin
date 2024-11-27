@@ -16,12 +16,14 @@ import {
   Collapse,
   HStack,
   Switch,
+  Select,
 } from '@chakra-ui/react';
 
 import {
   fetchReports,
   fetchReportAudioFiles,
   updateAudioFileIsUsed,
+  updateUserReportsInspection,
 } from '@/api/report-management';
 import Layout from '@/components/Layout';
 import { Report, ReportAudioFile } from '@/types/report-management';
@@ -53,19 +55,37 @@ const ReportsManagement = () => {
     }
   };
 
-  const toggleRow = async (reportId: string) => {
-    if (expandedRow === reportId) {
+  const toggleRow = async (userReportsId: string) => {
+    if (expandedRow === userReportsId) {
       setExpandedRow(null);
     } else {
-      setExpandedRow(reportId);
-      if (!audioFiles[reportId]) {
+      setExpandedRow(userReportsId);
+      if (!audioFiles[userReportsId]) {
         try {
-          const data = await fetchReportAudioFiles(reportId);
-          setAudioFiles((prev) => ({ ...prev, [reportId]: data }));
+          const data = await fetchReportAudioFiles(userReportsId);
+          setAudioFiles((prev) => ({ ...prev, [userReportsId]: data }));
         } catch (error) {
           console.error('Error fetching audio files:', error);
         }
       }
+    }
+  };
+
+  const handleOnChangeInspection = async (
+    userReportsId: string,
+    newInspection: string,
+  ) => {
+    try {
+      await updateUserReportsInspection(userReportsId, newInspection);
+      setReports((prevReports) =>
+        prevReports.map((report) =>
+          report.user_reports_id === userReportsId
+            ? { ...report, inspection: newInspection }
+            : report,
+        ),
+      );
+    } catch (error) {
+      console.error('Error updating inspection:', error);
     }
   };
 
@@ -123,8 +143,24 @@ const ReportsManagement = () => {
                         </Box>
                       </Td>
                       <Td>{report.send_at}</Td>
+
+                      <Td>
+                        <Select
+                          value={report.inspection}
+                          onChange={(e) =>
+                            handleOnChangeInspection(
+                              report.user_reports_id,
+                              e.target.value,
+                            )
+                          }
+                          backgroundColor='white'
+                          minWidth='100px'
+                        >
+                          <option value='editing'>편집중</option>
+                          <option value='completed'>완료</option>
+                        </Select>
+                      </Td>
                       <Td>{report.status}</Td>
-                      <Td>{report.inspection}</Td>
                       <Td>
                         <Button
                           onClick={() => toggleRow(report.user_reports_id)}

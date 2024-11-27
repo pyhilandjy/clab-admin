@@ -44,3 +44,12 @@ export const updateAudioFileIsUsed = async (
     is_used: isUsed,
   });
 };
+
+export const updateUserReportsInspection = async (
+  userReportsId: string,
+  inspection: string,
+) => {
+  await api.patch(`/management/user/reports/inspection/${userReportsId}`, {
+    inspection: inspection,
+  });
+};
