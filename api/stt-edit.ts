@@ -20,11 +20,11 @@ export const fetchActTypes = () => api.get<ActTypes[]>('/stt/act_types/');
 export const fetchUserFiles = (userId: string) =>
   api.get<File[]>(`/audio/user/${userId}/files`);
 
-export const fetchSttData = (fileId: string) =>
-  api.get<SttData[]>(`/stt/data/${fileId}`);
+export const fetchSttData = (audioFilesId: string) =>
+  api.get<SttData[]>(`/stt/data/${audioFilesId}`);
 
-export const fetchAudioInfo = (fileId: string) =>
-  api.get<{ record_time: number }>(`/audio/webm/info/${fileId}`);
+export const fetchAudioInfo = (audioFilesId: string) =>
+  api.get<{ record_time: number }>(`/audio/webm/info/${audioFilesId}`);
 
 export const updateText = (
   id: string,
@@ -90,8 +90,8 @@ export const runMlSpeechActType = (audioFilesId: string) =>
 export const updateturnin = (id: string, turn: boolean) =>
   api.patch(`/stt/data/is-turn/`, { id, is_turn: turn });
 
-export const runLlmQuaritative = (fileId: string) =>
-  api.get(`/stt/data/${fileId}/report/quaritative/`);
+export const runLlmQuaritative = (audioFilesId: string) =>
+  api.get(`/stt/data/${audioFilesId}/report/quaritative/`);
 
 export const createQualitativeData = (quaritativeData: Quaritative) =>
   api.post('/stt/data/report/quaritative/', quaritativeData);
