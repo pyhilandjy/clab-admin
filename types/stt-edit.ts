@@ -31,7 +31,7 @@ export type ActTypes = {
   id: number;
 };
 
-export type File = {
+export type AudioFiles = {
   id: string;
   file_name: string;
   status: string;

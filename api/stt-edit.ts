@@ -5,7 +5,7 @@ import {
   SpeechAct,
   TalkMore,
   ActTypes,
-  File,
+  AudioFiles,
   Quaritative,
 } from '@/types/stt-edit';
 
@@ -18,7 +18,7 @@ export const fetchTalkMore = () => api.get<TalkMore[]>('/stt/talk_more/');
 export const fetchActTypes = () => api.get<ActTypes[]>('/stt/act_types/');
 
 export const fetchUserFiles = (userId: string) =>
-  api.get<File[]>(`/audio/user/${userId}/files`);
+  api.get<AudioFiles[]>(`/audio/user/${userId}/files`);
 
 export const fetchSttData = (audioFilesId: string) =>
   api.get<SttData[]>(`/stt/data/${audioFilesId}`);
