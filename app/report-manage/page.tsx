@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 import {
@@ -28,7 +27,6 @@ import Layout from '@/components/Layout';
 import { Report, ReportAudioFile } from '@/types/report-management';
 
 const ReportsManagement = () => {
-  const router = useRouter();
   const [reports, setReports] = useState<Report[]>([]);
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
   const [audioFiles, setAudioFiles] = useState<
@@ -224,8 +222,8 @@ const ReportsManagement = () => {
                                           >
                                             <Button
                                               onClick={() =>
-                                                router.push(
-                                                  `/reports-stt-edit?audioFilesId=${file.audio_file_id}&userId=${report.user_reports_id}`,
+                                                window.open(
+                                                  `/stt-edit?audioFilesId=${file.audio_file_id}&userId=${report.user_id}`,
                                                 )
                                               }
                                             >
