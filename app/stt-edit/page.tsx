@@ -1,4 +1,6 @@
 'use client';
+
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
 import {
@@ -38,26 +40,32 @@ import {
   runLlmQuaritative,
   createQualitativeData,
 } from '@/api/stt-edit';
+import Layout from '@/components/Layout';
 import {
   User,
   SttData,
   SpeechAct,
   TalkMore,
   ActTypes,
-  File,
+  AudioFiles,
   Quaritative,
 } from '@/types/stt-edit';
 
 import '@/styles/edit.css';
-import Layout from '../../components/Layout';
 import { backendUrl } from '../consts';
 
 const EditPage = () => {
+  const searchParams = useSearchParams();
+  const queryUserId = searchParams.get('userId');
+  const queryAudioFilesId = searchParams.get('audioFilesId');
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const speakerRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  const [users, setUsers] = useState<User[]>([]);
-  const [files, setFiles] = useState<File[]>([]);
-  const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
+  const [userId, setUsers] = useState<User[]>([]);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [audioFiles, setAudioFiles] = useState<AudioFiles[]>([]);
+  const [selectedAudioFilesId, setSelectedAudioFilesId] = useState<
+    string | null
+  >(null);
   const [sttResults, setSttResults] = useState<SttData[]>([]);
   const [speechAct, setSpeechAct] = useState<SpeechAct[]>([]);
   const [talkMore, setTalkMore] = useState<TalkMore[]>([]);
@@ -81,44 +89,73 @@ const EditPage = () => {
   useEffect(() => {
     const loadInitialData = async () => {
       try {
-        const usersResponse = await fetchUsers();
+        const [
+          usersResponse,
+          speechActsResponse,
+          talkMoreResponse,
+          actTypesResponse,
+        ] = await Promise.all([
+          fetchUsers(),
+          fetchSpeechActs(),
+          fetchTalkMore(),
+          fetchActTypes(),
+        ]);
+
         setUsers(usersResponse.data);
-
-        const speechActsResponse = await fetchSpeechActs();
         setSpeechAct(speechActsResponse.data);
-
-        const talkMoreResponse = await fetchTalkMore();
         setTalkMore(talkMoreResponse.data);
-
-        const actTypesResponse = await fetchActTypes();
         setActTypes(actTypesResponse.data);
+
+        if (queryUserId) {
+          setSelectedUserId(queryUserId);
+
+          const userFilesResponse = await fetchUserFiles(queryUserId);
+          setAudioFiles(userFilesResponse.data);
+
+          if (queryAudioFilesId) {
+            setSelectedAudioFilesId(queryAudioFilesId);
+            setAudioUrl(`${backendUrl}/audio/webm/${queryAudioFilesId}`);
+
+            const [sttDataResponse, audioInfoResponse] = await Promise.all([
+              fetchSttData(queryAudioFilesId),
+              fetchAudioInfo(queryAudioFilesId),
+            ]);
+
+            setSttResults(sttDataResponse.data);
+            setRecordTime(audioInfoResponse.data.record_time);
+          }
+        }
       } catch (error) {
         console.error('초기 데이터를 불러오는 중 오류가 발생했습니다:', error);
       }
     };
 
     loadInitialData();
-  }, []);
+  }, [queryUserId, queryAudioFilesId]);
 
-  const handleSelectUser = async (e: any) => {
+  const handleSelectUser = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const userId = e.target.value;
+    setSelectedUserId(userId);
     try {
       const response = await fetchUserFiles(e.target.value);
-      setFiles(response.data);
+      setAudioFiles(response.data);
     } catch (error) {
       console.error('유저 파일을 불러오는 중 오류가 발생했습니다:', error);
-      setFiles([]);
+      setAudioFiles([]);
       alert('해당 사용자의 STT 데이터가 없습니다.');
     }
   };
 
-  const handleSelectFileId = async (e: any) => {
-    const fileId = e.target.value;
-    setSelectedFileId(fileId);
-    setAudioUrl(`${backendUrl}/audio/webm/${fileId}`);
+  const handleSelectFileId = async (
+    e: React.ChangeEvent<HTMLSelectElement>,
+  ) => {
+    const audioFileId = e.target.value;
+    setSelectedAudioFilesId(audioFileId);
+    setAudioUrl(`${backendUrl}/audio/webm/${audioFileId}`);
     try {
-      const response = await fetchSttData(fileId);
+      const response = await fetchSttData(audioFileId);
       setSttResults(response.data);
-      const infoResponse = await fetchAudioInfo(fileId);
+      const infoResponse = await fetchAudioInfo(audioFileId);
       setRecordTime(infoResponse.data.record_time);
     } catch (error) {
       console.error('파일을 불러오는 중 오류가 발생했습니다:', error);
@@ -135,14 +172,14 @@ const EditPage = () => {
   }, [audioUrl]);
 
   const handleOnClickQualitative = async () => {
-    if (!selectedFileId) {
-      console.error('올바르지 않은 파일 ID:', selectedFileId);
+    if (!selectedAudioFilesId) {
+      console.error('올바르지 않은 파일 ID:', selectedAudioFilesId);
       return;
     }
     setIsModalOpen(true);
     setIsLoading(true);
     try {
-      const response = await runLlmQuaritative(selectedFileId);
+      const response = await runLlmQuaritative(selectedAudioFilesId);
       setEditedQuaritativeData(response.data);
     } catch (error) {
       console.error('There was an error!', error);
@@ -152,7 +189,7 @@ const EditPage = () => {
   };
 
   const handleQualitativeDataSave = async () => {
-    if (!selectedFileId || !editedQuaritativeData) return;
+    if (!selectedAudioFilesId || !editedQuaritativeData) return;
     try {
       await Promise.all(
         editedQuaritativeData.map((data) => createQualitativeData(data)),
@@ -295,14 +332,14 @@ const EditPage = () => {
   };
 
   const handleRunMlSpeechActType = async () => {
-    if (!selectedFileId) {
+    if (!selectedAudioFilesId) {
       console.error('파일이 선택되지 않았습니다.');
       return;
     }
 
     try {
-      await runMlSpeechActType(selectedFileId);
-      const response = await fetchSttData(selectedFileId);
+      await runMlSpeechActType(selectedAudioFilesId);
+      const response = await fetchSttData(selectedAudioFilesId);
       setSttResults(response.data);
     } catch (error) {
       console.error('ML 처리 중 오류 발생 또는 데이터 갱신 실패:', error);
@@ -357,15 +394,24 @@ const EditPage = () => {
   return (
     <Layout>
       <div className='flex'>
-        <Select placeholder='Select User' onChange={handleSelectUser}>
-          {users.map((user: User) => (
+        <Select
+          placeholder='Select User'
+          onChange={handleSelectUser}
+          value={selectedUserId || ''}
+        >
+          {userId.map((user: User) => (
             <option key={user.id} value={user.id}>
               {user.name} ({user.email})
             </option>
           ))}
         </Select>
-        <Select placeholder='Select file' onChange={handleSelectFileId} mt={2}>
-          {files.map((file: File) => (
+        <Select
+          placeholder='Select file'
+          onChange={handleSelectFileId}
+          value={selectedAudioFilesId || ''}
+          mt={2}
+        >
+          {audioFiles.map((file: AudioFiles) => (
             <option key={file.id} value={file.id}>
               {file.file_name} - {file.status}
             </option>
