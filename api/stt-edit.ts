@@ -82,7 +82,8 @@ export const replaceSpeaker = (
     new_speaker: newSpeaker,
   });
 
-export const batchEdit = (data: any) => api.post('/stt/data/batch-edit/', data);
+export const batchEdit = (data: any) =>
+  api.patch('/stt/data/batch-edit/', data);
 
 export const runMlSpeechActType = (audioFilesId: string) =>
   api.patch(`/stt/speech-act-type/?audio_files_id=${audioFilesId}`);
