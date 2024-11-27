@@ -9,9 +9,9 @@ import {
   fetchSubCategories,
   fetchCategories,
 } from '@/api/plan';
+import Layout from '@/components/Layout';
 import { Category, UpdatePlanPayload } from '@/types/plan';
 
-import Layout from '../../../../components/Layout';
 import PlanForm from '../../_components/PlanForm';
 
 const EditPlanPage = () => {
