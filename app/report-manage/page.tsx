@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 import {
@@ -23,11 +24,11 @@ import {
   fetchReportAudioFiles,
   updateAudioFileIsUsed,
 } from '@/api/report-management';
+import Layout from '@/components/Layout';
 import { Report, ReportAudioFile } from '@/types/report-management';
 
-import Layout from '../../components/Layout';
-
 const ReportsManagement = () => {
+  const router = useRouter();
   const [reports, setReports] = useState<Report[]>([]);
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
   const [audioFiles, setAudioFiles] = useState<
@@ -36,7 +37,6 @@ const ReportsManagement = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-
   const pageSize = 20;
 
   const loadReports = async (currentPage: number) => {
@@ -222,8 +222,16 @@ const ReportsManagement = () => {
                                             position='relative'
                                             display='inline-block'
                                           >
-                                            <Button>편집</Button>
-                                            {file.is_edited === false && (
+                                            <Button
+                                              onClick={() =>
+                                                router.push(
+                                                  `/reports-stt-edit?audioFilesId=${file.audio_file_id}&userId=${report.user_reports_id}`,
+                                                )
+                                              }
+                                            >
+                                              편집
+                                            </Button>
+                                            {!file.is_edited && (
                                               <Box
                                                 position='absolute'
                                                 top='-5px'
