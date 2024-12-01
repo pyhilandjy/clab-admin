@@ -17,6 +17,13 @@ import {
   HStack,
   Switch,
   Select,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Input,
 } from '@chakra-ui/react';
 
 import {
@@ -24,6 +31,7 @@ import {
   fetchReportAudioFiles,
   updateAudioFileIsUsed,
   updateUserReportsInspection,
+  updateUserReportsInspector,
 } from '@/api/report-management';
 import Layout from '@/components/Layout';
 import { Report, ReportAudioFile } from '@/types/report-management';
@@ -37,6 +45,9 @@ const ReportsManagement = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [inspector, setInspector] = useState('');
+  const [currentReportId, setCurrentReportId] = useState<string | null>(null);
   const pageSize = 20;
 
   const loadReports = async (currentPage: number) => {
@@ -75,17 +86,46 @@ const ReportsManagement = () => {
     userReportsId: string,
     newInspection: string,
   ) => {
-    try {
-      await updateUserReportsInspection(userReportsId, newInspection);
-      setReports((prevReports) =>
-        prevReports.map((report) =>
-          report.user_reports_id === userReportsId
-            ? { ...report, inspection: newInspection }
-            : report,
-        ),
-      );
-    } catch (error) {
-      console.error('Error updating inspection:', error);
+    if (newInspection === 'completed') {
+      setCurrentReportId(userReportsId);
+      setIsModalOpen(true);
+    } else {
+      try {
+        await updateUserReportsInspection(userReportsId, newInspection);
+        await updateUserReportsInspector(userReportsId, inspector);
+        setReports((prevReports) =>
+          prevReports.map((report) =>
+            report.user_reports_id === userReportsId
+              ? { ...report, inspection: newInspection, inspector: '' }
+              : report,
+          ),
+        );
+      } catch (error) {
+        console.error('Error updating inspection:', error);
+      }
+    }
+  };
+
+  const handleSaveInspector = async () => {
+    if (currentReportId && inspector.trim()) {
+      try {
+        await updateUserReportsInspector(currentReportId, inspector);
+        await updateUserReportsInspection(currentReportId, 'completed');
+
+        setReports((prevReports) =>
+          prevReports.map((report) =>
+            report.user_reports_id === currentReportId
+              ? { ...report, inspection: 'completed', inspector: inspector }
+              : report,
+          ),
+        );
+        setIsModalOpen(false);
+        setInspector('');
+      } catch (error) {
+        console.error('Error saving inspector:', error);
+      }
+    } else {
+      alert('검수자를 입력하세요');
     }
   };
 
@@ -99,7 +139,6 @@ const ReportsManagement = () => {
         display='flex'
         flexDirection='column'
         alignItems='center'
-        width='1064px'
         mt={20}
         ml={20}
       >
@@ -112,10 +151,10 @@ const ReportsManagement = () => {
             <Thead>
               <Tr backgroundColor='#E9E9E9'>
                 <Th>고객이름</Th>
-                <Th>아이이름</Th>
                 <Th>레포트명</Th>
                 <Th>발송예정일시</Th>
                 <Th>검수</Th>
+                <Th>검수자</Th>
                 <Th>발송상태</Th>
                 <Th></Th>
                 <Th></Th>
@@ -133,7 +172,6 @@ const ReportsManagement = () => {
                   <React.Fragment key={report.user_reports_id}>
                     <Tr>
                       <Td>{report.user_name}</Td>
-                      <Td>{report.child_name}</Td>
                       <Td>
                         <Box>
                           <Text>{report.report_title}</Text>
@@ -159,6 +197,15 @@ const ReportsManagement = () => {
                           <option value='editing'>편집중</option>
                           <option value='completed'>완료</option>
                         </Select>
+                      </Td>
+                      <Td>
+                        {' '}
+                        <Box>
+                          <Text>{report.inspector}</Text>
+                          <Text fontSize='sm' color='gray.500'>
+                            {report.inspected_at}
+                          </Text>
+                        </Box>
                       </Td>
                       <Td>{report.status}</Td>
                       <Td>
@@ -302,10 +349,31 @@ const ReportsManagement = () => {
             </Tbody>
           </Table>
         </TableContainer>
+        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>검수자 이름 입력</ModalHeader>
+            <ModalBody>
+              <Input
+                placeholder='검수자 이름'
+                value={inspector}
+                onChange={(e) => setInspector(e.target.value)}
+              />
+            </ModalBody>
+            <ModalFooter>
+              <Button colorScheme='blue' onClick={handleSaveInspector}>
+                저장
+              </Button>
+              <Button variant='ghost' onClick={() => setIsModalOpen(false)}>
+                취소
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
         <HStack
           justify='space-between'
           align='center'
-          width='1064px'
+          width='1200px'
           padding='12px 24px 16px 24px'
           backgroundColor='#E9E9E9'
           borderRadius='0px 0px 8px 8px'

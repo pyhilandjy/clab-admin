@@ -5,9 +5,11 @@ export interface Report {
   send_at: string;
   status: string;
   inspection: string;
+  inspector: string;
   child_name: string;
   report_title: string;
   plans_name: string;
+  inspected_at: string;
 }
 
 export interface FetchReportsResponse {

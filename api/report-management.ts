@@ -53,3 +53,12 @@ export const updateUserReportsInspection = async (
     inspection: inspection,
   });
 };
+
+export const updateUserReportsInspector = async (
+  userReportsId: string,
+  inspector: string,
+) => {
+  await api.patch(`/management/user/reports/inspector/${userReportsId}`, {
+    inspector: inspector,
+  });
+};
