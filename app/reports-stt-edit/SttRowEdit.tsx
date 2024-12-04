@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Input, Button, Select, Checkbox } from '@chakra-ui/react';
 import { SttData, SpeechAct, TalkMore, ActTypes } from '@/types/stt-edit';
 
@@ -14,6 +14,7 @@ const SttRowEdit = ({
   onUpdateTalkMore,
   onUpdateActType,
   onToggleTurn,
+  localChanges,
 }: {
   sttResults: SttData[];
   speechAct: SpeechAct[];
@@ -26,29 +27,53 @@ const SttRowEdit = ({
   onUpdateTalkMore: (id: string, talkMoreId: number) => void;
   onUpdateActType: (id: string, actTypeId: number) => void;
   onToggleTurn: (id: string, isTurn: boolean) => void;
+  localChanges: React.MutableRefObject<{
+    [key: string]: { text_edited?: string; speaker?: string };
+  }>;
 }) => {
+  const handleInputChange = (
+    id: string,
+    field: 'text_edited' | 'speaker',
+    value: string,
+  ) => {
+    if (!localChanges.current[id]) {
+      localChanges.current[id] = {};
+    }
+    localChanges.current[id][field] = value;
+  };
+
+  const handleSaveRow = (sttData: SttData) => {
+    const changes = localChanges.current[sttData.id];
+    if (!changes) {
+      alert('변경 사항이 없습니다.');
+      return;
+    }
+
+    const newText = changes.text_edited || sttData.text_edited;
+    const newSpeaker = changes.speaker || sttData.speaker;
+
+    onUpdateRow(sttData.id, newText, newSpeaker);
+
+    // 저장 후 변경 사항 초기화
+    delete localChanges.current[sttData.id];
+  };
+
   return (
     <div style={{ marginTop: '40px' }}>
       {sttResults.map((sttData) => (
-        <div
-          key={sttData.id}
-          style={{
-            marginBottom: '16px',
-            padding: '10px',
-          }}
-        >
+        <div key={sttData.id} style={{ marginBottom: '5px', padding: '7px' }}>
           <div style={{ display: 'flex', gap: '8px' }}>
             <Input
-              defaultValue={sttData.text_edited || sttData.text_edited}
+              defaultValue={sttData.text_edited || ''}
               onChange={(e) =>
-                onUpdateRow(sttData.id, e.target.value, sttData.speaker)
+                handleInputChange(sttData.id, 'text_edited', e.target.value)
               }
               style={{ flex: 5 }}
             />
             <Input
-              defaultValue={sttData.speaker}
+              defaultValue={sttData.speaker || ''}
               onChange={(e) =>
-                onUpdateRow(sttData.id, sttData.text_edited, e.target.value)
+                handleInputChange(sttData.id, 'speaker', e.target.value)
               }
               style={{ flex: 1 }}
             />
@@ -64,13 +89,8 @@ const SttRowEdit = ({
             }}
           >
             <Button
-              onClick={() =>
-                onUpdateRow(sttData.id, sttData.text_edited, sttData.speaker)
-              }
-              style={{
-                padding: '12px 24px',
-                fontSize: '16px',
-              }}
+              onClick={() => handleSaveRow(sttData)}
+              style={{ padding: '12px 24px', fontSize: '16px' }}
             >
               Save
             </Button>
@@ -78,10 +98,7 @@ const SttRowEdit = ({
               onClick={() =>
                 onAddRow(sttData.audio_files_id, sttData.text_order)
               }
-              style={{
-                padding: '12px 24px',
-                fontSize: '16px',
-              }}
+              style={{ padding: '12px 24px', fontSize: '16px' }}
             >
               Add
             </Button>
@@ -89,14 +106,10 @@ const SttRowEdit = ({
               onClick={() =>
                 onDeleteRow(sttData.audio_files_id, sttData.text_order)
               }
-              style={{
-                padding: '12px 24px',
-                fontSize: '16px',
-              }}
+              style={{ padding: '12px 24px', fontSize: '16px' }}
             >
               Delete
             </Button>
-
             <Select
               value={sttData.act_id}
               onChange={(e) =>
@@ -109,7 +122,6 @@ const SttRowEdit = ({
                 </option>
               ))}
             </Select>
-
             <Select
               value={sttData.act_types_id}
               onChange={(e) =>
@@ -122,7 +134,6 @@ const SttRowEdit = ({
                 </option>
               ))}
             </Select>
-
             <Select
               value={sttData.talk_more_id}
               onChange={(e) =>
@@ -135,7 +146,6 @@ const SttRowEdit = ({
                 </option>
               ))}
             </Select>
-
             <Checkbox
               isChecked={sttData.is_turn}
               onChange={(e) => onToggleTurn(sttData.id, e.target.checked)}
