@@ -2,6 +2,7 @@
 
 import { useSearchParams } from 'next/navigation';
 import React, { useEffect, useState, useRef } from 'react';
+
 import {
   fetchSpeechActs,
   fetchTalkMore,
@@ -17,10 +18,11 @@ import {
   batchEdit,
 } from '@/api/stt-edit';
 import { SttData, SpeechAct, TalkMore, ActTypes } from '@/types/stt-edit';
-import AudioPlayer from './_components/audioPlayer';
-import SttRowEdit from './_components/SttRowEdit';
+
 import { backendUrl } from '../consts';
+import AudioPlayer from './_components/audioPlayer';
 import SaveResetButton from './_components/SaveResetButton';
+import SttRowEdit from './_components/SttRowEdit';
 
 const ReportsSttEditPage = () => {
   const searchParams = useSearchParams();
@@ -33,7 +35,6 @@ const ReportsSttEditPage = () => {
   const [actTypes, setActTypes] = useState<ActTypes[]>([]);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
 
-  // 로컬 변경 사항 저장
   const localChanges = useRef<{
     [key: string]: { text_edited?: string; speaker?: string };
   }>({});
@@ -89,7 +90,7 @@ const ReportsSttEditPage = () => {
         ),
       );
 
-      delete localChanges.current[id]; // 저장 후 변경 사항 제거
+      delete localChanges.current[id];
     } catch (error) {
       console.error('데이터 업데이트 중 오류가 발생했습니다:', error);
     }
@@ -196,7 +197,7 @@ const ReportsSttEditPage = () => {
       );
 
       alert('저장 성공!');
-      localChanges.current = {}; // 저장 후 변경 사항 초기화
+      localChanges.current = {};
     } catch (error) {
       console.error('저장 실패:', error);
       alert('저장 실패');
@@ -205,7 +206,7 @@ const ReportsSttEditPage = () => {
 
   const handleResetAll = () => {
     setSttResults(initialSttResults.map((stt) => ({ ...stt })));
-    localChanges.current = {}; // 변경 사항 초기화
+    localChanges.current = {};
     alert('초기화 성공!');
   };
 
@@ -229,13 +230,7 @@ const ReportsSttEditPage = () => {
           onUpdateSpeechAct={handleUpdateSpeechAct}
           onUpdateTalkMore={handleUpdateTalkMore}
           onUpdateActType={handleUpdateActType}
-          onToggleTurn={(id, isTurn) =>
-            setSttResults((prev) =>
-              prev.map((item) =>
-                item.id === id ? { ...item, is_turn: isTurn } : item,
-              ),
-            )
-          }
+          onToggleTurn={handleToggleTurn}
           localChanges={localChanges}
         />
       </div>
