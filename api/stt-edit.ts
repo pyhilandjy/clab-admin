@@ -23,7 +23,7 @@ export const fetchUserFiles = (userId: string) =>
 export const fetchSttData = (audioFilesId: string) =>
   api.get<SttData[]>(`/stt/data/${audioFilesId}`);
 
-export const fetchAudioInfo = (audioFilesId: string) =>
+export const fetchAudioRecordTime = (audioFilesId: string) =>
   api.get<{ record_time: number }>(`/audio/webm/info/${audioFilesId}`);
 
 export const updateText = (
