@@ -306,7 +306,7 @@ const ReportsManagement = () => {
                                             <Button
                                               onClick={() =>
                                                 window.open(
-                                                  `/stt-edit?audioFilesId=${file.audio_file_id}&userId=${report.user_id}`,
+                                                  `/reports-stt-edit?audioFilesId=${file.audio_file_id}`,
                                                 )
                                               }
                                             >
