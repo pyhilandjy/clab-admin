@@ -1,4 +1,3 @@
-import React, { useRef } from 'react';
 import { Input, Button, Select, Checkbox } from '@chakra-ui/react';
 import { SttData, SpeechAct, TalkMore, ActTypes } from '@/types/stt-edit';
 

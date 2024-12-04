@@ -17,10 +17,10 @@ import {
   batchEdit,
 } from '@/api/stt-edit';
 import { SttData, SpeechAct, TalkMore, ActTypes } from '@/types/stt-edit';
-import AudioPlayer from './audioPlayer';
-import SttRowEdit from './SttRowEdit';
+import AudioPlayer from './_components/audioPlayer';
+import SttRowEdit from './_components/SttRowEdit';
 import { backendUrl } from '../consts';
-import SaveResetButton from './SaveResetButton';
+import SaveResetButton from './_components/SaveResetButton';
 
 const ReportsSttEditPage = () => {
   const searchParams = useSearchParams();
