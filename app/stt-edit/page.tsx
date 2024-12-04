@@ -25,7 +25,7 @@ import {
   fetchActTypes,
   fetchUserFiles,
   fetchSttData,
-  fetchAudioInfo,
+  fetchAudioRecordTime,
   updateText,
   addRow,
   deleteRow,
@@ -117,7 +117,7 @@ const EditPage = () => {
 
             const [sttDataResponse] = await Promise.all([
               fetchSttData(queryAudioFilesId),
-              fetchAudioInfo(queryAudioFilesId),
+              fetchAudioRecordTime(queryAudioFilesId),
             ]);
 
             setSttResults(sttDataResponse.data);
