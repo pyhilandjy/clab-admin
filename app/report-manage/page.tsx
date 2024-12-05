@@ -96,7 +96,12 @@ const ReportsManagement = () => {
         setReports((prevReports) =>
           prevReports.map((report) =>
             report.user_reports_id === userReportsId
-              ? { ...report, inspection: newInspection, inspector: '' }
+              ? {
+                  ...report,
+                  inspection: newInspection,
+                  inspector: '',
+                  inspected_at: '',
+                }
               : report,
           ),
         );
@@ -104,6 +109,16 @@ const ReportsManagement = () => {
         console.error('Error updating inspection:', error);
       }
     }
+  };
+
+  const formatDateManually = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+    return `${year}/${month}/${day} ${hours}:${minutes}`;
   };
 
   const handleSaveInspector = async () => {
@@ -115,7 +130,12 @@ const ReportsManagement = () => {
         setReports((prevReports) =>
           prevReports.map((report) =>
             report.user_reports_id === currentReportId
-              ? { ...report, inspection: 'completed', inspector: inspector }
+              ? {
+                  ...report,
+                  inspection: 'completed',
+                  inspector: inspector,
+                  inspected_at: formatDateManually(new Date()),
+                }
               : report,
           ),
         );
@@ -129,6 +149,27 @@ const ReportsManagement = () => {
     }
   };
 
+  const handleIsUsedChange = async (
+    audioFileId: string,
+    currentIsUsed: boolean,
+    userReportsId: string,
+  ) => {
+    try {
+      await updateAudioFileIsUsed(audioFileId, !currentIsUsed);
+
+      setAudioFiles((prev) => ({
+        ...prev,
+        [userReportsId]: prev[userReportsId].map((file) =>
+          file.audio_file_id === audioFileId
+            ? { ...file, is_used: !currentIsUsed }
+            : file,
+        ),
+      }));
+    } catch (error) {
+      console.error('Error updating is_used:', error);
+    }
+  };
+
   useEffect(() => {
     loadReports(page);
   }, [page]);
@@ -139,8 +180,11 @@ const ReportsManagement = () => {
         display='flex'
         flexDirection='column'
         alignItems='center'
-        mt={20}
-        ml={20}
+        width='100%'
+        maxWidth='1200px'
+        margin='0 auto'
+        marginTop='100px'
+        px={4}
       >
         <TableContainer
           width='100%'
@@ -242,6 +286,7 @@ const ReportsManagement = () => {
                                     <Th>미션명</Th>
                                     <Th>레포트 사용 여부</Th>
                                     <Th>STT</Th>
+                                    <Th>마지막 편집일시</Th>
                                   </Tr>
                                 </Thead>
                                 <Tbody>
@@ -266,35 +311,13 @@ const ReportsManagement = () => {
                                               size='md'
                                               isChecked={file.is_used}
                                               colorScheme='teal'
-                                              onChange={async () => {
-                                                try {
-                                                  await updateAudioFileIsUsed(
-                                                    file.audio_file_id,
-                                                    !file.is_used,
-                                                  );
-                                                  setAudioFiles((prev) => ({
-                                                    ...prev,
-                                                    [report.user_reports_id]:
-                                                      prev[
-                                                        report.user_reports_id
-                                                      ].map((f) =>
-                                                        f.audio_file_id ===
-                                                        file.audio_file_id
-                                                          ? {
-                                                              ...f,
-                                                              is_used:
-                                                                !file.is_used,
-                                                            }
-                                                          : f,
-                                                      ),
-                                                  }));
-                                                } catch (error) {
-                                                  console.error(
-                                                    'Error updating is_used:',
-                                                    error,
-                                                  );
-                                                }
-                                              }}
+                                              onChange={() =>
+                                                handleIsUsedChange(
+                                                  file.audio_file_id,
+                                                  file.is_used,
+                                                  report.user_reports_id,
+                                                )
+                                              }
                                             />
                                           </HStack>
                                         </Td>
@@ -325,6 +348,7 @@ const ReportsManagement = () => {
                                             )}
                                           </Box>
                                         </Td>
+                                        <Td>{file.edited_at}</Td>
                                       </Tr>
                                     ),
                                   )}
@@ -371,9 +395,9 @@ const ReportsManagement = () => {
           </ModalContent>
         </Modal>
         <HStack
+          width='100%'
           justify='space-between'
           align='center'
-          width='1200px'
           padding='12px 24px 16px 24px'
           backgroundColor='#E9E9E9'
           borderRadius='0px 0px 8px 8px'
