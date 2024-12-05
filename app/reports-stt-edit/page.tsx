@@ -304,9 +304,9 @@ const ReportsSttEditPage = () => {
                 backgroundColor: 'white',
               }}
             >
+              <div>{info.created_at}</div>
               <div>{info.record_time}</div>
               <div>{info.mission_title}</div>
-              <div>{info.created_at}</div>
               <div>{info.first_name}</div>
             </div>
           ))}
@@ -318,6 +318,7 @@ const ReportsSttEditPage = () => {
           display: 'block',
           padding: '20px',
           marginTop: '20px',
+          marginBottom: '60px',
           width: '100%',
           maxWidth: '1200px',
           backgroundColor: 'white',
