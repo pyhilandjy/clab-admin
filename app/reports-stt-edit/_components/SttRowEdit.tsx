@@ -59,7 +59,7 @@ const SttRowEdit = ({
   };
 
   return (
-    <div style={{ marginTop: '40px' }}>
+    <div style={{ marginTop: '10px', padding: '10px' }}>
       {sttResults.map((sttData) => (
         <div key={sttData.id} style={{ marginBottom: '5px', padding: '7px' }}>
           <div style={{ display: 'flex', gap: '8px' }}>
@@ -68,7 +68,7 @@ const SttRowEdit = ({
               onChange={(e) =>
                 handleInputChange(sttData.id, 'text_edited', e.target.value)
               }
-              style={{ flex: 5 }}
+              style={{ flex: 6 }}
             />
             <Input
               defaultValue={sttData.speaker || ''}
@@ -85,7 +85,7 @@ const SttRowEdit = ({
               alignItems: 'center',
               gap: '10px',
               marginTop: '5px',
-              maxWidth: '55%',
+              maxWidth: '70%',
             }}
           >
             <Button
