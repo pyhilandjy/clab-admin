@@ -17,6 +17,8 @@ import {
   updateturnin,
   batchEdit,
   fetchAudioInfos,
+  replaceText,
+  replaceSpeaker,
 } from '@/api/stt-edit';
 import {
   SttData,
@@ -42,6 +44,10 @@ const ReportsSttEditPage = () => {
   const [actTypes, setActTypes] = useState<ActTypes[]>([]);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [audioInfo, setAudioInfo] = useState<AudioInfos[]>([]);
+  const oldWordInputRef = useRef<HTMLInputElement>(null);
+  const newWordInputRef = useRef<HTMLInputElement>(null);
+  const oldSpeakerInputRef = useRef<HTMLInputElement>(null);
+  const newSpeakerInputRef = useRef<HTMLInputElement>(null);
 
   const localChanges = useRef<{
     [key: string]: { text_edited?: string; speaker?: string };
@@ -83,7 +89,53 @@ const ReportsSttEditPage = () => {
 
       loadInitialData();
     }
+    //디버그
+    console.log('Updated sttResults:', sttResults);
   }, [queryAudioFilesId]);
+
+  const handleReplaceText = async (oldWord: string, newWord: string) => {
+    try {
+      if (!sttResults.length || !queryAudioFilesId) return;
+      await replaceText(queryAudioFilesId, oldWord, newWord);
+
+      setSttResults((prevResults) =>
+        prevResults.map((item) => ({
+          ...item,
+          text_edited: item.text_edited?.replace(oldWord, newWord) || '',
+        })),
+      );
+
+      // 강제로 렌더링하도록 상태 변경
+      setSttResults((prevResults) => [...prevResults]);
+
+      alert('텍스트 변경 성공!');
+    } catch (error) {
+      console.error('텍스트 변경 실패:', error);
+    }
+  };
+
+  const handleSpeakerChangeButtonClick = async (
+    oldSpeaker: string,
+    newSpeaker: string,
+  ) => {
+    try {
+      if (!sttResults.length || !queryAudioFilesId) return;
+      await replaceSpeaker(queryAudioFilesId, oldSpeaker, newSpeaker);
+
+      setSttResults((prevResults) =>
+        prevResults.map((item) => ({
+          ...item,
+          speaker: item.speaker?.replace(oldSpeaker, newSpeaker) || '',
+        })),
+      );
+
+      setSttResults((prevResults) => [...prevResults]);
+
+      alert('발화자 변경 성공!');
+    } catch (error) {
+      console.error('발화자 변경 실패:', error);
+    }
+  };
 
   const handleUpdateRow = async (id: string, text: string, speaker: string) => {
     try {
@@ -216,6 +268,7 @@ const ReportsSttEditPage = () => {
     }
   };
 
+  // 수정요함
   const handleResetAll = () => {
     setSttResults(initialSttResults.map((stt) => ({ ...stt })));
     localChanges.current = {};
@@ -275,6 +328,10 @@ const ReportsSttEditPage = () => {
           speechAct={speechAct}
           actTypes={actTypes}
           talkMore={talkMore}
+          oldWordInputRef={oldWordInputRef}
+          newWordInputRef={newWordInputRef}
+          oldSpeakerInputRef={oldSpeakerInputRef}
+          newSpeakerInputRef={newSpeakerInputRef}
           onUpdateRow={handleUpdateRow}
           onAddRow={handleAddRow}
           onDeleteRow={handleDeleteRow}
@@ -282,6 +339,8 @@ const ReportsSttEditPage = () => {
           onUpdateTalkMore={handleUpdateTalkMore}
           onUpdateActType={handleUpdateActType}
           onToggleTurn={handleToggleTurn}
+          onReplaceText={handleReplaceText}
+          onReplaceSpeaker={handleSpeakerChangeButtonClick}
           localChanges={localChanges}
         />
       </div>
