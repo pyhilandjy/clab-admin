@@ -41,7 +41,7 @@ const SaveResetButton = ({
         onClick={onReset}
         style={{ borderRadius: '50px' }}
       >
-        초기화
+        초기화(x)
       </Button>
     </div>
   );
