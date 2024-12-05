@@ -96,3 +96,6 @@ export const runLlmQuaritative = (audioFilesId: string) =>
 
 export const createQualitativeData = (quaritativeData: Quaritative) =>
   api.post('/stt/data/report/quaritative/', quaritativeData);
+
+export const fetchAudioInfos = (audioFilesId: string) =>
+  api.get(`/stt/audio-info/${audioFilesId}`);
