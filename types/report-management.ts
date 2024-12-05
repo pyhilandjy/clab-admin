@@ -24,4 +24,5 @@ export interface ReportAudioFile {
   mission_title: string;
   is_used: boolean;
   is_edited: boolean;
+  edited_at: string;
 }
