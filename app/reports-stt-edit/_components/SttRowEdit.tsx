@@ -1,4 +1,14 @@
-import { Input, Button, Select, Checkbox } from '@chakra-ui/react';
+import React, { RefObject } from 'react';
+
+import {
+  Input,
+  Button,
+  Select,
+  Checkbox,
+  Grid,
+  GridItem,
+  Box,
+} from '@chakra-ui/react';
 
 import { SttData, SpeechAct, TalkMore, ActTypes } from '@/types/stt-edit';
 
@@ -14,7 +24,13 @@ const SttRowEdit = ({
   onUpdateTalkMore,
   onUpdateActType,
   onToggleTurn,
+  onReplaceText,
+  onReplaceSpeaker,
   localChanges,
+  oldWordInputRef,
+  newWordInputRef,
+  oldSpeakerInputRef,
+  newSpeakerInputRef,
 }: {
   sttResults: SttData[];
   speechAct: SpeechAct[];
@@ -27,10 +43,46 @@ const SttRowEdit = ({
   onUpdateTalkMore: (id: string, talkMoreId: number) => void;
   onUpdateActType: (id: string, actTypeId: number) => void;
   onToggleTurn: (id: string, isTurn: boolean) => void;
+  onReplaceText: (oldWord: string, newWord: string) => void;
+  onReplaceSpeaker: (oldSpeaker: string, newSpeaker: string) => void;
   localChanges: React.MutableRefObject<{
     [key: string]: { text_edited?: string; speaker?: string };
   }>;
+  oldWordInputRef: RefObject<HTMLInputElement>;
+  newWordInputRef: RefObject<HTMLInputElement>;
+  oldSpeakerInputRef: RefObject<HTMLInputElement>;
+  newSpeakerInputRef: RefObject<HTMLInputElement>;
 }) => {
+  const handleTextChangeButtonClick = () => {
+    const oldWord = oldWordInputRef.current?.value?.trim();
+    const newWord = newWordInputRef.current?.value?.trim();
+
+    if (!oldWord || !newWord) {
+      alert('Old Word와 New Word를 모두 입력해야 합니다.');
+      return;
+    }
+
+    onReplaceText(oldWord, newWord);
+
+    if (oldWordInputRef.current) oldWordInputRef.current.value = '';
+    if (newWordInputRef.current) newWordInputRef.current.value = '';
+  };
+
+  const handleSpeakerChangeButtonClick = () => {
+    const oldSpeaker = oldSpeakerInputRef.current?.value?.trim();
+    const newSpeaker = newSpeakerInputRef.current?.value?.trim();
+
+    if (!oldSpeaker || !newSpeaker) {
+      alert('Old Speaker와 New Speaker를 모두 입력해야 합니다.');
+      return;
+    }
+
+    onReplaceSpeaker(oldSpeaker, newSpeaker);
+
+    if (oldSpeakerInputRef.current) oldSpeakerInputRef.current.value = '';
+    if (newSpeakerInputRef.current) newSpeakerInputRef.current.value = '';
+  };
+
   const handleInputChange = (
     id: string,
     field: 'text_edited' | 'speaker',
@@ -60,8 +112,47 @@ const SttRowEdit = ({
 
   return (
     <div style={{ marginTop: '10px', padding: '10px' }}>
+      {/* Word Replace & Speaker Replace Section */}
+      <Box marginBottom='20px'>
+        <Grid templateColumns='repeat(4, 1fr)' gap={4}>
+          <GridItem>
+            <Input placeholder='Old Word' ref={oldWordInputRef} />
+          </GridItem>
+          <GridItem>
+            <Input placeholder='New Word' ref={newWordInputRef} />
+          </GridItem>
+          <GridItem>
+            <Input placeholder='Old Speaker' ref={oldSpeakerInputRef} />
+          </GridItem>
+          <GridItem>
+            <Input placeholder='New Speaker' ref={newSpeakerInputRef} />
+          </GridItem>
+        </Grid>
+
+        <Grid templateColumns='repeat(2, 1fr)' gap={4} marginTop='10px'>
+          <GridItem>
+            <Button
+              style={{ padding: '12px 24px', fontSize: '16px' }}
+              onClick={handleTextChangeButtonClick}
+            >
+              Word Replace
+            </Button>
+          </GridItem>
+          <GridItem>
+            <Button
+              style={{ padding: '12px 24px', fontSize: '16px' }}
+              onClick={handleSpeakerChangeButtonClick}
+            >
+              Speaker Replace
+            </Button>
+          </GridItem>
+        </Grid>
+      </Box>
       {sttResults.map((sttData) => (
-        <div key={sttData.id} style={{ marginBottom: '5px', padding: '7px' }}>
+        <div
+          key={`${sttData.id}-${sttData.text_edited || ''}-${sttData.speaker || ''}`}
+          style={{ marginBottom: '5px', padding: '7px' }}
+        >
           <div style={{ display: 'flex', gap: '8px' }}>
             <Input
               defaultValue={sttData.text_edited || ''}
