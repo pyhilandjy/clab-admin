@@ -16,8 +16,15 @@ import {
   updateActType,
   updateturnin,
   batchEdit,
+  fetchAudioInfos,
 } from '@/api/stt-edit';
-import { SttData, SpeechAct, TalkMore, ActTypes } from '@/types/stt-edit';
+import {
+  SttData,
+  SpeechAct,
+  TalkMore,
+  ActTypes,
+  AudioInfos,
+} from '@/types/stt-edit';
 
 import { backendUrl } from '../consts';
 import AudioPlayer from './_components/audioPlayer';
@@ -34,6 +41,7 @@ const ReportsSttEditPage = () => {
   const [talkMore, setTalkMore] = useState<TalkMore[]>([]);
   const [actTypes, setActTypes] = useState<ActTypes[]>([]);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [audioInfo, setAudioInfo] = useState<AudioInfos[]>([]);
 
   const localChanges = useRef<{
     [key: string]: { text_edited?: string; speaker?: string };
@@ -48,11 +56,13 @@ const ReportsSttEditPage = () => {
             talkMoreResponse,
             actTypesResponse,
             sttDataResponse,
+            audioInfo,
           ] = await Promise.all([
             fetchSpeechActs(),
             fetchTalkMore(),
             fetchActTypes(),
             fetchSttData(queryAudioFilesId),
+            fetchAudioInfos(queryAudioFilesId),
           ]);
 
           setSpeechAct(speechActsResponse.data);
@@ -60,6 +70,8 @@ const ReportsSttEditPage = () => {
           setActTypes(actTypesResponse.data);
           setSttResults(sttDataResponse.data);
           setInitialSttResults(sttDataResponse.data);
+          setAudioInfo(audioInfo.data);
+          console.log(audioInfo.data);
           setAudioUrl(`${backendUrl}/audio/webm/${queryAudioFilesId}`);
         } catch (error) {
           console.error(
@@ -211,14 +223,53 @@ const ReportsSttEditPage = () => {
   };
 
   return (
-    <div>
+    <div
+      style={{
+        backgroundColor: '#f5f5f5',
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '20px',
+        boxSizing: 'border-box',
+      }}
+    >
       {/* 오디오 플레이어 */}
-      <div style={{ marginBottom: '30px' }}>
+      <div>
         <AudioPlayer audioUrl={audioUrl} />
+      </div>
+      <div style={{ marginTop: '90px', width: '100%', maxWidth: '1200px' }}>
+        {audioInfo.length > 0 &&
+          audioInfo.map((info, index) => (
+            <div
+              key={index}
+              style={{
+                display: 'flex',
+                gap: '50px',
+                padding: '10px',
+                boxSizing: 'border-box',
+                backgroundColor: 'white',
+              }}
+            >
+              <div>{info.record_time}</div>
+              <div>{info.mission_title}</div>
+              <div>{info.created_at}</div>
+              <div>{info.first_name}</div>
+            </div>
+          ))}
       </div>
 
       {/* STT Row 편집 */}
-      <div style={{ padding: '20px', marginTop: '30px' }}>
+      <div
+        style={{
+          display: 'block',
+          padding: '20px',
+          marginTop: '20px',
+          width: '100%',
+          maxWidth: '1200px',
+          backgroundColor: 'white',
+        }}
+      >
         <SttRowEdit
           sttResults={sttResults}
           speechAct={speechAct}
@@ -236,7 +287,7 @@ const ReportsSttEditPage = () => {
       </div>
 
       {/* 저장 및 초기화 버튼 */}
-      <div style={{ padding: '20px', marginTop: '30px' }}>
+      <div>
         <SaveResetButton onSave={handleSaveAll} onReset={handleResetAll} />
       </div>
     </div>

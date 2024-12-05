@@ -44,3 +44,10 @@ export type Quaritative = {
   alternative?: string;
   expection: string;
 };
+
+export type AudioInfos = {
+  record_time: string;
+  mission_title: string;
+  created_at: string;
+  first_name: string;
+};
