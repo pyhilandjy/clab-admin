@@ -20,6 +20,12 @@ export async function login(formData: FormData) {
   if (error) {
     alert('Invalid email or password');
   }
+  const { data: user } = await supabase.auth.getUser();
+
+  const role = user?.user?.user_metadata?.role;
+  if (role !== 'super-admin' && role !== 'admin') {
+    redirect('/error');
+  }
 
   revalidatePath('/', 'layout');
   redirect('/');
