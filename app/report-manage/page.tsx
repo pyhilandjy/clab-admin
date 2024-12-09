@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 
 import {
   Table,
@@ -51,30 +51,28 @@ const ReportsManagement = () => {
   const pageSize = 10;
   const expandedRow = searchParams.get('user_reports_id');
 
-  const loadReports = async (page: number) => {
-    setIsLoading(true);
-    try {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set('page', page.toString());
-      router.push(`?${params.toString()}`);
-      const { reports, total_pages } = await fetchReports(page, pageSize);
-      setReports(reports);
-      setTotalPages(total_pages);
-    } catch (error) {
-      console.error('Error loading reports:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const loadReports = useCallback(
+    async (page: number) => {
+      setIsLoading(true);
+      try {
+        const { reports, total_pages } = await fetchReports(page, pageSize);
+        setReports(reports);
+        setTotalPages(total_pages);
+      } catch (error) {
+        console.error('Error loading reports:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [pageSize],
+  );
 
   const handlePageChange = async (newPage: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set('page', newPage.toString());
-
     params.delete('user_reports_id');
-
     router.push(`?${params.toString()}`);
-    await loadReports(newPage);
+    setCurrentPage(newPage);
   };
 
   const toggleRow = (userReportsId: string) => {
@@ -87,15 +85,14 @@ const ReportsManagement = () => {
     }
 
     params.set('page', currentPage.toString());
-    const query = `?user_reports_id=${params.get('user_reports_id') || ''}&page=${currentPage}`;
-    router.push(query);
+    router.push(`?${params.toString()}`);
   };
 
   useEffect(() => {
     const pageFromQuery = Number(searchParams.get('page')) || 1;
     setCurrentPage(pageFromQuery);
     loadReports(pageFromQuery);
-  }, [searchParams]);
+  }, [searchParams, loadReports]);
 
   const handleOnChangeInspection = async (
     userReportsId: string,
@@ -163,10 +160,6 @@ const ReportsManagement = () => {
       alert('검수자를 입력하세요');
     }
   };
-
-  useEffect(() => {
-    loadReports(currentPage);
-  }, [currentPage]);
 
   return (
     <Layout>
