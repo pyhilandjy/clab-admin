@@ -1,21 +1,20 @@
-'use client';
-
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 
 import {
+  Box,
   Table,
+  TableContainer,
   Thead,
   Tbody,
   Tr,
   Th,
   Td,
-  TableContainer,
   Collapse,
-  Box,
+  HStack,
+  Switch,
+  Button,
   Text,
   Spinner,
-  Switch,
-  HStack,
 } from '@chakra-ui/react';
 
 import {
@@ -24,42 +23,56 @@ import {
 } from '@/api/report-management';
 import { ReportAudioFile } from '@/types/report-management';
 
-type ReportAudioFilesListProps = {
+interface ReportCollapseProps {
   userReportsId: string;
   isExpanded: boolean;
-};
+}
 
-const ReportAudioFilesList: React.FC<ReportAudioFilesListProps> = ({
+const ReportCollapse: React.FC<ReportCollapseProps> = ({
   userReportsId,
   isExpanded,
 }) => {
   const [audioFiles, setAudioFiles] = useState<ReportAudioFile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  const loadAudioFiles = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchReportAudioFiles(userReportsId);
+      setAudioFiles(data);
+    } catch (error) {
+      console.error('Error fetching audio files:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [userReportsId]);
+
   useEffect(() => {
     if (isExpanded) {
-      setIsLoading(true);
-      fetchReportAudioFiles(userReportsId)
-        .then((data) => setAudioFiles(data))
-        .catch((error) => console.error('Error fetching audio files:', error))
-        .finally(() => setIsLoading(false));
+      loadAudioFiles();
     }
-  }, [isExpanded, userReportsId]);
+  }, [isExpanded, loadAudioFiles]);
 
-  const handleToggle = async (audioFileId: string, currentValue: boolean) => {
+  const handleToggleIsUsed = async (
+    audioFileId: string,
+    currentIsUsed: boolean,
+  ) => {
     try {
-      await updateAudioFileIsUsed(audioFileId, !currentValue);
-
+      await updateAudioFileIsUsed(audioFileId, !currentIsUsed);
       setAudioFiles((prevFiles) =>
         prevFiles.map((file) =>
           file.audio_file_id === audioFileId
-            ? { ...file, is_used: !currentValue }
+            ? { ...file, is_used: !currentIsUsed }
             : file,
         ),
       );
     } catch (error) {
-      console.error('Error updating audio file:', error);
+      console.error('Error updating is_used:', error);
     }
+  };
+
+  const handleEditAudioFile = (audioFileId: string) => {
+    window.open(`/reports-stt-edit?audioFilesId=${audioFileId}`);
   };
 
   return (
@@ -68,7 +81,6 @@ const ReportAudioFilesList: React.FC<ReportAudioFilesListProps> = ({
         border='1px solid #EAECF0'
         borderRadius='8px'
         p={4}
-        mt={2}
         backgroundColor='#F9FAFB'
       >
         {isLoading ? (
@@ -82,6 +94,8 @@ const ReportAudioFilesList: React.FC<ReportAudioFilesListProps> = ({
                   <Th>총 녹음시간</Th>
                   <Th>미션명</Th>
                   <Th>레포트 사용 여부</Th>
+                  <Th>STT</Th>
+                  <Th>마지막 편집일시</Th>
                 </Tr>
               </Thead>
               <Tbody>
@@ -97,12 +111,35 @@ const ReportAudioFilesList: React.FC<ReportAudioFilesListProps> = ({
                           size='md'
                           isChecked={file.is_used}
                           onChange={() =>
-                            handleToggle(file.audio_file_id, file.is_used)
+                            handleToggleIsUsed(file.audio_file_id, file.is_used)
                           }
                           colorScheme='teal'
                         />
                       </HStack>
                     </Td>
+                    <Td>
+                      <Box position='relative' display='inline-block'>
+                        <Button
+                          onClick={() =>
+                            handleEditAudioFile(file.audio_file_id)
+                          }
+                        >
+                          편집
+                        </Button>
+                        {!file.is_edited && (
+                          <Box
+                            position='absolute'
+                            top='-5px'
+                            left='-5px'
+                            width='7px'
+                            height='7px'
+                            borderRadius='full'
+                            backgroundColor='red.500'
+                          />
+                        )}
+                      </Box>
+                    </Td>
+                    <Td>{file.edited_at}</Td>
                   </Tr>
                 ))}
               </Tbody>
@@ -116,4 +153,4 @@ const ReportAudioFilesList: React.FC<ReportAudioFilesListProps> = ({
   );
 };
 
-export default ReportAudioFilesList;
+export default ReportCollapse;
