@@ -224,6 +224,8 @@ const ReportsManagement = () => {
                           </Text>
                         </Box>
                       </Td>
+                      {/* send_at 포멧한 값을 보여주는 것으로 변경 state는 유지 보여지는 값만 */}
+                      {/* datetimepicker 사용 추가 */}
                       <Td>{report.send_at}</Td>
 
                       <Td>
