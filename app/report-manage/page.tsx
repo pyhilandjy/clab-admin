@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 import {
@@ -13,9 +14,7 @@ import {
   Box,
   Button,
   Text,
-  Collapse,
   HStack,
-  Switch,
   Select,
   Modal,
   ModalOverlay,
@@ -28,35 +27,34 @@ import {
 
 import {
   fetchReports,
-  fetchReportAudioFiles,
-  updateAudioFileIsUsed,
   updateUserReportsInspection,
   updateUserReportsInspector,
 } from '@/api/report-management';
 import Layout from '@/components/Layout';
-import { Report, ReportAudioFile } from '@/types/report-management';
+import { Report } from '@/types/report-management';
+
+import ReportCollapse from './ReportCollapse';
 
 const ReportsManagement = () => {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
   const [reports, setReports] = useState<Report[]>([]);
-  const [expandedRow, setExpandedRow] = useState<string | null>(null);
-  const [audioFiles, setAudioFiles] = useState<
-    Record<string, ReportAudioFile[]>
-  >({});
-  const [page, setPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState<number>(
+    Number(searchParams.get('page')) || 1,
+  );
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [inspector, setInspector] = useState('');
   const [currentReportId, setCurrentReportId] = useState<string | null>(null);
   const pageSize = 20;
+  const expandedRow = searchParams.get('user_reports_id');
 
-  const loadReports = async (currentPage: number) => {
+  const loadReports = async (page: number) => {
     setIsLoading(true);
     try {
-      const { reports, total_pages } = await fetchReports(
-        currentPage,
-        pageSize,
-      );
+      const { reports, total_pages } = await fetchReports(page, pageSize);
       setReports(reports);
       setTotalPages(total_pages);
     } catch (error) {
@@ -66,20 +64,29 @@ const ReportsManagement = () => {
     }
   };
 
-  const toggleRow = async (userReportsId: string) => {
-    if (expandedRow === userReportsId) {
-      setExpandedRow(null);
-    } else {
-      setExpandedRow(userReportsId);
-      if (!audioFiles[userReportsId]) {
-        try {
-          const data = await fetchReportAudioFiles(userReportsId);
-          setAudioFiles((prev) => ({ ...prev, [userReportsId]: data }));
-        } catch (error) {
-          console.error('Error fetching audio files:', error);
-        }
-      }
+  const handlePageChange = async (newPage: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('page', newPage.toString());
+
+    if (expandedRow) {
+      params.set('user_reports_id', expandedRow);
     }
+
+    router.push(`?${params.toString()}`);
+    await loadReports(newPage);
+  };
+
+  const toggleRow = (userReportsId: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (expandedRow === userReportsId) {
+      params.delete('user_reports_id');
+    } else {
+      params.set('user_reports_id', userReportsId);
+    }
+
+    params.set('page', currentPage.toString());
+    router.push(`?${params.toString()}`);
   };
 
   const handleOnChangeInspection = async (
@@ -149,30 +156,9 @@ const ReportsManagement = () => {
     }
   };
 
-  const handleIsUsedChange = async (
-    audioFileId: string,
-    currentIsUsed: boolean,
-    userReportsId: string,
-  ) => {
-    try {
-      await updateAudioFileIsUsed(audioFileId, !currentIsUsed);
-
-      setAudioFiles((prev) => ({
-        ...prev,
-        [userReportsId]: prev[userReportsId].map((file) =>
-          file.audio_file_id === audioFileId
-            ? { ...file, is_used: !currentIsUsed }
-            : file,
-        ),
-      }));
-    } catch (error) {
-      console.error('Error updating is_used:', error);
-    }
-  };
-
   useEffect(() => {
-    loadReports(page);
-  }, [page]);
+    loadReports(currentPage);
+  }, [currentPage]);
 
   return (
     <Layout>
@@ -269,98 +255,10 @@ const ReportsManagement = () => {
                     </Tr>
                     <Tr>
                       <Td colSpan={10} padding='0'>
-                        <Collapse
-                          in={expandedRow === report.user_reports_id}
-                          animateOpacity
-                        >
-                          <Box
-                            border='1px solid #EAECF0'
-                            borderRadius='8px'
-                            p={4}
-                            backgroundColor='#F9FAFB'
-                          >
-                            {audioFiles[report.user_reports_id] ? (
-                              <Table>
-                                <Thead>
-                                  <Tr>
-                                    <Th>녹음일시</Th>
-                                    <Th>총 녹음시간</Th>
-                                    <Th>미션명</Th>
-                                    <Th>레포트 사용 여부</Th>
-                                    <Th>STT</Th>
-                                    <Th>마지막 편집일시</Th>
-                                  </Tr>
-                                </Thead>
-                                <Tbody>
-                                  {audioFiles[report.user_reports_id].map(
-                                    (file) => (
-                                      <Tr key={file.audio_file_id}>
-                                        <Td>
-                                          {new Date(
-                                            file.record_date,
-                                          ).toLocaleString()}
-                                        </Td>
-                                        <Td>{file.record_time}</Td>
-                                        <Td>{file.mission_title}</Td>
-                                        <Td>
-                                          <HStack align='center'>
-                                            <Text>
-                                              {file.is_used
-                                                ? '활성화'
-                                                : '비활성화'}
-                                            </Text>
-                                            <Switch
-                                              size='md'
-                                              isChecked={file.is_used}
-                                              colorScheme='teal'
-                                              onChange={() =>
-                                                handleIsUsedChange(
-                                                  file.audio_file_id,
-                                                  file.is_used,
-                                                  report.user_reports_id,
-                                                )
-                                              }
-                                            />
-                                          </HStack>
-                                        </Td>
-                                        <Td>
-                                          <Box
-                                            position='relative'
-                                            display='inline-block'
-                                          >
-                                            <Button
-                                              onClick={() =>
-                                                window.open(
-                                                  `/reports-stt-edit?audioFilesId=${file.audio_file_id}`,
-                                                )
-                                              }
-                                            >
-                                              편집
-                                            </Button>
-                                            {!file.is_edited && (
-                                              <Box
-                                                position='absolute'
-                                                top='-5px'
-                                                left='-5px'
-                                                width='7px'
-                                                height='7px'
-                                                borderRadius='full'
-                                                backgroundColor='red.500'
-                                              />
-                                            )}
-                                          </Box>
-                                        </Td>
-                                        <Td>{file.edited_at}</Td>
-                                      </Tr>
-                                    ),
-                                  )}
-                                </Tbody>
-                              </Table>
-                            ) : (
-                              <Text>Loading audio files...</Text>
-                            )}
-                          </Box>
-                        </Collapse>
+                        <ReportCollapse
+                          userReportsId={report.user_reports_id}
+                          isExpanded={expandedRow === report.user_reports_id}
+                        />
                       </Td>
                     </Tr>
                   </React.Fragment>
@@ -406,20 +304,22 @@ const ReportsManagement = () => {
           border='1px solid #EAECF0'
         >
           <Button
-            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-            isDisabled={page === 1}
+            onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
+            isDisabled={currentPage === 1}
             backgroundColor='white'
           >
             Previous
           </Button>
           <Box>
-            Page {page} of {totalPages}
+            Page {currentPage} of {totalPages}
           </Box>
           <Button
             onClick={() =>
-              setPage((prev) => (prev < totalPages ? prev + 1 : prev))
+              handlePageChange(
+                currentPage < totalPages ? currentPage + 1 : totalPages,
+              )
             }
-            isDisabled={page === totalPages}
+            isDisabled={currentPage === totalPages}
             backgroundColor='white'
           >
             Next
