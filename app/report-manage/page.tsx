@@ -48,12 +48,15 @@ const ReportsManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [inspector, setInspector] = useState('');
   const [currentReportId, setCurrentReportId] = useState<string | null>(null);
-  const pageSize = 20;
+  const pageSize = 10;
   const expandedRow = searchParams.get('user_reports_id');
 
   const loadReports = async (page: number) => {
     setIsLoading(true);
     try {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('page', page.toString());
+      router.push(`?${params.toString()}`);
       const { reports, total_pages } = await fetchReports(page, pageSize);
       setReports(reports);
       setTotalPages(total_pages);
@@ -68,9 +71,7 @@ const ReportsManagement = () => {
     const params = new URLSearchParams(searchParams.toString());
     params.set('page', newPage.toString());
 
-    if (expandedRow) {
-      params.set('user_reports_id', expandedRow);
-    }
+    params.delete('user_reports_id');
 
     router.push(`?${params.toString()}`);
     await loadReports(newPage);
@@ -86,8 +87,15 @@ const ReportsManagement = () => {
     }
 
     params.set('page', currentPage.toString());
-    router.push(`?${params.toString()}`);
+    const query = `?user_reports_id=${params.get('user_reports_id') || ''}&page=${currentPage}`;
+    router.push(query);
   };
+
+  useEffect(() => {
+    const pageFromQuery = Number(searchParams.get('page')) || 1;
+    setCurrentPage(pageFromQuery);
+    loadReports(pageFromQuery);
+  }, [searchParams]);
 
   const handleOnChangeInspection = async (
     userReportsId: string,
