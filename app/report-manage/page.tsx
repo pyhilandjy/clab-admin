@@ -40,16 +40,16 @@ const ReportsManagement = () => {
   const router = useRouter();
 
   const [reports, setReports] = useState<Report[]>([]);
-  const [currentPage, setCurrentPage] = useState<number>(
-    Number(searchParams.get('page')) || 1,
-  );
+  const initialPage = Number(searchParams.get('page')) || 1;
+  const [currentPage, setCurrentPage] = useState<number>(initialPage);
+
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [inspector, setInspector] = useState('');
   const [currentReportId, setCurrentReportId] = useState<string | null>(null);
   const pageSize = 10;
-  const expandedRow = searchParams.get('user_reports_id');
+  const [expandedRow, setExpandedRow] = useState<string | null>(null);
 
   const loadReports = useCallback(
     async (page: number) => {
@@ -58,6 +58,7 @@ const ReportsManagement = () => {
         const { reports, total_pages } = await fetchReports(page, pageSize);
         setReports(reports);
         setTotalPages(total_pages);
+        setCurrentPage(page);
       } catch (error) {
         console.error('Error loading reports:', error);
       } finally {
@@ -66,6 +67,18 @@ const ReportsManagement = () => {
     },
     [pageSize],
   );
+
+  useEffect(() => {
+    const pageFromQuery = Number(searchParams.get('page')) || 1;
+    const userReportsIdFromQuery = searchParams.get('user_reports_id');
+
+    setCurrentPage(pageFromQuery);
+    setExpandedRow(userReportsIdFromQuery);
+  }, [searchParams]);
+
+  useEffect(() => {
+    loadReports(currentPage);
+  }, [currentPage, loadReports]);
 
   const handlePageChange = async (newPage: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -76,6 +89,8 @@ const ReportsManagement = () => {
   };
 
   const toggleRow = (userReportsId: string) => {
+    setExpandedRow((prev) => (prev === userReportsId ? null : userReportsId));
+
     const params = new URLSearchParams(searchParams.toString());
 
     if (expandedRow === userReportsId) {
@@ -83,16 +98,9 @@ const ReportsManagement = () => {
     } else {
       params.set('user_reports_id', userReportsId);
     }
-
     params.set('page', currentPage.toString());
-    router.push(`?${params.toString()}`);
+    router.replace(`?${params.toString()}`);
   };
-
-  useEffect(() => {
-    const pageFromQuery = Number(searchParams.get('page')) || 1;
-    setCurrentPage(pageFromQuery);
-    loadReports(pageFromQuery);
-  }, [searchParams, loadReports]);
 
   const handleOnChangeInspection = async (
     userReportsId: string,
