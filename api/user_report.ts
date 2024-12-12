@@ -22,6 +22,10 @@ export const updateWordCloudData = async (
   userReportsId: string,
   wordcloudData: WordcloudData,
 ): Promise<{ message: string }> => {
+  console.log('userReportsId', userReportsId);
+  console.log('wordcloudData', wordcloudData);
+  console.log(typeof wordcloudData);
+
   try {
     const response = await api.patch<{ message: string }>('/wordcloud/data', {
       user_reports_id: userReportsId,
@@ -37,11 +41,13 @@ export const updateWordCloudData = async (
   }
 };
 
-export const createWordCloud = async (userReportsId: string): Promise<void> => {
+export const createWordCloud = async (userReportsId: string) => {
   try {
-    await api.post('/wordcloud/data', {
+    const response = await api.post('/wordcloud/data', {
       user_reports_id: userReportsId,
     });
+
+    return response.data;
   } catch (error) {
     console.error('Error creating word cloud:', error);
     throw error;

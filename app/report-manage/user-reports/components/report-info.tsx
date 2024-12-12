@@ -70,23 +70,32 @@ const ReportInfo: React.FC<ReportInfoProps> = ({ userReportsId }) => {
       </Center>
     );
   }
-  console.log(info.title);
 
   return (
-    <Box>
-      <Table variant='simple'>
-        <Tbody>
-          <Tr>
-            <Td>레포트 이름: {info.title}</Td>
-            <Td>플랜명: {info.plan_name}</Td>
-          </Tr>
-          <Tr>
-            <Td>고객이름: {info.user_name}</Td>
-            <Td>아이이름: {info.first_name}</Td>
-          </Tr>
-        </Tbody>
-      </Table>
-    </Box>
+    <div
+      style={{
+        width: '70%',
+        border: '1px solid #ccc',
+        background: 'white',
+        padding: '20px',
+        boxSizing: 'border-box',
+      }}
+    >
+      <Box>
+        <Table variant='simple'>
+          <Tbody>
+            <Tr>
+              <Td>레포트 이름: {info.title}</Td>
+              <Td>플랜명: {info.plan_name}</Td>
+            </Tr>
+            <Tr>
+              <Td>고객이름: {info.user_name}</Td>
+              <Td>아이이름: {info.first_name}</Td>
+            </Tr>
+          </Tbody>
+        </Table>
+      </Box>
+    </div>
   );
 };
 
