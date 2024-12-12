@@ -29,12 +29,14 @@
     "react": "^18",
     "react-audio-voice-recorder": "^2.2.0",
     "react-dom": "^18",
+    "wordcloud": "^1.2.3",
     "yarn": "^1.22.22"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/wordcloud": "^1.2.2",
     "@typescript-eslint/eslint-plugin": "^8.7.0",
     "@typescript-eslint/parser": "^8.7.0",
     "eslint": "8.57.0",
