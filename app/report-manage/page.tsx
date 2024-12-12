@@ -259,7 +259,16 @@ const ReportsManagement = () => {
                         </Button>
                       </Td>
                       <Td>
-                        <Button>내용편집</Button>
+                        <Button
+                          onClick={() =>
+                            window.open(
+                              `/report-manage/user-reports?user_reports_id=${report.user_reports_id}`,
+                              '_blank',
+                            )
+                          }
+                        >
+                          내용편집
+                        </Button>
                       </Td>
                     </Tr>
                     <Tr>
