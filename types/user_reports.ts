@@ -7,4 +7,15 @@ export interface SpeakerData {
   word_counts: WordCounts;
 }
 
-export type WordcloudData = SpeakerData[];
+export type WordcloudData = {
+  data: SpeakerData[];
+  insights: string;
+};
+
+export type UserReportsInfo = {
+  user_id: string;
+  title: string;
+  plan_name: string;
+  first_name: string;
+  user_name: string;
+};
