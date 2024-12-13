@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 import { Box, Input, VStack, HStack, Text, Divider } from '@chakra-ui/react';
 
-import { SpeakerData } from '@/types/user_reports';
+import { WordcloudSpeakerData } from '@/types/user_reports';
 
 export interface EditCache {
   words: Record<string, string>; // oldWord -> newWord
@@ -10,7 +10,7 @@ export interface EditCache {
 }
 
 interface WordCloudTextEditProps {
-  speakerData: SpeakerData;
+  speakerData: WordcloudSpeakerData;
   onUpdate?: (speaker: string, changes: EditCache) => void;
 }
 
