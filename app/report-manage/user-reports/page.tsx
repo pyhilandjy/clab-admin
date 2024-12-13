@@ -7,6 +7,7 @@ import ReportCardLayout from './components/report-card-layout';
 import ReportInfo from './components/report-info';
 import WordCloud from './word-cloud';
 import SentenceLength from './sentence-length';
+import PosRatio from './pos-ratio';
 
 const UserReportsPage = () => {
   const searchParams = useSearchParams();
@@ -31,6 +32,9 @@ const UserReportsPage = () => {
       </ReportCardLayout>
       <ReportCardLayout title='문장길이'>
         <SentenceLength userReportsId={userReportsId} />
+      </ReportCardLayout>
+      <ReportCardLayout title='품사분류'>
+        <PosRatio userReportsId={userReportsId} />
       </ReportCardLayout>
     </div>
   );
