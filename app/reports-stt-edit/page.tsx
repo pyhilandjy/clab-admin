@@ -77,7 +77,6 @@ const ReportsSttEditPage = () => {
           setSttResults(sttDataResponse.data);
           setInitialSttResults(sttDataResponse.data);
           setAudioInfo(audioInfo.data);
-          console.log(audioInfo.data);
           setAudioUrl(`${backendUrl}/audio/webm/${queryAudioFilesId}`);
         } catch (error) {
           console.error(
@@ -89,8 +88,6 @@ const ReportsSttEditPage = () => {
 
       loadInitialData();
     }
-    //디버그
-    console.log('Updated sttResults:', sttResults);
   }, [queryAudioFilesId]);
 
   const handleReplaceText = async (oldWord: string, newWord: string) => {
