@@ -1,5 +1,9 @@
 import api from '@/lib/api';
-import { WordcloudData, UserReportsInfo } from '@/types/user_reports';
+import {
+  WordcloudData,
+  UserReportsInfo,
+  SentenceLengthData,
+} from '@/types/user_reports';
 
 export const fetchWordCloudData = async (
   userReportsId: string,
@@ -65,6 +69,41 @@ export const fetchUserReportsInfo = async (
   } catch (error) {
     console.error(
       `Error fetching word cloud data for ID ${userReportsId}:`,
+      error,
+    );
+    throw error;
+  }
+};
+
+export const createSentenceLength = async (userReportsId: string) => {
+  try {
+    const response = await api.post('/sentence_length/data', {
+      user_reports_id: userReportsId,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error creating word cloud:', error);
+    throw error;
+  }
+};
+
+export const updateSentenceLength = async (
+  userReportsId: string,
+  sentence_length: SentenceLengthData,
+): Promise<{ message: string }> => {
+  try {
+    const response = await api.patch<{ message: string }>(
+      '/sentence_length/data',
+      {
+        user_reports_id: userReportsId,
+        sentence_length_data: sentence_length,
+      },
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      `Error updating sentence length data for ID ${userReportsId}:`,
       error,
     );
     throw error;
