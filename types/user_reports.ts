@@ -34,3 +34,17 @@ export type SentenceLengthData = {
   data: TokenziedSpeakerData[];
   insights: string;
 };
+
+export interface PosRatio {
+  [word: string]: number;
+}
+
+export interface PosRatioSpeakerData {
+  speaker: string;
+  word_counts: PosRatio;
+}
+
+export type PosRatioData = {
+  data: PosRatioSpeakerData[];
+  insights: string;
+};
