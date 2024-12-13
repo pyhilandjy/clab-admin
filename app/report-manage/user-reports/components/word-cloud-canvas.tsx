@@ -3,10 +3,10 @@ import { useEffect, useRef } from 'react';
 import { Box, Text, Divider } from '@chakra-ui/react';
 import WordCloud from 'wordcloud';
 
-import { SpeakerData } from '@/types/user_reports';
+import { WordcloudSpeakerData } from '@/types/user_reports';
 
 interface WordCloudCanvasProps {
-  speakerData: SpeakerData;
+  speakerData: WordcloudSpeakerData;
 }
 
 export default function WordCloudCanvas({ speakerData }: WordCloudCanvasProps) {
