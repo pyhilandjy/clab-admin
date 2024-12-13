@@ -29,9 +29,6 @@ const AddReportPage: React.FC<AddReportPageProps> = ({
     }
   };
 
-  console.log('모달오픈');
-  console.log(missions);
-
   return (
     <ReportForm
       reportAddData={{
