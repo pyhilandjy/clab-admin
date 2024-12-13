@@ -83,7 +83,6 @@ export default function WordCloud({ userReportsId }: WordCloudProps) {
   const handleSave = async () => {
     if (!editedData) return;
 
-    console.log('editedData', editedData);
     try {
       await updateWordCloudData(userReportsId, editedData);
       setWordCloudData(editedData); // 성공 시 원본 데이터 업데이트
