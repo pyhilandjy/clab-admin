@@ -32,9 +32,6 @@ const EditReportPage: React.FC<EditReportPageProps> = ({
     }
   };
 
-  console.log('모달오픈');
-  console.log(missions);
-
   return (
     <ReportForm
       reportAddData={{
