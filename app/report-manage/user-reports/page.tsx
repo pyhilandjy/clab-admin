@@ -6,6 +6,7 @@ import React from 'react';
 import ReportCardLayout from './components/report-card-layout';
 import ReportInfo from './components/report-info';
 import WordCloud from './word-cloud';
+import SentenceLength from './sentence-length';
 
 const UserReportsPage = () => {
   const searchParams = useSearchParams();
@@ -27,6 +28,9 @@ const UserReportsPage = () => {
       <ReportInfo userReportsId={userReportsId} />
       <ReportCardLayout title='워드클라우드'>
         <WordCloud userReportsId={userReportsId} />
+      </ReportCardLayout>
+      <ReportCardLayout title='문장길이'>
+        <SentenceLength userReportsId={userReportsId} />
       </ReportCardLayout>
     </div>
   );
