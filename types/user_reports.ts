@@ -41,7 +41,7 @@ export interface PosRatio {
 
 export interface PosRatioSpeakerData {
   speaker: string;
-  word_counts: PosRatio;
+  pos_ratio_data: PosRatio;
 }
 
 export type PosRatioData = {
