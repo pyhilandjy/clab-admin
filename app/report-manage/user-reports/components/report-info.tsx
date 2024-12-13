@@ -34,7 +34,6 @@ const ReportInfo: React.FC<ReportInfoProps> = ({ userReportsId }) => {
       setIsLoading(true);
       try {
         const data: UserReportsInfo = await fetchUserReportsInfo(userReportsId);
-        console.log(data);
         setInfo(data);
       } catch (err: any) {
         console.error('Error fetching user reports info:', err);
