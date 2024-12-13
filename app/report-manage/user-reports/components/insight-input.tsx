@@ -1,4 +1,4 @@
-import { Text, HStack, Input, Button } from '@chakra-ui/react';
+import { Text, HStack, Textarea, Button } from '@chakra-ui/react';
 
 interface InsightInputProps {
   insight: string | undefined;
@@ -22,12 +22,12 @@ export default function InsightInput({
         Insight
       </Text>
       <HStack width='100%' spacing={4}>
-        <Input
+        <Textarea
           placeholder='Enter your insight'
           defaultValue={insight}
           height='100px'
           flex='1'
-          onChange={(e) => onUpdate(e.target.value)}
+          onChange={(e: any) => onUpdate(e.target.value)}
         />
         <Button
           colorScheme='blue'
