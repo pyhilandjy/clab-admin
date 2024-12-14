@@ -3,6 +3,7 @@ import {
   WordcloudData,
   UserReportsInfo,
   SentenceLengthData,
+  PosRatioData,
 } from '@/types/user_reports';
 
 export const fetchWordCloudData = async (
@@ -26,10 +27,6 @@ export const updateWordCloudData = async (
   userReportsId: string,
   wordcloudData: WordcloudData,
 ): Promise<{ message: string }> => {
-  console.log('userReportsId', userReportsId);
-  console.log('wordcloudData', wordcloudData);
-  console.log(typeof wordcloudData);
-
   try {
     const response = await api.patch<{ message: string }>('/wordcloud/data', {
       user_reports_id: userReportsId,
@@ -104,6 +101,39 @@ export const updateSentenceLength = async (
   } catch (error) {
     console.error(
       `Error updating sentence length data for ID ${userReportsId}:`,
+      error,
+    );
+    throw error;
+  }
+};
+
+export const createPosRatio = async (userReportsId: string) => {
+  try {
+    const response = await api.post('/pos_ratio/data', {
+      user_reports_id: userReportsId,
+    });
+    console.log('response', response);
+
+    return response.data;
+  } catch (error) {
+    console.error('Error creating word cloud:', error);
+    throw error;
+  }
+};
+
+export const updatePosratio = async (
+  userReportsId: string,
+  posRatioData: PosRatioData,
+): Promise<{ message: string }> => {
+  try {
+    const response = await api.patch<{ message: string }>('/pos_ratio/data', {
+      user_reports_id: userReportsId,
+      pos_ratio_data: posRatioData,
+    });
+    return response.data;
+  } catch (error) {
+    console.error(
+      `Error updating POS Ratio data for ID ${userReportsId}:`,
       error,
     );
     throw error;

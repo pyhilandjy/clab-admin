@@ -263,7 +263,6 @@ const ReportsManagement = () => {
                           onClick={() =>
                             window.open(
                               `/report-manage/user-reports?user_reports_id=${report.user_reports_id}`,
-                              '_blank',
                             )
                           }
                         >
