@@ -1,3 +1,5 @@
+'use client';
+
 import { useSearchParams } from 'next/navigation';
 import { ReactNode } from 'react';
 
@@ -33,7 +35,7 @@ const Layout = ({ children }: LayoutProps) => {
             <Link href={`/report-manage?${currentParams}`}>리포트관리</Link>
           </li>
           <li>
-            <Link href={`/user-manage?${currentParams}`}>회원관리</Link>
+            <Link href={`/user-manage`}>회원관리</Link>
           </li>
         </ul>
       </nav>
