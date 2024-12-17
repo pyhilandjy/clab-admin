@@ -1,6 +1,5 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
 import { ReactNode } from 'react';
 
 import { Link } from '@chakra-ui/next-js';
@@ -12,8 +11,6 @@ interface LayoutProps {
 }
 
 const Layout = ({ children }: LayoutProps) => {
-  const searchParams = useSearchParams();
-  const currentParams = searchParams.toString() || 'page=1';
   return (
     <div className={styles.container}>
       <nav className={styles.sidebar}>
@@ -32,7 +29,7 @@ const Layout = ({ children }: LayoutProps) => {
             <Link href={`/plan`}>패키지관리</Link>
           </li>
           <li>
-            <Link href={`/report-manage?${currentParams}`}>리포트관리</Link>
+            <Link href={`/report-manage?page=1`}>리포트관리</Link>
           </li>
           <li>
             <Link href={`/user-manage`}>회원관리</Link>
