@@ -1,9 +1,12 @@
+import dynamic from 'next/dynamic';
 import React, { Suspense } from 'react';
 
-import UserReportsDynamic from './UserReportsDynamic';
+const UserReportsDynamic = dynamic(() => import('./UserReportsDynamic'), {
+  ssr: false,
+});
 
 function UserReportsFallback() {
-  return <div>Loading...</div>; // 로딩 중일 때 표시될 UI
+  return <div>Loading...</div>;
 }
 
 export default function Page() {

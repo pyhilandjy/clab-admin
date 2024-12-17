@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import ReportCardLayout from './components/report-card-layout';
 import ReportInfo from './components/report-info';
@@ -11,8 +11,13 @@ import SpeechAct from './speech-act';
 import WordCloud from './word-cloud';
 
 const UserReportsDynamic = () => {
+  const [userReportsId, setUserReportsId] = useState<string | null>(null);
   const searchParams = useSearchParams();
-  const userReportsId = searchParams.get('user_reports_id') || '';
+
+  useEffect(() => {
+    const id = searchParams.get('user_reports_id') || '';
+    setUserReportsId(id);
+  }, [searchParams]);
 
   if (!userReportsId) {
     return <div>유효한 report ID가 없습니다.</div>;
