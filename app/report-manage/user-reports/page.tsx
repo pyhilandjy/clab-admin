@@ -1,6 +1,7 @@
 'use client';
+
 import { notFound } from 'next/navigation';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import ReportCardLayout from './components/report-card-layout';
 import ReportInfo from './components/report-info';
@@ -14,10 +15,21 @@ interface Props {
 }
 
 const UserReportsPage = ({ searchParams }: Props) => {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const userReportsId = searchParams?.user_reports_id || '';
 
   if (!userReportsId) {
     return notFound();
+  }
+
+  if (!isClient) {
+    // 서버 사이드 렌더링에서는 아무 것도 렌더링하지 않음
+    return null;
   }
 
   return (
