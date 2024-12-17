@@ -9,6 +9,7 @@ import {
   Text,
   Divider,
 } from '@chakra-ui/react';
+
 import { SpeechActSpeakerData } from '@/types/user_reports';
 
 interface SpeechActTableProps {
@@ -18,19 +19,11 @@ interface SpeechActTableProps {
 export default function SpeechActTable({ speakerData }: SpeechActTableProps) {
   const { speaker, speech_act } = speakerData;
 
-  // 특정 mood 데이터를 가져오기
   const getMoodData = (mood: string) => {
     const moodData = speech_act.find((sa) => sa[mood]);
     return moodData ? moodData[mood] : {};
   };
 
-  // 모든 act_name 추출
-  const getActNames = (mood: string) => {
-    const moodData = getMoodData(mood);
-    return Object.keys(moodData);
-  };
-
-  // 가까워져요와 멀어져요 데이터
   const 가까워져요 = getMoodData('가까워져요');
   const 멀어져요 = getMoodData('멀어져요');
 
