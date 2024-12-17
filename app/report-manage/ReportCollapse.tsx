@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useState, useCallback, memo } from 'react';
 
 import {
@@ -68,9 +70,10 @@ const ReportCollapse: React.FC<ReportCollapseProps> = memo(
         console.error('Error updating is_used:', error);
       }
     };
-
     const handleEditAudioFile = (audioFileId: string) => {
-      window.open(`/reports-stt-edit?audioFilesId=${audioFileId}`);
+      if (typeof window !== 'undefined') {
+        window.open(`/reports-stt-edit?audioFilesId=${audioFileId}`);
+      }
     };
 
     return (

@@ -5,10 +5,10 @@ import React from 'react';
 
 import ReportCardLayout from './components/report-card-layout';
 import ReportInfo from './components/report-info';
-import WordCloud from './word-cloud';
-import SentenceLength from './sentence-length';
 import PosRatio from './pos-ratio';
+import SentenceLength from './sentence-length';
 import SpeechAct from './speech-act';
+import WordCloud from './word-cloud';
 
 const UserReportsPage = () => {
   const searchParams = useSearchParams();

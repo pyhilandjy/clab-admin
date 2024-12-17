@@ -260,11 +260,13 @@ const ReportsManagement = () => {
                       </Td>
                       <Td>
                         <Button
-                          onClick={() =>
-                            window.open(
-                              `/report-manage/user-reports?user_reports_id=${report.user_reports_id}`,
-                            )
-                          }
+                          onClick={() => {
+                            if (typeof window !== 'undefined') {
+                              window.open(
+                                `/report-manage/user-reports?user_reports_id=${report.user_reports_id}`,
+                              );
+                            }
+                          }}
                         >
                           내용편집
                         </Button>
