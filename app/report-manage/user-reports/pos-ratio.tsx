@@ -1,4 +1,6 @@
+'use client';
 import { useEffect, useState } from 'react';
+
 import { Container } from '@chakra-ui/react';
 
 import { createPosRatio, updatePosratio } from '@/api/user_report';

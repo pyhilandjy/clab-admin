@@ -1,4 +1,6 @@
+'use client';
 import { useEffect, useState } from 'react';
+
 import { Grid, GridItem, Container } from '@chakra-ui/react';
 
 import { createSentenceLength, updateSentenceLength } from '@/api/user_report';

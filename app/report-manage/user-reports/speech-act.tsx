@@ -1,4 +1,6 @@
+'use client';
 import { useEffect, useState } from 'react';
+
 import { Container } from '@chakra-ui/react';
 
 import { createSpeechAct, updateSpeechAct } from '@/api/user_report';

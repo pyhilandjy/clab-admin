@@ -1,3 +1,4 @@
+'use client';
 import { useEffect, useState } from 'react';
 
 import { Grid, GridItem, Container, Button, Collapse } from '@chakra-ui/react';
