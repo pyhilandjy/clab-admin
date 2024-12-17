@@ -8,6 +8,7 @@ import ReportInfo from './components/report-info';
 import WordCloud from './word-cloud';
 import SentenceLength from './sentence-length';
 import PosRatio from './pos-ratio';
+import SpeechAct from './speech-act';
 
 const UserReportsPage = () => {
   const searchParams = useSearchParams();
@@ -35,6 +36,9 @@ const UserReportsPage = () => {
       </ReportCardLayout>
       <ReportCardLayout title='품사분류'>
         <PosRatio userReportsId={userReportsId} />
+      </ReportCardLayout>
+      <ReportCardLayout title='문장분류'>
+        <SpeechAct userReportsId={userReportsId} />
       </ReportCardLayout>
     </div>
   );
