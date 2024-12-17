@@ -1,6 +1,4 @@
-'use client';
-
-import { useSearchParams } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import React from 'react';
 
 import ReportCardLayout from './components/report-card-layout';
@@ -10,9 +8,16 @@ import SentenceLength from './sentence-length';
 import SpeechAct from './speech-act';
 import WordCloud from './word-cloud';
 
-const UserReportsPage = () => {
-  const searchParams = useSearchParams();
-  const userReportsId = searchParams.get('user_reports_id') || '';
+interface Props {
+  searchParams: { user_reports_id?: string };
+}
+
+const UserReportsPage = ({ searchParams }: Props) => {
+  const userReportsId = searchParams?.user_reports_id || '';
+
+  if (!userReportsId) {
+    return notFound();
+  }
 
   return (
     <div

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import React, { useEffect, useState, useCallback } from 'react';
 
 import {
@@ -37,6 +37,7 @@ import ReportCollapse from './ReportCollapse';
 
 const ReportsManagement = () => {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const router = useRouter();
 
   const [reports, setReports] = useState<Report[]>([]);
@@ -84,7 +85,7 @@ const ReportsManagement = () => {
     const params = new URLSearchParams(searchParams.toString());
     params.set('page', newPage.toString());
     params.delete('user_reports_id');
-    router.push(`?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`);
     setCurrentPage(newPage);
   };
 
@@ -99,7 +100,7 @@ const ReportsManagement = () => {
       params.set('user_reports_id', userReportsId);
     }
     params.set('page', currentPage.toString());
-    router.replace(`?${params.toString()}`);
+    router.replace(`${pathname}?${params.toString()}`);
   };
 
   const handleOnChangeInspection = async (
