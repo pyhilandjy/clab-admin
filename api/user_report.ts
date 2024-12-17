@@ -4,6 +4,7 @@ import {
   UserReportsInfo,
   SentenceLengthData,
   PosRatioData,
+  SpeechActData,
 } from '@/types/user_reports';
 
 export const fetchWordCloudData = async (
@@ -134,6 +135,39 @@ export const updatePosratio = async (
   } catch (error) {
     console.error(
       `Error updating POS Ratio data for ID ${userReportsId}:`,
+      error,
+    );
+    throw error;
+  }
+};
+
+export const createSpeechAct = async (userReportsId: string) => {
+  try {
+    const response = await api.post('/speech_act/data', {
+      user_reports_id: userReportsId,
+    });
+    console.log('response', response);
+
+    return response.data;
+  } catch (error) {
+    console.error('Error creating word cloud:', error);
+    throw error;
+  }
+};
+
+export const updateSpeechAct = async (
+  userReportsId: string,
+  speechActData: SpeechActData,
+): Promise<{ message: string }> => {
+  try {
+    const response = await api.patch<{ message: string }>('/speech_act/data', {
+      user_reports_id: userReportsId,
+      speech_act_data: speechActData,
+    });
+    return response.data;
+  } catch (error) {
+    console.error(
+      `Error updating Speech Act data for ID ${userReportsId}:`,
       error,
     );
     throw error;
