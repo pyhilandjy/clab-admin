@@ -1,4 +1,5 @@
 import Plot from 'react-plotly.js';
+
 import { TokenziedSpeakerData } from '@/types/user_reports';
 
 interface ViolinPlotProps {

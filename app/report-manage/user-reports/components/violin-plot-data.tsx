@@ -1,4 +1,5 @@
 import { Table, Thead, Tbody, Tr, Th, Td, Box, Text } from '@chakra-ui/react';
+
 import { TokenziedSpeakerData } from '@/types/user_reports';
 
 interface ViolinPlotDataProps {
