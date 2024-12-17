@@ -48,3 +48,18 @@ export type PosRatioData = {
   data: PosRatioSpeakerData[];
   insights: string;
 };
+
+export interface MoodData {
+  [act_name: string]: number;
+}
+
+export interface SpeakerData {
+  speaker: string;
+  멀어져요?: MoodData;
+  가까워져요?: MoodData;
+}
+
+export interface SpeechActData {
+  data: SpeakerData[];
+  insights: string | null;
+}
