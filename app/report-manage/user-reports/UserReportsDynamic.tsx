@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 
 import ReportCardLayout from './components/report-card-layout';
 import ReportInfo from './components/report-info';
+import Insight from './insight';
 import PosRatio from './pos-ratio';
 import SentenceLength from './sentence-length';
 import SpeechAct from './speech-act';
@@ -37,6 +38,9 @@ const UserReportsDynamic = () => {
       </ReportCardLayout>
       <ReportCardLayout title='문장분류'>
         <SpeechAct userReportsId={userReportsId} />
+      </ReportCardLayout>
+      <ReportCardLayout title='인사이트'>
+        <Insight userReportsId={userReportsId} />
       </ReportCardLayout>
     </>
   );
