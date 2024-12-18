@@ -5,6 +5,7 @@ import {
   SentenceLengthData,
   PosRatioData,
   SpeechActData,
+  InsightData,
 } from '@/types/user_reports';
 
 export const fetchWordCloudData = async (
@@ -170,6 +171,38 @@ export const updateSpeechAct = async (
       `Error updating Speech Act data for ID ${userReportsId}:`,
       error,
     );
+    throw error;
+  }
+};
+
+export const fetchInsightData = async (
+  userReportsId: string,
+): Promise<InsightData[]> => {
+  try {
+    const response = await api.get<InsightData[]>('insight/data', {
+      params: { user_reports_id: userReportsId },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(
+      `Error fetching word cloud data for ID ${userReportsId}:`,
+      error,
+    );
+    throw error;
+  }
+};
+
+export const upsertInsightData = async (
+  insightData: InsightData,
+): Promise<{ message: string }> => {
+  try {
+    const response = await api.put<{ message: string }>(
+      '/insight/data',
+      insightData,
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error upserting insight data:', error);
     throw error;
   }
 };
