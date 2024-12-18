@@ -12,8 +12,6 @@ export default function ReportCardLayout({
       style={{
         width: '70%',
         textAlign: 'center',
-        fontSize: '30px',
-        color: '#333',
         marginBottom: '10px',
         padding: '10px',
         backgroundColor: 'white',
@@ -21,7 +19,7 @@ export default function ReportCardLayout({
         borderRadius: '8px',
       }}
     >
-      <h1>{title}</h1>
+      <h1 style={{ fontSize: '30px', color: '#333' }}>{title}</h1>
       {children}
     </div>
   );
