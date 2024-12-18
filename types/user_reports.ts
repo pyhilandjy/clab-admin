@@ -66,3 +66,14 @@ export interface SpeechActData {
   data: SpeechActSpeakerData[];
   insights: string | null;
 }
+
+export type InsightData = {
+  id: string;
+  text: string[];
+  title: string;
+  insight: string;
+  example?: string;
+  created_at: string;
+  user_reports_id: string;
+  reports_order: number;
+};
