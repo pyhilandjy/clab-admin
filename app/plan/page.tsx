@@ -221,106 +221,116 @@ const PlanPage = () => {
         <Button colorScheme='blue' mb={4} onClick={handleAddPlan}>
           플랜 추가
         </Button>
-        <Table variant='simple'>
-          <Thead>
-            <Tr>
-              <Th>패키지명</Th>
-              <Th>미션 갯수</Th>
-              <Th>상태</Th>
-              <Th>설명</Th>
-              <Th></Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {plans.map((plan) => (
-              <React.Fragment key={plan.id}>
-                <Tr>
-                  <Td
-                    onClick={() => handleNameClick(plan.id)}
-                    style={{ cursor: 'pointer', color: 'blue' }}
-                  >
-                    {plan.plan_name}
-                  </Td>
-                  <Td>{missions[plan.id]?.length ?? 0}</Td>
-                  <Td>
-                    <Select
-                      value={plan.status}
-                      onChange={(e) =>
-                        handleStatusChange(plan.id, e.target.value)
-                      }
-                    >
-                      <option value='active'>Active</option>
-                      <option value='inactive'>Inactive</option>
-                    </Select>
-                  </Td>
-                  <Td>{plan.description}</Td>
-                  <Td>
-                    <Button
-                      colorScheme='teal'
-                      size='sm'
-                      mr={2}
-                      onClick={() => handleEditPlan(plan.id)}
-                    >
-                      수정
-                    </Button>
-                    <Button
-                      colorScheme='red'
-                      size='sm'
-                      onClick={() => openDeleteModal(plan.id)}
-                    >
-                      삭제
-                    </Button>
-                  </Td>
-                </Tr>
-                {expandedPlanId === plan.id && (
+        <Box
+          p={4}
+          width='75vw'
+          maxWidth='1600px'
+          bg='white'
+          borderRadius='md'
+          border='1px solid'
+          borderColor='gray.200'
+        >
+          <Table variant='simple'>
+            <Thead>
+              <Tr>
+                <Th width='200px'>패키지명</Th>
+                <Th width='100px'>미션 갯수</Th>
+                <Th width='180px'>상태</Th>
+                <Th width='700px'>설명</Th>
+                <Th width='200px'></Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {plans.map((plan) => (
+                <React.Fragment key={plan.id}>
                   <Tr>
-                    <Td colSpan={5} p={0}>
-                      <Box p={4}>
-                        <HStack spacing={4} mb={4}>
-                          <Button
-                            colorScheme='orange'
-                            onClick={() => handleMissionClick(plan.id)}
-                          >
-                            미션
-                          </Button>
-                          <Button
-                            colorScheme='orange'
-                            onClick={() => handleReportClick(plan.id)}
-                          >
-                            리포트
-                          </Button>
-                        </HStack>
-                        {isMissionVisible && (
-                          <MissionList
-                            missions={missions[plan.id] ?? []}
-                            isOpen={isMissionVisible}
-                            onDeleteSuccess={(missionId) =>
-                              handleMissionDeleteSuccess(plan.id, missionId)
-                            }
-                            planId={plan.id}
-                            onAddMission={() => handleMissionAdd(plan.id)}
-                          />
-                        )}
-                        {isReportVisible && (
-                          <ReportList
-                            reports={reports[plan.id] ?? []}
-                            planId={plan.id}
-                            isOpen={isReportVisible}
-                            missions={missions[plan.id] ?? []}
-                            onAddReport={() => handleReportAdd(plan.id)}
-                            onDeleteSuccess={(reportId) =>
-                              handleReportDeleteSuccess(plan.id, reportId)
-                            }
-                          />
-                        )}
-                      </Box>
+                    <Td
+                      onClick={() => handleNameClick(plan.id)}
+                      style={{ cursor: 'pointer', color: 'blue' }}
+                    >
+                      {plan.plan_name}
+                    </Td>
+                    <Td>{missions[plan.id]?.length ?? 0}</Td>
+                    <Td>
+                      <Select
+                        value={plan.status}
+                        onChange={(e) =>
+                          handleStatusChange(plan.id, e.target.value)
+                        }
+                      >
+                        <option value='active'>활성화</option>
+                        <option value='inactive'>비활성화</option>
+                      </Select>
+                    </Td>
+                    <Td>{plan.description}</Td>
+                    <Td>
+                      <Button
+                        colorScheme='teal'
+                        size='sm'
+                        mr={2}
+                        onClick={() => handleEditPlan(plan.id)}
+                      >
+                        수정
+                      </Button>
+                      <Button
+                        colorScheme='red'
+                        size='sm'
+                        onClick={() => openDeleteModal(plan.id)}
+                      >
+                        삭제
+                      </Button>
                     </Td>
                   </Tr>
-                )}
-              </React.Fragment>
-            ))}
-          </Tbody>
-        </Table>
+                  {expandedPlanId === plan.id && (
+                    <Tr>
+                      <Td colSpan={5} p={0}>
+                        <Box p={4}>
+                          <HStack spacing={4} mb={4}>
+                            <Button
+                              colorScheme='orange'
+                              onClick={() => handleMissionClick(plan.id)}
+                            >
+                              미션
+                            </Button>
+                            <Button
+                              colorScheme='orange'
+                              onClick={() => handleReportClick(plan.id)}
+                            >
+                              리포트
+                            </Button>
+                          </HStack>
+                          {isMissionVisible && (
+                            <MissionList
+                              missions={missions[plan.id] ?? []}
+                              isOpen={isMissionVisible}
+                              onDeleteSuccess={(missionId) =>
+                                handleMissionDeleteSuccess(plan.id, missionId)
+                              }
+                              planId={plan.id}
+                              onAddMission={() => handleMissionAdd(plan.id)}
+                            />
+                          )}
+                          {isReportVisible && (
+                            <ReportList
+                              reports={reports[plan.id] ?? []}
+                              planId={plan.id}
+                              isOpen={isReportVisible}
+                              missions={missions[plan.id] ?? []}
+                              onAddReport={() => handleReportAdd(plan.id)}
+                              onDeleteSuccess={(reportId) =>
+                                handleReportDeleteSuccess(plan.id, reportId)
+                              }
+                            />
+                          )}
+                        </Box>
+                      </Td>
+                    </Tr>
+                  )}
+                </React.Fragment>
+              ))}
+            </Tbody>
+          </Table>
+        </Box>
         <AlertDialog
           isOpen={isOpen}
           leastDestructiveRef={cancelRef}

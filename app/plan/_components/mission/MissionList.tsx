@@ -134,7 +134,7 @@ const MissionList: React.FC<MissionListProps> = ({
         <Box
           p={4}
           width='70vw'
-          maxWidth='1200px'
+          maxWidth='1300px'
           bg='gray.50'
           borderRadius='md'
           border='1px solid'
@@ -171,8 +171,8 @@ const MissionList: React.FC<MissionListProps> = ({
                           handleStatusChange(mission.id, e.target.value)
                         }
                       >
-                        <option value='active'>Active</option>
-                        <option value='inactive'>Inactive</option>
+                        <option value='active'>활성화</option>
+                        <option value='inactive'>비활성화</option>
                       </Select>
                     </Td>
                     <Td>
