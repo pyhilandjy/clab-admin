@@ -66,7 +66,7 @@ export default function SpeechActTable({ speakerData }: SpeechActTableProps) {
   return (
     <Box borderWidth='1px' borderRadius='md' padding={4} mb={4}>
       <Text fontWeight='bold' fontSize='xl' mb={4}>
-        Speech Act Data for {speaker}
+        {speaker}
       </Text>
 
       {/* 가까워져요 테이블 */}
