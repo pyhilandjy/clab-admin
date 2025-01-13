@@ -76,27 +76,14 @@ const MissionForm: React.FC<Props> = ({
       mx='auto' // 중앙 배치
     >
       <VStack spacing={6} align='stretch'>
-        {/* 미션명 */}
-        <SimpleGrid columns={2} spacing={6}>
-          <GridItem colSpan={2}>
+        {/* 미션명과 발행순서 */}
+        <SimpleGrid columns={4} spacing={6}>
+          <GridItem colSpan={3}>
             <FormControl isRequired>
               <FormLabel>미션명</FormLabel>
               <Input
                 value={missionData.title}
                 onChange={(e) => handleInputChange('title', e.target.value)}
-              />
-            </FormControl>
-          </GridItem>
-        </SimpleGrid>
-
-        {/* 요약과 일수 */}
-        <SimpleGrid columns={2} spacing={6}>
-          <GridItem colSpan={1}>
-            <FormControl>
-              <FormLabel>요약</FormLabel>
-              <Input
-                value={missionData.summation}
-                onChange={(e) => handleInputChange('summation', e.target.value)}
               />
             </FormControl>
           </GridItem>
@@ -108,6 +95,19 @@ const MissionForm: React.FC<Props> = ({
                 type='number'
                 value={missionData.day}
                 onChange={(e) => handleInputChange('day', e.target.value)}
+              />
+            </FormControl>
+          </GridItem>
+        </SimpleGrid>
+
+        {/* 요약 */}
+        <SimpleGrid columns={2} spacing={6}>
+          <GridItem colSpan={2}>
+            <FormControl>
+              <FormLabel>요약</FormLabel>
+              <Textarea
+                value={missionData.summation}
+                onChange={(e) => handleInputChange('summation', e.target.value)}
               />
             </FormControl>
           </GridItem>
