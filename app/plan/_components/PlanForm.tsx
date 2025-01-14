@@ -11,6 +11,7 @@ import {
   SimpleGrid,
   GridItem,
   Select,
+  Text,
 } from '@chakra-ui/react';
 
 import { Category } from '@/types/plan';
@@ -28,6 +29,14 @@ type PlanFormProps = {
   subCategories: Category[];
   selectedMainCategory: string;
   selectedSubCategory: string;
+  summary: string;
+  descriptionImageName: string | null;
+  descriptionImageUrl: string | null;
+  thumbnailImageName: string | null;
+  thumbnailImageUrl: string | null;
+  schedule: string;
+  scheduleImageName: string | null;
+  scheduleImageUrl: string | null;
   onChange: (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -36,6 +45,9 @@ type PlanFormProps = {
   onSubmit: (e: React.FormEvent) => void;
   handleMainCategoryChange: (mainCategoryId: string) => void;
   onSubCategoryChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  onDescriptionFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onThumbnailFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onScheduleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   isEdit?: boolean;
 };
 
@@ -52,12 +64,35 @@ const PlanForm: React.FC<PlanFormProps> = ({
   subCategories,
   selectedMainCategory,
   selectedSubCategory,
+  summary,
+  descriptionImageName,
+  descriptionImageUrl,
+  thumbnailImageName,
+  thumbnailImageUrl,
+  schedule,
+  scheduleImageName,
+  scheduleImageUrl,
   onChange,
   onSubmit,
   handleMainCategoryChange,
   onSubCategoryChange,
+  onDescriptionFileChange,
+  onThumbnailFileChange,
+  onScheduleFileChange,
   isEdit = false,
 }) => {
+  const openPopup = (url: string) => {
+    const width = 600;
+    const height = 400;
+    const left = window.screen.width / 2 - width / 2;
+    const top = window.screen.height / 2 - height / 2;
+    window.open(
+      url,
+      '_blank',
+      `width=${width},height=${height},top=${top},left=${left}`,
+    );
+  };
+
   return (
     <form onSubmit={onSubmit}>
       <Box
@@ -258,11 +293,84 @@ const PlanForm: React.FC<PlanFormProps> = ({
             </FormControl>
           </GridItem>
         </SimpleGrid>
+
+        <Box border='1px' borderColor='gray.200' borderRadius='md' p={4} mb={4}>
+          <Heading as='h2' size='md' mb={4}>
+            썸네일
+          </Heading>
+          <FormControl id='thumbnail' mb={4}>
+            <FormLabel>이미지 업로드</FormLabel>
+            <Box
+              display='flex'
+              alignItems='center'
+              justifyContent='space-between'
+            >
+              {thumbnailImageName && thumbnailImageUrl ? (
+                <>
+                  <Text
+                    color='blue.500'
+                    cursor='pointer'
+                    onClick={() => openPopup(thumbnailImageUrl)}
+                  >
+                    {thumbnailImageName}
+                  </Text>
+                  <Input
+                    type='file'
+                    accept='image/*'
+                    onChange={onThumbnailFileChange}
+                    display='none'
+                    id='thumbnail-image-upload'
+                  />
+                  <label htmlFor='thumbnail-image-upload'>
+                    <Box
+                      width='30px'
+                      height='30px'
+                      border='1px dashed gray'
+                      backgroundColor='gray.200'
+                      display='flex'
+                      alignItems='center'
+                      justifyContent='center'
+                      cursor='pointer'
+                    >
+                      <Text fontSize='xl'>+</Text>
+                    </Box>
+                  </label>
+                </>
+              ) : (
+                <>
+                  <Input
+                    type='file'
+                    accept='image/*'
+                    onChange={onThumbnailFileChange}
+                    display='none'
+                    id='thumbnail-image-upload'
+                  />
+                  <label htmlFor='thumbnail-image-upload'>
+                    <Box
+                      width='30px'
+                      height='30px'
+                      border='1px dashed gray'
+                      backgroundColor='gray.200'
+                      display='flex'
+                      alignItems='center'
+                      justifyContent='center'
+                      cursor='pointer'
+                    >
+                      <Text fontSize='xl'>+</Text>
+                    </Box>
+                  </label>
+                </>
+              )}
+            </Box>
+          </FormControl>
+        </Box>
+
         <Box border='1px' borderColor='gray.200' borderRadius='md' p={4} mb={4}>
           <Heading as='h2' size='md' mb={4}>
             플랜 설명
           </Heading>
           <FormControl id='description' mb={4}>
+            <FormLabel>설명</FormLabel>
             <Textarea
               height='200px'
               value={description}
@@ -270,6 +378,162 @@ const PlanForm: React.FC<PlanFormProps> = ({
               onChange={onChange}
               width='100%'
             />
+          </FormControl>
+          <FormControl id='summary' mb={4}>
+            <FormLabel>요약</FormLabel>
+            <Textarea
+              height='100px'
+              value={summary}
+              name='summary'
+              onChange={onChange}
+              width='100%'
+            />
+          </FormControl>
+          <FormControl mb='20px'>
+            <FormLabel>설명 이미지 업로드</FormLabel>
+            <Box
+              display='flex'
+              alignItems='center'
+              justifyContent='space-between'
+            >
+              {descriptionImageName && descriptionImageUrl ? (
+                <>
+                  <Text
+                    color='blue.500'
+                    cursor='pointer'
+                    onClick={() => openPopup(descriptionImageUrl)}
+                  >
+                    {descriptionImageName}
+                  </Text>
+                  <Input
+                    type='file'
+                    accept='image/*'
+                    onChange={onDescriptionFileChange}
+                    display='none'
+                    id='description-image-upload'
+                  />
+                  <label htmlFor='description-image-upload'>
+                    <Box
+                      width='30px'
+                      height='30px'
+                      border='1px dashed gray'
+                      backgroundColor='gray.200'
+                      display='flex'
+                      alignItems='center'
+                      justifyContent='center'
+                      cursor='pointer'
+                    >
+                      <Text fontSize='xl'>+</Text>
+                    </Box>
+                  </label>
+                </>
+              ) : (
+                <>
+                  <Input
+                    type='file'
+                    accept='image/*'
+                    onChange={onDescriptionFileChange}
+                    display='none'
+                    id='description-image-upload'
+                  />
+                  <label htmlFor='description-image-upload'>
+                    <Box
+                      width='30px'
+                      height='30px'
+                      border='1px dashed gray'
+                      backgroundColor='gray.200'
+                      display='flex'
+                      alignItems='center'
+                      justifyContent='center'
+                      cursor='pointer'
+                    >
+                      <Text fontSize='xl'>+</Text>
+                    </Box>
+                  </label>
+                </>
+              )}
+            </Box>
+          </FormControl>
+        </Box>
+
+        <Box border='1px' borderColor='gray.200' borderRadius='md' p={4} mb={4}>
+          <Heading as='h2' size='md' mb={4}>
+            스케줄
+          </Heading>
+          <FormControl id='schedule' mb={4}>
+            <FormLabel>스케줄</FormLabel>
+            <Textarea
+              height='100px'
+              value={schedule}
+              name='schedule'
+              onChange={onChange}
+              width='100%'
+            />
+          </FormControl>
+          <FormControl mb='20px'>
+            <FormLabel>스케줄 이미지 업로드</FormLabel>
+            <Box
+              display='flex'
+              alignItems='center'
+              justifyContent='space-between'
+            >
+              {scheduleImageName && scheduleImageUrl ? (
+                <>
+                  <Text
+                    color='blue.500'
+                    cursor='pointer'
+                    onClick={() => openPopup(scheduleImageUrl)}
+                  >
+                    {scheduleImageName}
+                  </Text>
+                  <Input
+                    type='file'
+                    accept='image/*'
+                    onChange={onScheduleFileChange}
+                    display='none'
+                    id='schedule-image-upload'
+                  />
+                  <label htmlFor='schedule-image-upload'>
+                    <Box
+                      width='30px'
+                      height='30px'
+                      border='1px dashed gray'
+                      backgroundColor='gray.200'
+                      display='flex'
+                      alignItems='center'
+                      justifyContent='center'
+                      cursor='pointer'
+                    >
+                      <Text fontSize='xl'>+</Text>
+                    </Box>
+                  </label>
+                </>
+              ) : (
+                <>
+                  <Input
+                    type='file'
+                    accept='image/*'
+                    onChange={onScheduleFileChange}
+                    display='none'
+                    id='schedule-image-upload'
+                  />
+                  <label htmlFor='schedule-image-upload'>
+                    <Box
+                      width='30px'
+                      height='30px'
+                      border='1px dashed gray'
+                      backgroundColor='gray.200'
+                      display='flex'
+                      alignItems='center'
+                      justifyContent='center'
+                      cursor='pointer'
+                    >
+                      <Text fontSize='xl'>+</Text>
+                    </Box>
+                  </label>
+                </>
+              )}
+            </Box>
           </FormControl>
         </Box>
       </Box>
