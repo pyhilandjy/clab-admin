@@ -8,6 +8,9 @@ import {
   fetchPlan,
   fetchSubCategories,
   fetchCategories,
+  uploadDescriptionImage,
+  uploadThumbnailImage,
+  uploadScheduleImage,
 } from '@/api/plan';
 import Layout from '@/components/Layout';
 import { Category, UpdatePlanPayload } from '@/types/plan';
@@ -27,6 +30,24 @@ const EditPlanPage = () => {
   const [subCategories, setSubCategories] = useState<Category[]>([]);
   const [selectedMainCategory, setSelectedMainCategory] = useState<string>('');
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>('');
+  const [summary, setSummary] = useState<string>('');
+  const [descriptionImageName, setDescriptionImageName] = useState<
+    string | null
+  >(null);
+  const [descriptionImageUrl, setDescriptionImageUrl] = useState<string | null>(
+    null,
+  );
+  const [thumbnailImageName, setThumbnailImageName] = useState<string | null>(
+    null,
+  );
+  const [thumbnailImageUrl, setThumbnailImageUrl] = useState<string | null>(
+    null,
+  );
+  const [schedule, setSchedule] = useState<string>('');
+  const [scheduleImageName, setScheduleImageName] = useState<string | null>(
+    null,
+  );
+  const [scheduleImageUrl, setScheduleImageUrl] = useState<string | null>(null);
   const router = useRouter();
   const { plan_id } = useParams();
 
@@ -47,6 +68,14 @@ const EditPlanPage = () => {
         setType(plan.type || '');
         setTags(plan.tags ? plan.tags.join(', ') : '');
         setSelectedSubCategory(plan.category_id);
+        setSummary(plan.summary || '');
+        setDescriptionImageName(plan.description_image_name || null);
+        setDescriptionImageUrl(plan.description_image_id_url || null);
+        setThumbnailImageName(plan.thumbnail_image_name || null);
+        setThumbnailImageUrl(plan.thumbnail_image_id_url || null);
+        setSchedule(plan.schedule || '');
+        setScheduleImageName(plan.schedule_image_name || null);
+        setScheduleImageUrl(plan.schedule_image_id_url || null);
 
         const mainCategoriesResponse = await fetchCategories();
         setMainCategories(mainCategoriesResponse.data);
@@ -83,6 +112,51 @@ const EditPlanPage = () => {
     loadPlanData();
   }, [plan_id]);
 
+  const handleDescriptionFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        setDescriptionImageName(file.name);
+        setDescriptionImageUrl(reader.result as string);
+        await uploadDescriptionImage(plan_id as string, file.name, file);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleThumbnailFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        setThumbnailImageName(file.name);
+        setThumbnailImageUrl(reader.result as string);
+        await uploadThumbnailImage(plan_id as string, file.name, file);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleScheduleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        setScheduleImageName(file.name);
+        setScheduleImageUrl(reader.result as string);
+        await uploadScheduleImage(plan_id as string, file.name, file);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     const tagsArray = tags.split(',').map((tag) => tag.trim());
@@ -98,6 +172,8 @@ const EditPlanPage = () => {
       type,
       tags: tagsArray,
       category_id: selectedSubCategory,
+      summary,
+      schedule,
     };
 
     try {
@@ -124,6 +200,14 @@ const EditPlanPage = () => {
         subCategories={subCategories}
         selectedMainCategory={selectedMainCategory}
         selectedSubCategory={selectedSubCategory}
+        summary={summary}
+        descriptionImageName={descriptionImageName}
+        descriptionImageUrl={descriptionImageUrl}
+        thumbnailImageName={thumbnailImageName}
+        thumbnailImageUrl={thumbnailImageUrl}
+        schedule={schedule}
+        scheduleImageName={scheduleImageName}
+        scheduleImageUrl={scheduleImageUrl}
         onChange={(e) => {
           const { name, value } = e.target;
           switch (name) {
@@ -151,6 +235,12 @@ const EditPlanPage = () => {
             case 'tags':
               setTags(value);
               break;
+            case 'summary':
+              setSummary(value);
+              break;
+            case 'schedule':
+              setSchedule(value);
+              break;
             default:
               break;
           }
@@ -163,6 +253,9 @@ const EditPlanPage = () => {
           );
         }}
         onSubCategoryChange={(e) => setSelectedSubCategory(e.target.value)}
+        onDescriptionFileChange={handleDescriptionFileChange}
+        onThumbnailFileChange={handleThumbnailFileChange}
+        onScheduleFileChange={handleScheduleFileChange}
         isEdit={true}
       />
     </Layout>
