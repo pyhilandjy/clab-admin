@@ -106,14 +106,15 @@ const AddPlanPage = () => {
 
     const formData = new FormData();
     formData.append('plan_name', planName);
-    formData.append('price', price !== null ? parseInt(price).toString() : '');
+    // formData.append('price', price !== null ? parseInt(price).toString() : '');
+    formData.append('price', price && parseInt(price).toString());
     formData.append(
       'start_age_month',
-      startAgeMonth !== null ? parseInt(startAgeMonth).toString() : '',
+      startAgeMonth && parseInt(startAgeMonth).toString(),
     );
     formData.append(
       'end_age_month',
-      endAgeMonth !== null ? parseInt(endAgeMonth).toString() : '',
+      endAgeMonth && parseInt(endAgeMonth).toString(),
     );
     formData.append('day', day !== null ? parseInt(day).toString() : '');
     formData.append('description', description);
