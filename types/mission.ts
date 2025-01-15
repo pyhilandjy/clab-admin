@@ -2,7 +2,7 @@
 export interface Mission {
   id: string;
   title: string;
-  summation: string;
+  summary: string;
   day: string;
   message: string;
   status: string;
@@ -10,7 +10,7 @@ export interface Mission {
 
 export interface MissionAdd {
   title: string;
-  summation: string;
+  summary: string;
   day: string;
   message: string;
 }

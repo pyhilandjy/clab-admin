@@ -26,7 +26,7 @@ const MissionForm: React.FC<Props> = ({
   isEdit = false,
 }) => {
   const [missionData, setMissionData] = useState<MissionAdd>(
-    mission || { title: '', summation: '', day: '', message: '' },
+    mission || { title: '', summary: '', day: '', message: '' },
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
@@ -106,8 +106,8 @@ const MissionForm: React.FC<Props> = ({
             <FormControl>
               <FormLabel>요약</FormLabel>
               <Textarea
-                value={missionData.summation}
-                onChange={(e) => handleInputChange('summation', e.target.value)}
+                value={missionData.summary}
+                onChange={(e) => handleInputChange('summary', e.target.value)}
               />
             </FormControl>
           </GridItem>

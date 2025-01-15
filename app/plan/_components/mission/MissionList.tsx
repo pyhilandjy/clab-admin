@@ -162,7 +162,7 @@ const MissionList: React.FC<MissionListProps> = ({
                   <Tr key={mission.id}>
                     <Td>{mission.day}</Td>
                     <Td>{mission.title}</Td>
-                    <Td>{mission.summation}</Td>
+                    <Td>{mission.summary}</Td>
                     <Td>
                       <Select
                         size='sm'
