@@ -140,7 +140,7 @@ const PlanForm: React.FC<PlanFormProps> = ({
 
         <SimpleGrid columns={2} spacing={150} mb={4}>
           <GridItem colSpan={1}>
-            <FormControl id='price'>
+            <FormControl id='price' isRequired>
               <Box display='flex' alignItems='center'>
                 <FormLabel width='248px' mb={0}>
                   가격
@@ -233,7 +233,7 @@ const PlanForm: React.FC<PlanFormProps> = ({
             </FormControl>
           </GridItem>
           <GridItem colSpan={1}>
-            <FormControl id='sub_category' isRequired>
+            <FormControl id='sub_category'>
               <Box display='flex' alignItems='center'>
                 <FormLabel width='150px' mb={0}>
                   서브 카테고리
