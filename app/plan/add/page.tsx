@@ -8,7 +8,7 @@ import {
   fetchMainCategories,
   fetchSubCategories,
 } from '@/api/plan';
-import { Category, CreatePlanPayload } from '@/types/plan';
+import { Category } from '@/types/plan';
 
 import Layout from '../../../components/Layout';
 import PlanForm from '../_components/PlanForm';
@@ -26,6 +26,24 @@ const AddPlanPage = () => {
   const [subCategories, setSubCategories] = useState<Category[]>([]);
   const [selectedMainCategory, setSelectedMainCategory] = useState<string>('');
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>('');
+  const [summary, setSummary] = useState<string>('');
+  const [descriptionImageName, setDescriptionImageName] = useState<
+    string | null
+  >(null);
+  const [descriptionImageFile, setDescriptionImageFile] = useState<File | null>(
+    null,
+  );
+  const [thumbnailImageName, setThumbnailImageName] = useState<string | null>(
+    null,
+  );
+  const [thumbnailImageFile, setThumbnailImageFile] = useState<File | null>(
+    null,
+  );
+  const [schedule, setSchedule] = useState<string>('');
+  const [scheduleImageName, setScheduleImageName] = useState<string | null>(
+    null,
+  );
+  const [scheduleImageFile, setScheduleImageFile] = useState<File | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -52,24 +70,73 @@ const AddPlanPage = () => {
     }
   };
 
+  const handleDescriptionFileChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setDescriptionImageName(file.name);
+      setDescriptionImageFile(file);
+    }
+  };
+
+  const handleThumbnailFileChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setThumbnailImageName(file.name);
+      setThumbnailImageFile(file);
+    }
+  };
+
+  const handleScheduleFileChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setScheduleImageName(file.name);
+      setScheduleImageFile(file);
+    }
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     const tagsArray = tags.split(',').map((tag) => tag.trim());
 
-    const payload: CreatePlanPayload = {
-      plan_name: planName,
-      price: price !== null ? parseInt(price) : null,
-      start_age_month: startAgeMonth !== null ? parseInt(startAgeMonth) : null,
-      end_age_month: endAgeMonth !== null ? parseInt(endAgeMonth) : null,
-      day: day !== null ? parseInt(day) : null,
-      description,
-      type,
-      tags: tagsArray,
-      category_id: selectedSubCategory,
-    };
+    const formData = new FormData();
+    formData.append('plan_name', planName);
+    formData.append('price', price !== null ? parseInt(price).toString() : '');
+    formData.append(
+      'start_age_month',
+      startAgeMonth !== null ? parseInt(startAgeMonth).toString() : '',
+    );
+    formData.append(
+      'end_age_month',
+      endAgeMonth !== null ? parseInt(endAgeMonth).toString() : '',
+    );
+    formData.append('day', day !== null ? parseInt(day).toString() : '');
+    formData.append('description', description);
+    formData.append('type', type);
+    formData.append('tags', JSON.stringify(tagsArray));
+    formData.append('category_id', selectedSubCategory);
+    formData.append('summary', summary);
+    formData.append('schedule', schedule);
+    if (descriptionImageFile) {
+      formData.append('description_image', descriptionImageFile);
+      formData.append('description_image_name', descriptionImageName as string);
+    }
+    if (thumbnailImageFile) {
+      formData.append('thumbnail_image', thumbnailImageFile);
+      formData.append('thumbnail_image_name', thumbnailImageName as string);
+    }
+    if (scheduleImageFile) {
+      formData.append('schedule_image', scheduleImageFile);
+      formData.append('schedule_image_name', scheduleImageName as string);
+    }
 
     try {
-      await createPlan(payload);
+      await createPlan(formData);
       alert('플랜이 성공적으로 추가되었습니다.');
       router.push('/plan');
     } catch (error) {
@@ -93,6 +160,22 @@ const AddPlanPage = () => {
         subCategories={subCategories}
         selectedMainCategory={selectedMainCategory}
         selectedSubCategory={selectedSubCategory}
+        summary={summary}
+        descriptionImageName={descriptionImageName}
+        descriptionImageUrl={
+          descriptionImageFile
+            ? URL.createObjectURL(descriptionImageFile)
+            : null
+        }
+        thumbnailImageName={thumbnailImageName}
+        thumbnailImageUrl={
+          thumbnailImageFile ? URL.createObjectURL(thumbnailImageFile) : null
+        }
+        schedule={schedule}
+        scheduleImageName={scheduleImageName}
+        scheduleImageUrl={
+          scheduleImageFile ? URL.createObjectURL(scheduleImageFile) : null
+        }
         onChange={(e) => {
           const { name, value } = e.target;
           switch (name) {
@@ -120,6 +203,12 @@ const AddPlanPage = () => {
             case 'tags':
               setTags(value);
               break;
+            case 'summary':
+              setSummary(value);
+              break;
+            case 'schedule':
+              setSchedule(value);
+              break;
             default:
               break;
           }
@@ -127,6 +216,9 @@ const AddPlanPage = () => {
         onSubmit={handleSubmit}
         handleMainCategoryChange={handleMainCategoryChange}
         onSubCategoryChange={(e) => setSelectedSubCategory(e.target.value)}
+        onDescriptionFileChange={handleDescriptionFileChange}
+        onThumbnailFileChange={handleThumbnailFileChange}
+        onScheduleFileChange={handleScheduleFileChange}
       />
     </Layout>
   );
