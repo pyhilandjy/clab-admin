@@ -54,7 +54,7 @@ export const fetchSubCategories = (mainCategoryId: string) =>
   api.get(`/categories/sub/${mainCategoryId}`);
 
 export const createPlan = (formData: FormData) =>
-  api.post<Plan>('/plans/', formData);
+  api.post<Plan>('/plans', formData);
 
 export const fetchPlan = (planId: string) => api.get<Plan>(`/plans/${planId}`);
 
