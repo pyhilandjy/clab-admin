@@ -3,16 +3,33 @@ import axios, {
   AxiosError,
   AxiosResponse,
   AxiosRequestConfig,
+  InternalAxiosRequestConfig,
 } from 'axios';
 
 const instance: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-  // baseURL: 'http://localhost:2456',
-  timeout: 12000,
+  // baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: 'http://localhost:2456',
+  timeout: 20000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
+instance.interceptors.request.use(
+  (config: AxiosRequestConfig): InternalAxiosRequestConfig => {
+    const internalConfig = config as InternalAxiosRequestConfig;
+
+    // FormData일 경우 Content-Type 제거
+    if (internalConfig.data instanceof FormData) {
+      delete internalConfig.headers!['Content-Type'];
+    }
+
+    return internalConfig;
+  },
+  (error: AxiosError) => {
+    return Promise.reject(error);
+  },
+);
 
 const handleError = (error: AxiosError): Promise<never> => {
   if (error.response) {
