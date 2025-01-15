@@ -258,7 +258,7 @@ const PlanForm: React.FC<PlanFormProps> = ({
 
         <SimpleGrid columns={2} spacing={150} mb={4}>
           <GridItem colSpan={1}>
-            <FormControl id='recommended_age'>
+            <FormControl id='recommended_age' isRequired>
               <Box display='flex' alignItems='center'>
                 <FormLabel width='250px' mb={0}>
                   추천 월령
