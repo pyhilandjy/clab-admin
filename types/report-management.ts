@@ -10,6 +10,9 @@ export interface Report {
   report_title: string;
   plans_name: string;
   inspected_at: string;
+  audio_file_count: number;
+  total_record_time: number;
+  mission_progress: string;
 }
 
 export interface FetchReportsResponse {

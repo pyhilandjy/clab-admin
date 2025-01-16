@@ -7,12 +7,19 @@ import {
 export const fetchReports = async (
   currentPage: number,
   pageSize: number,
+  inspectionFilter: string,
+  statusFilter: string,
 ): Promise<FetchReportsResponse> => {
   try {
     const response = await api.get<FetchReportsResponse>(
       '/management/reports/list',
       {
-        params: { page: currentPage, page_size: pageSize },
+        params: {
+          page: currentPage,
+          page_size: pageSize,
+          inspection: inspectionFilter,
+          status: statusFilter,
+        },
       },
     );
     return response.data;
