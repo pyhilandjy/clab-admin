@@ -30,6 +30,13 @@ const Insight: React.FC<InsightProps> = ({ userReportsId }) => {
         // reports_order에 따라 정렬
         data.sort((a, b) => a.reports_order - b.reports_order);
 
+        // null 값을 빈 문자열로 변환
+        data.forEach((block) => {
+          block.insight = block.insight || '';
+          block.example = block.example || '';
+          block.title = block.title || '';
+        });
+
         // 빈 블록을 적절한 위치에 삽입
         if (data.length < 2) {
           if (!data.find((block) => block.reports_order === 1)) {
@@ -124,8 +131,9 @@ const Insight: React.FC<InsightProps> = ({ userReportsId }) => {
     field: 'title' | 'insight' | 'example',
     value: string,
   ) => {
+    const sanitizedValue = value || '';
     const updatedBlocks = [...insightBlocks];
-    updatedBlocks[blockIndex][field] = value;
+    updatedBlocks[blockIndex][field] = sanitizedValue;
     setInsightBlocks(updatedBlocks);
   };
 
@@ -133,6 +141,9 @@ const Insight: React.FC<InsightProps> = ({ userReportsId }) => {
     const blockToSave = {
       ...insightBlocks[blockIndex],
       user_reports_id: userReportsId,
+      insight: insightBlocks[blockIndex].insight || '',
+      example: insightBlocks[blockIndex].example || '',
+      title: insightBlocks[blockIndex].title || '',
     };
 
     try {
