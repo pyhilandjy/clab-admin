@@ -1,4 +1,4 @@
-import api from '@/lib/api';
+import api from '@/lib/apiForPlan';
 import { Mission } from '@/types/mission';
 import { Category, Plan } from '@/types/plan';
 
