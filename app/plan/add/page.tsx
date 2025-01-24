@@ -14,7 +14,7 @@ import Layout from '../../../components/Layout';
 import PlanForm from '../_components/PlanForm';
 
 const AddPlanPage = () => {
-  const [planName, setPlanName] = useState('');
+  const [planName, setPlanName] = useState<string>('');
   const [price, setPrice] = useState<string>('');
   const [startAgeMonth, setStartAgeMonth] = useState<string>('');
   const [endAgeMonth, setEndAgeMonth] = useState<string>('');
@@ -106,7 +106,7 @@ const AddPlanPage = () => {
 
     const formData = new FormData();
     formData.append('plan_name', planName);
-    // formData.append('price', price !== null ? parseInt(price).toString() : '');
+    console.log('planName:', planName);
     formData.append('price', price && parseInt(price).toString());
     formData.append(
       'start_age_month',
