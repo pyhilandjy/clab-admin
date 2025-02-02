@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 import { Grid, GridItem, Container, Button, Collapse } from '@chakra-ui/react';
 
@@ -23,6 +23,9 @@ export default function WordCloud({ userReportsId }: WordCloudProps) {
 
   // 수정된 데이터를 임시 저장할 상태
   const [editedData, setEditedData] = useState<WordcloudData | null>(null);
+
+  // 디바운스된 업데이트를 위한 타이머 ref
+  const updateTimerRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     const loadData = async () => {
@@ -89,8 +92,11 @@ export default function WordCloud({ userReportsId }: WordCloudProps) {
 
     if (!editedData) return;
 
-    // 필요한 경우, 디바운스 타이머가 있다면 즉시 업데이트 처리
-    // (필요에 따라 updateTimerRef.current를 클리어하고 업데이트할 수 있음)
+    // 디바운스 타이머가 있다면 즉시 업데이트 처리
+    if (updateTimerRef.current) {
+      clearTimeout(updateTimerRef.current);
+      updateTimerRef.current = undefined;
+    }
 
     try {
       await updateWordCloudData(userReportsId, editedData);

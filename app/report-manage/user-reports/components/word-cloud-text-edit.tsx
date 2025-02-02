@@ -1,4 +1,4 @@
-import { useState, useEffect, memo, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
 import { Box, Input, VStack, HStack, Text, Divider } from '@chakra-ui/react';
 
@@ -15,8 +15,7 @@ interface WordRowProps {
   onUpdate: (oldWord: string, newWord: string, count: number) => void;
 }
 
-// 개별 행을 memo로 최적화한 컴포넌트
-const WordRow = memo(({ word, count, onUpdate }: WordRowProps) => {
+const WordRow = ({ word, count, onUpdate }: WordRowProps) => {
   const [localWord, setLocalWord] = useState(word);
   const [localCount, setLocalCount] = useState(count);
   const [isDirty, setIsDirty] = useState(false);
@@ -32,7 +31,7 @@ const WordRow = memo(({ word, count, onUpdate }: WordRowProps) => {
     setIsDirty(true);
   };
 
-  // blur 될 때만 상위 컴���넌트에 업데이트
+  // blur 될 때만 상위 컴포넌트에 업데이트
   const handleBlur = () => {
     if (isDirty) {
       onUpdate(word, localWord, localCount);
@@ -63,9 +62,7 @@ const WordRow = memo(({ word, count, onUpdate }: WordRowProps) => {
       />
     </HStack>
   );
-});
-
-WordRow.displayName = 'WordRow';
+};
 
 interface WordCloudTextEditProps {
   speakerData: WordcloudSpeakerData;
@@ -76,69 +73,42 @@ export default function WordCloudTextEdit({
   speakerData,
   onUpdate,
 }: WordCloudTextEditProps) {
-  const [editCache, setEditCache] = useState<EditCache>({
+  const editCacheRef = useRef<EditCache>({
     words: {},
     counts: {},
   });
 
-  // 디바운스된 업데이트를 위한 타이머 ref
-  const updateTimerRef = useRef<NodeJS.Timeout>();
-
-  // editCache가 변경될 때 상위 컴포넌트에 알림
-  useEffect(() => {
-    const timer = updateTimerRef.current;
-
-    // 이전 타이머가 있다면 클리어
-    if (timer) {
-      clearTimeout(timer);
-    }
-
-    // 변경사항이 있을 때만 업데이트
-    if (
-      Object.keys(editCache.words).length > 0 ||
-      Object.keys(editCache.counts).length > 0
-    ) {
-      // 디바운스된 업데이트
-      updateTimerRef.current = setTimeout(() => {
-        onUpdate?.(speakerData.speaker, editCache);
-      }, 300); // 300ms 디바운스
-    }
-
-    // 컴포넌트 언마운트 시 타이머 클리어
-    return () => {
-      if (timer) {
-        clearTimeout(timer);
-      }
-    };
-  }, [editCache, onUpdate, speakerData.speaker]);
-
   const handleRowUpdate = useCallback(
     (oldWord: string, newWord: string, newCount: number) => {
       // 실제 변경사항이 있을 때만 업데이트
-      if (oldWord === newWord && editCache.counts[oldWord] === newCount) {
+      if (
+        oldWord === newWord &&
+        editCacheRef.current.counts[oldWord] === newCount
+      ) {
         return;
       }
 
-      setEditCache((prev) => {
-        const newWords = { ...prev.words };
-        const newCounts = { ...prev.counts };
+      const newWords = { ...editCacheRef.current.words };
+      const newCounts = { ...editCacheRef.current.counts };
 
-        // oldWord가 변경되었을 경우
-        if (oldWord !== newWord) {
-          delete newWords[oldWord];
-          delete newCounts[oldWord];
-          newWords[oldWord] = newWord;
-        }
+      // oldWord가 변경되었을 경우
+      if (oldWord !== newWord) {
+        delete newWords[oldWord];
+        delete newCounts[oldWord];
+        newWords[oldWord] = newWord;
+      }
 
-        newCounts[newWord] = newCount;
+      newCounts[newWord] = newCount;
 
-        return {
-          words: newWords,
-          counts: newCounts,
-        };
-      });
+      editCacheRef.current = {
+        words: newWords,
+        counts: newCounts,
+      };
+
+      // 변경사항을 즉시 반영
+      onUpdate?.(speakerData.speaker, editCacheRef.current);
     },
-    [editCache],
+    [onUpdate, speakerData.speaker],
   );
 
   return (
