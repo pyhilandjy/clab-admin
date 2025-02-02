@@ -82,11 +82,19 @@ export default function WordCloud({ userReportsId }: WordCloudProps) {
 
   // 전체 데이터 저장
   const handleSave = async () => {
+    // 현재 포커스된 요소가 있다면 blur를 강제 호출
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+
     if (!editedData) return;
+
+    // 필요한 경우, 디바운스 타이머가 있다면 즉시 업데이트 처리
+    // (필요에 따라 updateTimerRef.current를 클리어하고 업데이트할 수 있음)
 
     try {
       await updateWordCloudData(userReportsId, editedData);
-      setWordCloudData(editedData); // 성공 시 원본 데이터 업데이트
+      setWordCloudData(editedData); // 저장 성공 시 원본 데이터 업데이트
       alert('저장되었습니다.');
     } catch (error) {
       console.error('Failed to save changes:', error);
