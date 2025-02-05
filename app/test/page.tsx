@@ -1,253 +1,399 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import {
   Box,
   Button,
-  Textarea,
-  VStack,
-  HStack,
-  Text,
+  FormControl,
+  FormLabel,
   Input,
+  Textarea,
+  Text,
+  Heading,
 } from '@chakra-ui/react';
 
-import { fetchInsightData } from '@/api/user_report';
-import { InsightData } from '@/types/user_reports';
+import {
+  fetchPlan,
+  uploadDescriptionImage,
+  uploadThumbnailImage,
+  uploadScheduleImage,
+} from '@/api/plan';
 
-const InsightForm: React.FC = () => {
-  const [insightBlocks, setInsightBlocks] = useState<InsightData[]>([]);
+const Page = () => {
+  const planId = 'e92bc7e4-0189-411e-857c-7aba661bb5d6';
+  const [description, setDescription] = useState<string>('');
+  const [summary, setSummary] = useState<string>('');
+  const [descriptionImageName, setDescriptionImageName] = useState<
+    string | null
+  >(null);
+  const [descriptionImageUrl, setDescriptionImageUrl] = useState<string | null>(
+    null,
+  );
+  const [thumbnailImageName, setThumbnailImageName] = useState<string | null>(
+    null,
+  );
+  const [thumbnailImageUrl, setThumbnailImageUrl] = useState<string | null>(
+    null,
+  );
+  const [schedule, setSchedule] = useState<string>('');
+  const [scheduleImageName, setScheduleImageName] = useState<string | null>(
+    null,
+  );
+  const [scheduleImageUrl, setScheduleImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await fetchInsightData(
-          'a5f1071e-ad9a-46c4-a697-a6bf8c36f96e',
-        );
-        while (data.length < 2) {
-          data.push({
-            id: '',
-            created_at: '',
-            user_reports_id: '',
-            reports_order: data.length + 1,
-            title: '',
-            insight: '',
-            example: '',
-            text: [''],
-          });
-        }
-        setInsightBlocks(data.slice(0, 2));
-      } catch (error) {
-        console.error('Error fetching insight data:', error);
-        setInsightBlocks([
-          {
-            id: '',
-            created_at: '',
-            user_reports_id: '',
-            reports_order: 1,
-            title: '',
-            insight: '',
-            example: '',
-            text: [''],
-          },
-          {
-            id: '',
-            created_at: '',
-            user_reports_id: '',
-            reports_order: 2,
-            title: '',
-            insight: '',
-            example: '',
-            text: [''],
-          },
-        ]);
+    const loadPlan = async () => {
+      const planId = 'e92bc7e4-0189-411e-857c-7aba661bb5d6';
+      const response = await fetchPlan(planId);
+      const plan = response.data;
+      if (plan.description) {
+        setDescription(plan.description);
+      }
+      if (plan.summary) {
+        setSummary(plan.summary);
+      }
+      if (plan.description_image_id_url) {
+        setDescriptionImageName(plan.description_image_name as string | null);
+        setDescriptionImageUrl(plan.description_image_id_url as string | null);
+      }
+      if (plan.thumbnail_image_id_url) {
+        setThumbnailImageName(plan.thumbnail_image_name as string | null);
+        setThumbnailImageUrl(plan.thumbnail_image_id_url as string | null);
+      }
+      if (plan.schedule) {
+        setSchedule(plan.schedule);
+      }
+      if (plan.schedule_image_id_url) {
+        setScheduleImageName(plan.schedule_image_name as string | null);
+        setScheduleImageUrl(plan.schedule_image_id_url as string | null);
       }
     };
-
-    fetchData();
+    loadPlan();
   }, []);
 
-  // Update conversation inputs
-  const handleConversationChange = (
-    blockIndex: number,
-    conversationIndex: number,
-    value: string,
+  const handleDescriptionFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    const updatedBlocks = [...insightBlocks];
-    updatedBlocks[blockIndex].text[conversationIndex] = value;
-    setInsightBlocks(updatedBlocks);
-  };
-
-  // Add a new conversation field
-  const handleAddConversation = (blockIndex: number) => {
-    const updatedBlocks = [...insightBlocks];
-    if (!updatedBlocks[blockIndex].text) {
-      updatedBlocks[blockIndex].text = [];
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        setDescriptionImageName(file.name);
+        setDescriptionImageUrl(reader.result as string);
+        await uploadDescriptionImage(planId, file.name, file);
+      };
+      reader.readAsDataURL(file);
     }
-    updatedBlocks[blockIndex].text.push('');
-    setInsightBlocks(updatedBlocks);
   };
 
-  // Remove a conversation field
-  const handleRemoveConversation = (
-    blockIndex: number,
-    conversationIndex: number,
+  const handleThumbnailFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    const updatedBlocks = [...insightBlocks];
-    updatedBlocks[blockIndex].text = updatedBlocks[blockIndex].text.filter(
-      (_, i) => i !== conversationIndex,
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        setThumbnailImageName(file.name);
+        setThumbnailImageUrl(reader.result as string);
+        await uploadThumbnailImage(planId, file.name, file);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleScheduleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        setScheduleImageName(file.name);
+        setScheduleImageUrl(reader.result as string);
+        await uploadScheduleImage(planId, file.name, file);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSave = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (description && summary) {
+      const formData = {
+        detail: description,
+        summary: summary,
+        schedule: schedule,
+      };
+      console.log('Form Data:', formData);
+    } else {
+      console.log('All fields are required.');
+    }
+  };
+
+  const openPopup = (url: string) => {
+    const width = 600;
+    const height = 400;
+    const left = window.screen.width / 2 - width / 2;
+    const top = window.screen.height / 2 - height / 2;
+    window.open(
+      url,
+      '_blank',
+      `width=${width},height=${height},top=${top},left=${left}`,
     );
-    setInsightBlocks(updatedBlocks);
-  };
-
-  // Update title, insight, or example
-  const handleFieldChange = (
-    blockIndex: number,
-    field: 'title' | 'insight' | 'example',
-    value: string,
-  ) => {
-    const updatedBlocks = [...insightBlocks];
-    updatedBlocks[blockIndex][field] = value;
-    setInsightBlocks(updatedBlocks);
-  };
-
-  // Save button click handler
-  const handleSave = (blockIndex: number) => {
-    console.log(`Insight Block ${blockIndex + 1}:`, insightBlocks[blockIndex]);
   };
 
   return (
-    <Box
-      p={5}
-      border='1px solid #ccc'
-      borderRadius='8px'
-      maxW='800px'
-      m='0 auto'
-      bg='white'
-    >
-      <VStack spacing={6} align='stretch'>
-        {insightBlocks.map((block, blockIndex) => (
+    <Box as='form' onSubmit={handleSave} p='20px' maxW='600px' mx='auto'>
+      <Box border='1px' borderColor='gray.200' borderRadius='md' p={4} mb={4}>
+        <Heading as='h2' size='md' mb={4}>
+          썸네일
+        </Heading>
+        <FormControl id='thumbnail' mb={4}>
+          <FormLabel>이미지 업로드</FormLabel>
           <Box
-            key={blockIndex}
-            p={4}
-            border='1px solid #ddd'
-            borderRadius='8px'
-            boxShadow='sm'
-            bg='gray.50'
+            display='flex'
+            alignItems='center'
+            justifyContent='space-between'
           >
-            <HStack justifyContent='space-between' mb={4}>
-              <Text fontWeight='bold' fontSize='lg'>
-                인사이트 {blockIndex + 1}
-              </Text>
-              <Button
-                size='sm'
-                colorScheme='blue'
-                onClick={() => handleSave(blockIndex)}
-              >
-                저장
-              </Button>
-            </HStack>
-
-            {/* 대화 Section */}
-            <Box mb={4}>
-              <HStack justifyContent='space-between' mb={2}>
-                <Text fontWeight='bold'>대화</Text>
-                <Button
-                  size='sm'
-                  colorScheme='teal'
-                  onClick={() => handleAddConversation(blockIndex)}
+            {thumbnailImageName && thumbnailImageUrl ? (
+              <>
+                <Text
+                  color='blue.500'
+                  cursor='pointer'
+                  onClick={() => openPopup(thumbnailImageUrl)}
                 >
-                  + 추가
-                </Button>
-              </HStack>
-              {block.text && block.text.length > 0 ? (
-                block.text.map((value, conversationIndex) => (
-                  <HStack key={conversationIndex} spacing={2} mb={2}>
-                    <Input
-                      placeholder={`대화 입력 ${conversationIndex + 1}`}
-                      value={value}
-                      onChange={(e) =>
-                        handleConversationChange(
-                          blockIndex,
-                          conversationIndex,
-                          e.target.value,
-                        )
-                      }
-                      size='sm'
-                    />
-                    <Box
-                      as='button'
-                      onClick={() =>
-                        handleRemoveConversation(blockIndex, conversationIndex)
-                      }
-                      fontSize='lg'
-                      color='red.500'
-                      title='삭제'
-                    >
-                      X
-                    </Box>
-                  </HStack>
-                ))
-              ) : (
-                <Text>대화가 없습니다.</Text>
-              )}
-            </Box>
-
-            {/* 타이틀 Section */}
-            <Box mb={4}>
-              <HStack align='center'>
-                <Text fontWeight='bold' width='80px'>
-                  타이틀
+                  {thumbnailImageName}
                 </Text>
                 <Input
-                  placeholder='타이틀 입력'
-                  value={block.title}
-                  onChange={(e) =>
-                    handleFieldChange(blockIndex, 'title', e.target.value)
-                  }
-                  size='sm'
+                  type='file'
+                  accept='image/*'
+                  onChange={handleThumbnailFileChange}
+                  display='none'
+                  id='thumbnail-image-upload'
                 />
-              </HStack>
-            </Box>
-
-            {/* 인사이트 Section */}
-            <Box mb={4}>
-              <HStack align='center'>
-                <Text fontWeight='bold' width='80px'>
-                  인사이트
-                </Text>
-                <Textarea
-                  placeholder='인사이트 작성'
-                  value={block.insight}
-                  onChange={(e) =>
-                    handleFieldChange(blockIndex, 'insight', e.target.value)
-                  }
-                  size='sm'
+                <label htmlFor='thumbnail-image-upload'>
+                  <Box
+                    width='30px'
+                    height='30px'
+                    border='1px dashed gray'
+                    backgroundColor='gray.200'
+                    display='flex'
+                    alignItems='center'
+                    justifyContent='center'
+                    cursor='pointer'
+                  >
+                    <Text fontSize='xl'>+</Text>
+                  </Box>
+                </label>
+              </>
+            ) : (
+              <>
+                <Input
+                  type='file'
+                  accept='image/*'
+                  onChange={handleThumbnailFileChange}
+                  display='none'
+                  id='thumbnail-image-upload'
                 />
-              </HStack>
-            </Box>
-
-            {/* 예시 Section */}
-            <Box>
-              <HStack align='center'>
-                <Text fontWeight='bold' width='80px'>
-                  예시
-                </Text>
-                <Textarea
-                  placeholder='예시 작성'
-                  value={block.example}
-                  onChange={(e) =>
-                    handleFieldChange(blockIndex, 'example', e.target.value)
-                  }
-                  size='sm'
-                />
-              </HStack>
-            </Box>
+                <label htmlFor='thumbnail-image-upload'>
+                  <Box
+                    width='30px'
+                    height='30px'
+                    border='1px dashed gray'
+                    backgroundColor='gray.200'
+                    display='flex'
+                    alignItems='center'
+                    justifyContent='center'
+                    cursor='pointer'
+                  >
+                    <Text fontSize='xl'>+</Text>
+                  </Box>
+                </label>
+              </>
+            )}
           </Box>
-        ))}
-      </VStack>
+        </FormControl>
+      </Box>
+      <Box border='1px' borderColor='gray.200' borderRadius='md' p={4} mb={4}>
+        <Heading as='h2' size='md' mb={4}>
+          플랜 설명
+        </Heading>
+        <FormControl id='description' mb={4}>
+          <FormLabel>설명</FormLabel>
+          <Textarea
+            height='200px'
+            value={description}
+            name='description'
+            onChange={(e) => setDescription(e.target.value)}
+            width='100%'
+          />
+        </FormControl>
+        <FormControl id='summary' mb={4}>
+          <FormLabel>요약</FormLabel>
+          <Textarea
+            height='100px'
+            value={summary}
+            name='summary'
+            onChange={(e) => setSummary(e.target.value)}
+            width='100%'
+          />
+        </FormControl>
+        <Box border='1px' borderColor='gray.200' borderRadius='md' p={4} mb={4}>
+          <FormControl mb='20px'>
+            <FormLabel>이미지 업로드</FormLabel>
+            <Box
+              display='flex'
+              alignItems='center'
+              justifyContent='space-between'
+            >
+              {descriptionImageName && descriptionImageUrl ? (
+                <>
+                  <Text
+                    color='blue.500'
+                    cursor='pointer'
+                    onClick={() => openPopup(descriptionImageUrl)}
+                  >
+                    {descriptionImageName}
+                  </Text>
+                  <Input
+                    type='file'
+                    accept='image/*'
+                    onChange={handleDescriptionFileChange}
+                    display='none'
+                    id='description-image-upload'
+                  />
+                  <label htmlFor='description-image-upload'>
+                    <Box
+                      width='30px'
+                      height='30px'
+                      border='1px dashed gray'
+                      backgroundColor='gray.200'
+                      display='flex'
+                      alignItems='center'
+                      justifyContent='center'
+                      cursor='pointer'
+                    >
+                      <Text fontSize='xl'>+</Text>
+                    </Box>
+                  </label>
+                </>
+              ) : (
+                <>
+                  <Input
+                    type='file'
+                    accept='image/*'
+                    onChange={handleDescriptionFileChange}
+                    display='none'
+                    id='description-image-upload'
+                  />
+                  <label htmlFor='description-image-upload'>
+                    <Box
+                      width='30px'
+                      height='30px'
+                      border='1px dashed gray'
+                      backgroundColor='gray.200'
+                      display='flex'
+                      alignItems='center'
+                      justifyContent='center'
+                      cursor='pointer'
+                    >
+                      <Text fontSize='xl'>+</Text>
+                    </Box>
+                  </label>
+                </>
+              )}
+            </Box>
+          </FormControl>
+        </Box>
+      </Box>
+      <Box border='1px' borderColor='gray.200' borderRadius='md' p={4} mb={4}>
+        <Heading as='h2' size='md' mb={4}>
+          스케줄
+        </Heading>
+        <FormControl id='schedule' mb={4}>
+          <FormLabel>스케줄</FormLabel>
+          <Textarea
+            height='100px'
+            value={schedule}
+            name='schedule'
+            onChange={(e) => setSchedule(e.target.value)}
+            width='100%'
+          />
+        </FormControl>
+        <Box border='1px' borderColor='gray.200' borderRadius='md' p={4} mb={4}>
+          <FormControl mb='20px'>
+            <FormLabel>이미지 업로드</FormLabel>
+            <Box
+              display='flex'
+              alignItems='center'
+              justifyContent='space-between'
+            >
+              {scheduleImageName && scheduleImageUrl ? (
+                <>
+                  <Text
+                    color='blue.500'
+                    cursor='pointer'
+                    onClick={() => openPopup(scheduleImageUrl)}
+                  >
+                    {scheduleImageName}
+                  </Text>
+                  <Input
+                    type='file'
+                    accept='image/*'
+                    onChange={handleScheduleFileChange}
+                    display='none'
+                    id='schedule-image-upload'
+                  />
+                  <label htmlFor='schedule-image-upload'>
+                    <Box
+                      width='30px'
+                      height='30px'
+                      border='1px dashed gray'
+                      backgroundColor='gray.200'
+                      display='flex'
+                      alignItems='center'
+                      justifyContent='center'
+                      cursor='pointer'
+                    >
+                      <Text fontSize='xl'>+</Text>
+                    </Box>
+                  </label>
+                </>
+              ) : (
+                <>
+                  <Input
+                    type='file'
+                    accept='image/*'
+                    onChange={handleScheduleFileChange}
+                    display='none'
+                    id='schedule-image-upload'
+                  />
+                  <label htmlFor='schedule-image-upload'>
+                    <Box
+                      width='30px'
+                      height='30px'
+                      border='1px dashed gray'
+                      backgroundColor='gray.200'
+                      display='flex'
+                      alignItems='center'
+                      justifyContent='center'
+                      cursor='pointer'
+                    >
+                      <Text fontSize='xl'>+</Text>
+                    </Box>
+                  </label>
+                </>
+              )}
+            </Box>
+          </FormControl>
+        </Box>
+      </Box>
+      <Button type='submit' colorScheme='blue' size='lg'>
+        Save
+      </Button>
     </Box>
   );
 };
 
-export default InsightForm;
+export default Page;
