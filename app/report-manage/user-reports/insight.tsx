@@ -147,8 +147,13 @@ const Insight: React.FC<InsightProps> = ({ userReportsId }) => {
     };
 
     try {
-      const response = await upsertInsightData(blockToSave);
-      console.log(`Insight Block ${blockIndex + 1} saved:`, response.message);
+      const response = (await upsertInsightData(blockToSave)) as unknown as {
+        id: string;
+      };
+
+      const updatedBlocks = [...insightBlocks];
+      updatedBlocks[blockIndex].id = response.id;
+      setInsightBlocks(updatedBlocks);
     } catch (error) {
       console.error(`Error saving Insight Block ${blockIndex + 1}:`, error);
     }
