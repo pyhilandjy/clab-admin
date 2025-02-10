@@ -206,7 +206,7 @@ const ReportsManagement = () => {
         flexDirection='column'
         alignItems='center'
         width='100%'
-        maxWidth='1200px'
+        maxWidth='1600px'
         margin='0 auto'
         marginTop='100px'
         px={4}
@@ -217,11 +217,8 @@ const ReportsManagement = () => {
           </Text>
           <HStack spacing={4}>
             <Box>
-              <Text fontSize='xs' color='gray.500' mb={1}>
-                검수 상태 필터
-              </Text>
               <Select
-                placeholder='검수 상태 필터'
+                placeholder='검수 상태'
                 value={inspectionFilter || ''}
                 onChange={(e) => {
                   setInspectionFilter(e.target.value || '');
@@ -233,11 +230,8 @@ const ReportsManagement = () => {
               </Select>
             </Box>
             <Box>
-              <Text fontSize='xs' color='gray.500' mb={1}>
-                발송 상태 필터
-              </Text>
               <Select
-                placeholder='발송 상태 필터'
+                placeholder='발송 상태'
                 value={statusFilter || ''}
                 onChange={(e) => {
                   setStatusFilter(e.target.value || '');
