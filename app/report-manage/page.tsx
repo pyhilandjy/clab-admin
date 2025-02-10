@@ -206,7 +206,7 @@ const ReportsManagement = () => {
         flexDirection='column'
         alignItems='center'
         width='100%'
-        maxWidth='1600px'
+        maxWidth='2000px'
         margin='0 auto'
         marginTop='100px'
         px={4}
