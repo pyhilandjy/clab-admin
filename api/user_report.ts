@@ -206,3 +206,15 @@ export const upsertInsightData = async (
     throw error;
   }
 };
+
+export const regenerateReport = async (userReportsId: string) => {
+  try {
+    const response = await api.post('/reports/regenerate', {
+      user_reports_id: userReportsId,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error regenerating report:', error);
+    throw error;
+  }
+};
