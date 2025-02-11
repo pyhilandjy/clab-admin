@@ -209,12 +209,20 @@ export const upsertInsightData = async (
 
 export const regenerateReport = async (userReportsId: string) => {
   try {
-    const response = await api.post('/reports/regenerate', {
-      user_reports_id: userReportsId,
-    });
+    const response = await api.post(
+      `/reports/regenerate/${encodeURIComponent(userReportsId)}`, // ✅ Path Parameter 방식으로 변경
+      null, // ✅ Body가 없음을 명확하게 전달
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      },
+    );
+
     return response.data;
   } catch (error) {
-    console.error('Error regenerating report:', error);
+    console.error('Error regenerating report:');
     throw error;
   }
 };
