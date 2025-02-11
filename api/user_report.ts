@@ -210,8 +210,8 @@ export const upsertInsightData = async (
 export const regenerateReport = async (userReportsId: string) => {
   try {
     const response = await api.post(
-      `/reports/regenerate/${encodeURIComponent(userReportsId)}`, // ✅ Path Parameter 방식으로 변경
-      null, // ✅ Body가 없음을 명확하게 전달
+      `/reports/regenerate/${encodeURIComponent(userReportsId)}`,
+      null,
       {
         headers: {
           'Content-Type': 'application/json',
