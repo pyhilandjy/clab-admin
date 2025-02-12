@@ -207,6 +207,7 @@ export const upsertInsightData = async (
   }
 };
 
+//수정 필요 body에 user_reports_id를 넣을 경우 422 에러 발생 type missing error
 export const regenerateReport = async (userReportsId: string) => {
   try {
     const response = await api.post(
