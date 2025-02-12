@@ -34,6 +34,9 @@ const Layout = ({ children }: LayoutProps) => {
           <li>
             <Link href={`/user-manage`}>회원관리</Link>
           </li>
+          <li>
+            <Link href={`/user-plan`}>유저플랜관리</Link>
+          </li>
         </ul>
       </nav>
       <main className={styles.content}>{children}</main>
