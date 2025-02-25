@@ -3,7 +3,7 @@ import { Mission } from '@/types/mission';
 import { Category, Plan } from '@/types/plan';
 
 //plan.tsx
-export const fetchPlans = () => api.get<Plan[]>('/plans/');
+export const fetchPlans = () => api.get<Plan[]>('/plans');
 
 export const fetchMission = (planId: string) =>
   api.get<Mission[]>(`/missions/${planId}`);
@@ -48,7 +48,7 @@ export const uploadScheduleImage = (
 
 //plan/add.tsx
 export const fetchMainCategories = () =>
-  api.get<Category[]>('/categories/main/');
+  api.get<Category[]>('/categories/main');
 
 export const fetchSubCategories = (mainCategoryId: string) =>
   api.get(`/categories/sub/${mainCategoryId}`);
@@ -58,7 +58,7 @@ export const createPlan = (formData: FormData) =>
 
 export const fetchPlan = (planId: string) => api.get<Plan>(`/plans/${planId}`);
 
-export const fetchCategories = () => api.get<Category[]>('/categories/');
+export const fetchCategories = () => api.get<Category[]>('/categories');
 
 export const updatePlan = (planId: string, plan: Plan) =>
   api.put<Plan>(`/plans/${planId}`, plan);
