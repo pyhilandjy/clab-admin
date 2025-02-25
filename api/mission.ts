@@ -15,4 +15,4 @@ export const deleteMission = (missionId: string) =>
 
 // 미션 상태 업데이트 API
 export const updateMissionStatus = (missionId: string, newStatus: string) =>
-  api.patch(`/missions/status/`, { id: missionId, status: newStatus });
+  api.patch(`/missions/status`, { id: missionId, status: newStatus });

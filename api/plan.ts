@@ -9,7 +9,7 @@ export const fetchMission = (planId: string) =>
   api.get<Mission[]>(`/missions/${planId}`);
 
 export const updatePlanStatus = (planId: string, status: string) =>
-  api.patch(`/plans/${planId}/status/`, { status });
+  api.patch(`/plans/${planId}/status`, { status });
 
 export const deletePlan = (planId: string) => api.delete(`/plans/${planId}`);
 
