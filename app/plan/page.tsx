@@ -258,8 +258,8 @@ const PlanPage = () => {
                           handleStatusChange(plan.id, e.target.value)
                         }
                       >
-                        <option value='active'>활성화</option>
-                        <option value='inactive'>비활성화</option>
+                        <option value='ACTIVE'>활성화</option>
+                        <option value='INACTIVE'>비활성화</option>
                       </Select>
                     </Td>
                     <Td>{plan.description}</Td>
