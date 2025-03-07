@@ -4,3 +4,4 @@
 - Create user_plan Read, Delete(user_plans, user_missions, user_reports) page
 2025.02.25
 - plan, mission status transform to upper
+- refactor endpoint url
