@@ -15,14 +15,14 @@ import { SttData, SpeechAct, TalkMore, ActTypes } from '@/types/stt-edit';
 const SttRowEdit = ({
   sttResults,
   speechAct,
-  actTypes,
+  // actTypes,
   talkMore,
   onUpdateRow,
   onAddRow,
   onDeleteRow,
   onUpdateSpeechAct,
   onUpdateTalkMore,
-  onUpdateActType,
+  // onUpdateActType,
   onToggleTurn,
   onReplaceText,
   onReplaceSpeaker,
@@ -210,18 +210,6 @@ const SttRowEdit = ({
               {speechAct.map((act) => (
                 <option key={act.id} value={act.id}>
                   {act.act_name}
-                </option>
-              ))}
-            </Select>
-            <Select
-              value={sttData.act_types_id}
-              onChange={(e) =>
-                onUpdateActType(sttData.id, parseInt(e.target.value))
-              }
-            >
-              {actTypes.map((actType) => (
-                <option key={actType.id} value={actType.id}>
-                  {actType.act_type}
                 </option>
               ))}
             </Select>
