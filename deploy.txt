@@ -5,3 +5,5 @@
 2025.02.25
 - plan, mission status transform to upper
 - refactor endpoint url
+2025.03.07
+- remove act_type selectbox
