@@ -50,4 +50,5 @@ export type AudioInfos = {
   mission_title: string;
   created_at: string;
   first_name: string;
+  age: string;
 };

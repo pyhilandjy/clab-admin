@@ -304,7 +304,9 @@ const ReportsSttEditPage = () => {
               <div>{info.created_at}</div>
               <div>{info.record_time}</div>
               <div>{info.mission_title}</div>
-              <div>{info.first_name}</div>
+              <div>
+                {info.first_name}, {info.age}
+              </div>
             </div>
           ))}
       </div>
