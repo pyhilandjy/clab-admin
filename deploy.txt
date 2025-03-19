@@ -7,3 +7,7 @@
 - refactor endpoint url
 2025.03.07
 - remove act_type selectbox
+2025.03.19
+- add chilren age to reports_info, audio_info
+- add report preview button (내용편집)
+- wordcloud (except for 1 letter, 명사(NN), 부사(MAG), 형용사(VA), 동사(VV) 포함)
