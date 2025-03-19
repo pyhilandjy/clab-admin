@@ -11,3 +11,4 @@
 - add chilren age to reports_info, audio_info
 - add report preview button (내용편집)
 - wordcloud (except for 1 letter, 명사(NN), 부사(MAG), 형용사(VA), 동사(VV) 포함)
+- plan_name filter 추가
