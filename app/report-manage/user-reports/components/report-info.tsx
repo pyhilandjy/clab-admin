@@ -89,7 +89,9 @@ const ReportInfo: React.FC<ReportInfoProps> = ({ userReportsId }) => {
             </Tr>
             <Tr>
               <Td>고객이름: {info.user_name}</Td>
-              <Td>아이이름: {info.first_name}</Td>
+              <Td>
+                아이이름: {info.first_name}, {info.age}
+              </Td>
             </Tr>
           </Tbody>
         </Table>

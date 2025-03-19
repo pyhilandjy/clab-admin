@@ -4,6 +4,7 @@ export type UserReportsInfo = {
   plan_name: string;
   first_name: string;
   user_name: string;
+  age: string;
 };
 
 export interface WordCounts {
