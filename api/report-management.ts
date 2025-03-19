@@ -9,6 +9,7 @@ export const fetchReports = async (
   pageSize: number,
   inspectionFilter: string,
   statusFilter: string,
+  planNameFilter: string,
 ): Promise<FetchReportsResponse> => {
   try {
     const response = await api.get<FetchReportsResponse>(
@@ -19,6 +20,7 @@ export const fetchReports = async (
           page_size: pageSize,
           inspection: inspectionFilter,
           status: statusFilter,
+          plan_name: planNameFilter,
         },
       },
     );

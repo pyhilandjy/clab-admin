@@ -57,6 +57,9 @@ const ReportsManagement = () => {
   const [statusFilter, setStatusFilter] = useState<string | ''>(
     searchParams.get('status') || '',
   );
+  const [planNameFilter, setPlanNameFilter] = useState<string | ''>(
+    searchParams.get('plan_name') || '',
+  );
 
   const loadReports = useCallback(
     async (page: number) => {
@@ -66,11 +69,13 @@ const ReportsManagement = () => {
         params.set('page', page.toString());
         if (inspectionFilter) params.set('inspection', inspectionFilter);
         if (statusFilter) params.set('status', statusFilter);
+        if (planNameFilter) params.set('plan_name', planNameFilter);
         const { reports, total_pages } = await fetchReports(
           page,
           pageSize,
           inspectionFilter,
           statusFilter,
+          planNameFilter,
         );
         setReports(reports);
         setTotalPages(total_pages);
@@ -81,7 +86,7 @@ const ReportsManagement = () => {
         setIsLoading(false);
       }
     },
-    [pageSize, inspectionFilter, statusFilter],
+    [pageSize, inspectionFilter, statusFilter, planNameFilter],
   );
 
   useEffect(() => {
@@ -186,7 +191,7 @@ const ReportsManagement = () => {
   };
 
   const handleFilterChange = (
-    filterType: 'inspection' | 'status',
+    filterType: 'inspection' | 'status' | 'plan_name',
     value: string,
   ) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -241,6 +246,19 @@ const ReportsManagement = () => {
                 <option value='NOT_STARTED'>대기중</option>
                 <option value='IN_PROGRESS'>진행중</option>
                 <option value='COMPLETED'>완료</option>
+              </Select>
+            </Box>
+            <Box>
+              <Select
+                placeholder='플랜'
+                value={planNameFilter || ''}
+                onChange={(e) => {
+                  setPlanNameFilter(e.target.value || '');
+                  handleFilterChange('plan_name', e.target.value);
+                }}
+              >
+                <option value='(체험판) 맛보기'>(체험판) 맛보기</option>
+                <option value='첫걸음'>첫걸음</option>
               </Select>
             </Box>
           </HStack>
