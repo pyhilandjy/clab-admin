@@ -13,4 +13,4 @@
 - wordcloud (except for 1 letter, 명사(NN), 부사(MAG), 형용사(VA), 동사(VV) 포함)
 - plan_name filter 추가.
 2025.03.28
-- 문장분류 LLM 추가
+- 문장분류 LLM 추가.
