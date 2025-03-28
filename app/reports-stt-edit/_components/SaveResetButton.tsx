@@ -4,11 +4,11 @@ import { Button } from '@chakra-ui/react';
 
 const SaveResetButton = ({
   onSave,
-  onReset,
+  onSpeechActLLM,
   fixed = true,
 }: {
   onSave: () => void;
-  onReset: () => void;
+  onSpeechActLLM: () => void;
   fixed?: boolean;
 }) => {
   return (
@@ -30,18 +30,18 @@ const SaveResetButton = ({
       <Button
         colorScheme='blue'
         size='lg'
+        onClick={onSpeechActLLM}
+        style={{ borderRadius: '50px' }}
+      >
+        문장분류
+      </Button>
+      <Button
+        colorScheme='blue'
+        size='lg'
         onClick={onSave}
         style={{ borderRadius: '50px' }}
       >
         저장
-      </Button>
-      <Button
-        colorScheme='gray'
-        size='lg'
-        onClick={onReset}
-        style={{ borderRadius: '50px' }}
-      >
-        초기화(x)
       </Button>
     </div>
   );

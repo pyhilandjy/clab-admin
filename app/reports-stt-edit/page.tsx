@@ -19,6 +19,7 @@ import {
   fetchAudioInfos,
   replaceText,
   replaceSpeaker,
+  runLLMSpeechAct,
 } from '@/api/stt-edit';
 import {
   SttData,
@@ -38,7 +39,6 @@ const ReportsSttEditPage = () => {
   const queryAudioFilesId = searchParams.get('audioFilesId');
 
   const [sttResults, setSttResults] = useState<SttData[]>([]);
-  const [initialSttResults, setInitialSttResults] = useState<SttData[]>([]);
   const [speechAct, setSpeechAct] = useState<SpeechAct[]>([]);
   const [talkMore, setTalkMore] = useState<TalkMore[]>([]);
   const [actTypes, setActTypes] = useState<ActTypes[]>([]);
@@ -75,7 +75,6 @@ const ReportsSttEditPage = () => {
           setTalkMore(talkMoreResponse.data);
           setActTypes(actTypesResponse.data);
           setSttResults(sttDataResponse.data);
-          setInitialSttResults(sttDataResponse.data);
           setAudioInfo(audioInfo.data);
           setAudioUrl(`${backendUrl}/audio/webm/${queryAudioFilesId}`);
         } catch (error) {
@@ -265,11 +264,22 @@ const ReportsSttEditPage = () => {
     }
   };
 
-  // 수정요함
-  const handleResetAll = () => {
-    setSttResults(initialSttResults.map((stt) => ({ ...stt })));
-    localChanges.current = {};
-    alert('초기화 성공!');
+  const handleSpeechActLLM = async () => {
+    try {
+      if (!queryAudioFilesId) return;
+
+      // API 호출
+      await runLLMSpeechAct(queryAudioFilesId);
+
+      // 최신 데이터 가져오기
+      const updatedData = await fetchSttData(queryAudioFilesId);
+      setSttResults(updatedData.data); // 상태 업데이트
+
+      alert('문장분류가 완료되었습니다.');
+    } catch (error) {
+      console.error('문장분류 실패:', error);
+      alert('문장분류 실패');
+    }
   };
 
   return (
@@ -347,7 +357,10 @@ const ReportsSttEditPage = () => {
 
       {/* 저장 및 초기화 버튼 */}
       <div>
-        <SaveResetButton onSave={handleSaveAll} onReset={handleResetAll} />
+        <SaveResetButton
+          onSave={handleSaveAll}
+          onSpeechActLLM={handleSpeechActLLM}
+        />
       </div>
     </div>
   );

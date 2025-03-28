@@ -35,7 +35,7 @@ import {
   replaceText,
   replaceSpeaker,
   batchEdit,
-  runMlSpeechActType,
+  runLLMSpeechAct,
   updateturnin,
   runLlmQuaritative,
   createQualitativeData,
@@ -333,7 +333,7 @@ const EditPage = () => {
     }
 
     try {
-      await runMlSpeechActType(selectedAudioFilesId);
+      await runLLMSpeechAct(selectedAudioFilesId);
       const response = await fetchSttData(selectedAudioFilesId);
       setSttResults(response.data);
     } catch (error) {
