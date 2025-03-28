@@ -85,7 +85,7 @@ export const replaceSpeaker = (
 export const batchEdit = (data: any) => api.patch('/stt/data/batch-edit', data);
 
 export const runLLMSpeechAct = (audioFilesId: string) =>
-  api.patch(`/stt/speech-act/?audio_files_id=${audioFilesId}`);
+  api.patch(`/stt/speech-act/${audioFilesId}`);
 
 export const updateturnin = (id: string, turn: boolean) =>
   api.patch(`/stt/data/is-turn`, { id, is_turn: turn });
