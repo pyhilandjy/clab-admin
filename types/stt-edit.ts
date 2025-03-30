@@ -52,3 +52,8 @@ export type AudioInfos = {
   first_name: string;
   age: string;
 };
+
+export type SpeechActPrompt = {
+  system_prompt: string;
+  user_prompt: string;
+};

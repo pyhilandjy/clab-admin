@@ -7,6 +7,7 @@ import {
   ActTypes,
   AudioFiles,
   Quaritative,
+  SpeechActPrompt,
 } from '@/types/stt-edit';
 
 export const fetchUsers = () => api.get<User[]>('/users');
@@ -87,14 +88,20 @@ export const batchEdit = (data: any) => api.patch('/stt/data/batch-edit', data);
 export const runLLMSpeechAct = (audioFilesId: string) =>
   api.patch(`/stt/speech-act/${audioFilesId}`);
 
+export const fetchSpeechActsPrompts = () =>
+  api.get<SpeechActPrompt[]>('/stt/speech-act/prompt');
+
+export const updateSpeechActsPrompts = (prompt: SpeechActPrompt) =>
+  api.patch('/stt/speech-act/prompt', prompt);
+
 export const updateturnin = (id: string, turn: boolean) =>
   api.patch(`/stt/data/is-turn`, { id, is_turn: turn });
+
+export const fetchAudioInfos = (audioFilesId: string) =>
+  api.get(`/stt/audio-info/${audioFilesId}`);
 
 export const runLlmQuaritative = (audioFilesId: string) =>
   api.get(`/stt/data/${audioFilesId}/report/quaritative`);
 
 export const createQualitativeData = (quaritativeData: Quaritative) =>
   api.post('/stt/data/report/quaritative', quaritativeData);
-
-export const fetchAudioInfos = (audioFilesId: string) =>
-  api.get(`/stt/audio-info/${audioFilesId}`);

@@ -31,6 +31,7 @@ import {
 
 import { backendUrl } from '../consts';
 import AudioPlayer from './_components/audioPlayer';
+import LLMPrompt from './_components/LLMPrompt';
 import SaveResetButton from './_components/SaveResetButton';
 import SttRowEdit from './_components/SttRowEdit';
 
@@ -52,6 +53,10 @@ const ReportsSttEditPage = () => {
   const localChanges = useRef<{
     [key: string]: { text_edited?: string; speaker?: string };
   }>({});
+
+  const [isEditingPrompt, setIsEditingPrompt] = useState(false);
+  const [systemPrompt, setSystemPrompt] = useState('');
+  const [userPrompt, setUserPrompt] = useState('');
 
   useEffect(() => {
     if (queryAudioFilesId) {
@@ -282,6 +287,18 @@ const ReportsSttEditPage = () => {
     }
   };
 
+  const handleEditPrompt = () => {
+    setIsEditingPrompt(true);
+  };
+
+  const handleSavePrompt = () => {
+    try {
+      setIsEditingPrompt(false);
+    } catch (error) {
+      console.error('프롬프트 저장 중 오류가 발생했습니다:', error);
+    }
+  };
+
   return (
     <div
       style={{
@@ -360,8 +377,21 @@ const ReportsSttEditPage = () => {
         <SaveResetButton
           onSave={handleSaveAll}
           onSpeechActLLM={handleSpeechActLLM}
+          onEditPrompt={handleEditPrompt}
         />
       </div>
+
+      {/* 프롬프트 수정 영역 */}
+      {isEditingPrompt && (
+        <LLMPrompt
+          systemPrompt={systemPrompt}
+          userPrompt={userPrompt}
+          setSystemPrompt={setSystemPrompt}
+          setUserPrompt={setUserPrompt}
+          onSave={handleSavePrompt}
+          onCancel={() => setIsEditingPrompt(false)}
+        />
+      )}
     </div>
   );
 };
