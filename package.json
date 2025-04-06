@@ -19,6 +19,7 @@
     "@react-pdf-viewer/toolbar": "^3.12.0",
     "@supabase/ssr": "^0.5.1",
     "@supabase/supabase-js": "^2.45.4",
+    "@wavesurfer/react": "^1.0.10",
     "axios": "^1.7.2",
     "dayjs": "^1.11.11",
     "dotenv": "^16.4.5",
@@ -31,6 +32,7 @@
     "react-audio-voice-recorder": "^2.2.0",
     "react-dom": "^18.3.1",
     "react-plotly.js": "^2.6.0",
+    "wavesurfer.js": "^7.9.4",
     "wordcloud": "^1.2.3",
     "yarn": "^1.22.22"
   },

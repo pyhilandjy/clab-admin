@@ -1,12 +1,35 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 
-const AudioPlayer = ({ audioUrl }: { audioUrl: string | null }) => {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+import WaveSurfer from 'wavesurfer.js';
+
+type Props = {
+  audioUrl: string | null;
+};
+
+const AudioPlayer = ({ audioUrl }: Props) => {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const waveSurferRef = useRef<WaveSurfer | null>(null);
+  const audioElementRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.load();
+    if (!audioUrl || !containerRef.current || !audioElementRef.current) return;
+
+    if (waveSurferRef.current) {
+      waveSurferRef.current.destroy();
     }
+
+    waveSurferRef.current = WaveSurfer.create({
+      container: containerRef.current,
+      waveColor: '#c0c0c0',
+      progressColor: '#555',
+      height: 80,
+      mediaControls: true,
+      media: audioElementRef.current,
+    });
+
+    return () => {
+      waveSurferRef.current?.destroy();
+    };
   }, [audioUrl]);
 
   return (
@@ -20,21 +43,22 @@ const AudioPlayer = ({ audioUrl }: { audioUrl: string | null }) => {
         backgroundColor: '#ffffff',
         borderBottom: '1px solid #e0e0e0',
         padding: '10px 20px',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
         boxSizing: 'border-box',
       }}
     >
       {audioUrl ? (
-        <audio
-          ref={audioRef}
-          controls
-          style={{ width: '100%', maxWidth: '800px' }}
-        >
-          <source src={audioUrl} type='audio/webm' />
-          Your browser does not support the audio element.
-        </audio>
+        <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto' }}>
+          <div ref={containerRef} />
+          <audio
+            ref={audioElementRef}
+            controls
+            src={audioUrl}
+            style={{
+              width: '100%',
+              marginTop: '8px',
+            }}
+          />
+        </div>
       ) : (
         <span style={{ fontSize: '14px', color: '#666' }}>
           Audio not available.
