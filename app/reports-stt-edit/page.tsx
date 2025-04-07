@@ -322,6 +322,7 @@ const ReportsSttEditPage = () => {
               key={index}
               style={{
                 display: 'flex',
+                marginTop: '70px',
                 gap: '50px',
                 padding: '10px',
                 boxSizing: 'border-box',
