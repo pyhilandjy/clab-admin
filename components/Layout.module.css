@@ -1,15 +1,19 @@
 .container {
   display: flex;
-  overflow: auto;
+  min-height: 100vh; /* 화면보다 작을 땐 꽉 채움 */
+  height: auto;       /* 콘텐츠가 더 길면 늘어남 */
+  overflow: hidden;   /* container 자체에는 스크롤 없음 */
 }
 
 .sidebar {
   flex: none;
-  align-self: stretch;
+  width: 200px;
   background-color: #363740;
   color: #ffffff;
   padding: 20px;
+  min-height: 100vh; /* 💡 핵심: 항상 최소 100vh 보장 */
 }
+
 
 .adminHeader {
   font-size: 36px; /* 글자 크기를 6배로 키움 */
