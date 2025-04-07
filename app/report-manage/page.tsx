@@ -213,7 +213,7 @@ const ReportsManagement = () => {
         width='100%'
         maxWidth='2000px'
         margin='0 auto'
-        marginTop='100px'
+        marginTop='50px'
         px={4}
       >
         <Box width='100%' mb={4}>
