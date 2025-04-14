@@ -239,7 +239,7 @@ const SttRowEdit = ({
                 onToggleQualitative(sttData.id, e.target.checked)
               }
             >
-              Qualitative
+              Insight
             </Checkbox>
           </div>
         </div>
