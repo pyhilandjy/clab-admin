@@ -581,7 +581,10 @@ const EditPage = () => {
                   style={{ flex: '0 0 150px', minWidth: '100px' }}
                 >
                   {talkMore.map((talkMoreItem) => (
-                    <option key={talkMoreItem.id} value={talkMoreItem.id}>
+                    <option
+                      key={talkMoreItem.talk_more_id}
+                      value={talkMoreItem.talk_more_id}
+                    >
                       {talkMoreItem.talk_more}
                     </option>
                   ))}

@@ -222,7 +222,7 @@ const SttRowEdit = ({
               }
             >
               {talkMore.map((item) => (
-                <option key={item.id} value={item.id}>
+                <option key={item.talk_more_id} value={item.talk_more_id}>
                   {item.talk_more}
                 </option>
               ))}

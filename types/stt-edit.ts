@@ -24,7 +24,7 @@ export type SpeechAct = {
 
 export type TalkMore = {
   talk_more: string;
-  id: number;
+  talk_more_id: number;
 };
 
 export type ActTypes = {
