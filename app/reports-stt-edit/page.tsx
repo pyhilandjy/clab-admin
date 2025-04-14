@@ -20,6 +20,7 @@ import {
   replaceText,
   replaceSpeaker,
   runLLMSpeechAct,
+  updateQualitative,
 } from '@/api/stt-edit';
 import {
   SttData,
@@ -233,6 +234,22 @@ const ReportsSttEditPage = () => {
     }
   };
 
+  const handleToggleQualitative = async (
+    id: string,
+    isQualitative: boolean,
+  ) => {
+    try {
+      await updateQualitative(id, isQualitative);
+      setSttResults((prevResults) =>
+        prevResults.map((item) =>
+          item.id === id ? { ...item, is_qualitative: isQualitative } : item,
+        ),
+      );
+    } catch (error) {
+      console.error('qualitative 상태 업데이트 중 오류가 발생했습니다:', error);
+    }
+  };
+
   const handleSaveAll = async () => {
     try {
       const mergedResults = Object.entries(localChanges.current).map(
@@ -367,6 +384,7 @@ const ReportsSttEditPage = () => {
           onUpdateTalkMore={handleUpdateTalkMore}
           onUpdateActType={handleUpdateActType}
           onToggleTurn={handleToggleTurn}
+          onToggleQualitative={handleToggleQualitative}
           onReplaceText={handleReplaceText}
           onReplaceSpeaker={handleSpeakerChangeButtonClick}
           localChanges={localChanges}

@@ -24,6 +24,7 @@ const SttRowEdit = ({
   onUpdateTalkMore,
   // onUpdateActType,
   onToggleTurn,
+  onToggleQualitative,
   onReplaceText,
   onReplaceSpeaker,
   localChanges,
@@ -43,6 +44,7 @@ const SttRowEdit = ({
   onUpdateTalkMore: (id: string, talkMoreId: number) => void;
   onUpdateActType: (id: string, actTypeId: number) => void;
   onToggleTurn: (id: string, isTurn: boolean) => void;
+  onToggleQualitative: (id: string, isQualitative: boolean) => void;
   onReplaceText: (oldWord: string, newWord: string) => void;
   onReplaceSpeaker: (oldSpeaker: string, newSpeaker: string) => void;
   localChanges: React.MutableRefObject<{
@@ -230,6 +232,14 @@ const SttRowEdit = ({
               onChange={(e) => onToggleTurn(sttData.id, e.target.checked)}
             >
               Turn
+            </Checkbox>
+            <Checkbox
+              isChecked={sttData.is_qualitative}
+              onChange={(e) =>
+                onToggleQualitative(sttData.id, e.target.checked)
+              }
+            >
+              Qualitative
             </Checkbox>
           </div>
         </div>

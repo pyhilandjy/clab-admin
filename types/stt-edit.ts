@@ -14,6 +14,7 @@ export type SttData = {
   talk_more_id: number;
   act_types_id: number;
   is_turn: boolean;
+  is_qualitative: boolean;
 };
 
 export type SpeechAct = {

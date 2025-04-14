@@ -97,6 +97,9 @@ export const updateSpeechActsPrompts = (prompt: SpeechActPrompt) =>
 export const updateturnin = (id: string, turn: boolean) =>
   api.patch(`/stt/data/is-turn`, { id, is_turn: turn });
 
+export const updateQualitative = (id: string, isQualitative: boolean) =>
+  api.patch('/stt/data/is-qualitative', { id, is_qualitative: isQualitative });
+
 export const fetchAudioInfos = (audioFilesId: string) =>
   api.get(`/stt/audio-info/${audioFilesId}`);
 
